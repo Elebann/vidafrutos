@@ -60,7 +60,7 @@ const data = {
         },
         {
           title: "Item 1.2",
-          url: "/section/item-1-2",
+          url: "/holamundo",
           icon: <MapIcon />,
         },
         {

@@ -9,6 +9,7 @@ import { AppLayout } from "@/layouts/app-layout"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { SectionPage } from "@/pages/section-page"
 import Test from "@/pages/Test.tsx";
+import AgregarCliente from "@/pages/AgregarCliente.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<AppLayout />}>
             <Route index element={<App />} />
             <Route path="add-product" element={<Test />} />
+            <Route path="holamundo" element={<AgregarCliente />} />
             <Route path="section/:sectionId" element={<SectionPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
