@@ -10,12 +10,15 @@ import { NotFoundPage } from "@/pages/not-found-page"
 import { SectionPage } from "@/pages/section-page"
 import Test from "@/pages/Test.tsx";
 import AgregarCliente from "@/pages/AgregarCliente.tsx";
+import Login from "@/pages/Login.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
+          {/* No usa el Sidebar */}
+          <Route path="login" element={<Login />} />
           <Route element={<AppLayout />}>
             <Route index element={<App />} />
             <Route path="add-product" element={<Test />} />
