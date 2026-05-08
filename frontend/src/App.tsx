@@ -1,21 +1,44 @@
-import { Button } from "@/components/ui/button"
+import {Button} from "@/components/ui/button.tsx";
+import {OVCard} from "@/components/OverviewCard.tsx";
+import { PiggyBank, ScanBarcode } from "lucide-react"
 
-export function App() {
+export default function App() {
+  const date = new Date()
+  const today = date.toLocaleDateString("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+
   return (
-    <div className="flex flex-1 p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div className="space-y-2">
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
+    <main className={"h-full bg-[#FFF8F5] p-4"}>
+      <div className={"mb-8"}>
+        <p className={"text-neutral-400"}>{today}</p>
+        <h1 className="text-3xl font-bold">Inicio</h1>
+
+        <div className={"flex gap-2"}>
+          <Button variant={"VFBrown"}>Nuevo Pedido</Button>
         </div>
       </div>
-    </div>
+
+      <div className={"flex flex-col md:flex-row gap-4"}>
+        <OVCard
+            icon={<PiggyBank />}
+            title={"Ventas Diarias"}
+            highlighted={"$67.000"}
+        >
+          <span>En promedio</span>
+        </OVCard>
+
+        <OVCard
+            icon={<ScanBarcode />}
+            title={"Inventario"}
+            highlighted={"92%"}
+        >
+          <span>Maní sin sal necesita reposición</span>
+        </OVCard>
+      </div>
+    </main>
   )
 }
-
-export default App
