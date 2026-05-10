@@ -5,7 +5,7 @@ class Rol(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        db_table = 'rol'
+        db_table = 'accounts_rol'
         verbose_name = 'Rol'
         verbose_name_plural = 'Roles'
 
@@ -17,10 +17,10 @@ class User(AbstractUser):
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        # Mantiene compatibilidad con la tabla ya creada cuando el modelo se llamaba Usuario.
         db_table = 'accounts_usuario'
 
-    REQUIRED_FIELDS = ['rut']
+    USERNAME_FIELD = 'rut'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.username
+        return f"{self.username} - {self.rut}"
