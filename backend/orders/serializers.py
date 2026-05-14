@@ -1,0 +1,107 @@
+from rest_framework import serializers
+
+from accounts.models import User
+from accounts.serializers import UserSerializer
+from clients.models import Customer
+from clients.serializers import CustomerSerializer
+from products.models import Product
+from products.serializers import ProductSerializer
+
+from .models import History, Order, OrderDetail, OrderState
+
+
+class OrderStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderState
+        fields = ['id', 'state']
+        read_only_fields = ['id']
+
+
+class OrderStateWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderState
+        fields = ['state']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer(read_only=True)
+    state = OrderStateSerializer(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'state', 'date']
+        read_only_fields = ['id', 'date']
+
+
+class OrderWriteSerializer(serializers.ModelSerializer):
+    customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
+    state = serializers.PrimaryKeyRelatedField(queryset=OrderState.objects.all())
+
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'state', 'date']
+        read_only_fields = ['id', 'date']
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    order = OrderSerializer(read_only=True)
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = OrderDetail
+        fields = ['id', 'order', 'product', 'quantity']
+        read_only_fields = ['id']
+
+
+class OrderDetailNestedSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = OrderDetail
+        fields = ['id', 'product', 'quantity']
+        read_only_fields = ['id']
+
+
+class OrderWithDetailsSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer(read_only=True)
+    state = OrderStateSerializer(read_only=True)
+    details = OrderDetailNestedSerializer(source='orderdetail_set', many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'state', 'date', 'details']
+        read_only_fields = ['id', 'date']
+
+
+class OrderDetailWriteSerializer(serializers.ModelSerializer):
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+
+    # todo: validar que la cantidad no sea mayor al stock disponible del producto y que cantidad > 0
+
+    class Meta:
+        model = OrderDetail
+        fields = ['id', 'order', 'product', 'quantity']
+        read_only_fields = ['id']
+
+
+class HistorySerializer(serializers.ModelSerializer):
+    order = OrderSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = History
+        fields = ['id', 'order', 'user', 'change_date', 'affected_field', 'prev_value', 'new_value']
+        read_only_fields = ['id', 'change_date']
+
+
+class HistoryWriteSerializer(serializers.ModelSerializer):
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    # todo: Esto debería ir registrandose solo, así que quizá haya que expandir este endpoint.
+
+    class Meta:
+        model = History
+        fields = ['id', 'order', 'user', 'affected_field', 'prev_value', 'new_value']
+        read_only_fields = ['id']
