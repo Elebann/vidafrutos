@@ -16,13 +16,22 @@ import {
   GalleryVerticalEndIcon,
   AudioLinesIcon,
   TerminalIcon,
-  FrameIcon,
-  PieChartIcon,
-  MapIcon,
-  Bean,
   BriefcaseBusiness,
   ScanBarcode,
   BrainCircuit,
+  PackagePlus,
+  IdCard,
+  Receipt,
+  Wallet,
+  House,
+  PackageSearch,
+  PackageOpen,
+  UserCog,
+  Boxes,
+  UserKey,
+  ScanLine,
+  FolderPen,
+  Folder,
 } from "lucide-react"
 
 // This is sample data.
@@ -54,34 +63,24 @@ const data = {
       label: "Principal",
       items: [
         {
-          title: "Agregar producto",
-          url: "/add-product",
-          icon: <Bean />,
-        },
-        {
-          title: "Item 1.2",
-          url: "/holamundo",
-          icon: <MapIcon />,
-        },
-        {
-          title: "Item 1.3",
-          url: "/section/item-1-3",
-          icon: <FrameIcon />,
+          title: "Vista general",
+          url: "/index",
+          icon: <House />,
         },
       ],
     },
     {
-      label: "Ventas",
+      label: "Pedidos",
       items: [
         {
-          title: "Item 2.1",
-          url: "/section/item-2-1",
-          icon: <PieChartIcon />,
+          title: "Nuevo Pedido",
+          url: "#",
+          icon: <PackagePlus />,
         },
         {
-          title: "Item 3.1",
-          url: "/section/item-3-1",
-          icon: <MapIcon />,
+          title: "Ver Pedidos",
+          url: "#",
+          icon: <PackageSearch />,
         },
       ],
     },
@@ -101,12 +100,77 @@ const data = {
         {
           title: "Historial de Producción",
           icon: <ScanBarcode />,
-          url: "#"
+          url: "#",
         },
         {
-          title: "Predicción (ML)",
+          title: "Predicción de Ventas (ML)",
           icon: <BrainCircuit />,
+          url: "#",
+        },
+      ],
+    },
+    {
+      label: "Inventario",
+      items: [
+        {
+          title: "Ver Inventario",
+          icon: <Folder />,
+          url: "#",
+        },
+        {
+          title: "Actualizar Inventario",
+          icon: <FolderPen />,
           url: "#"
+        },
+      ],
+    },
+    {
+      label: "Tributario",
+      items: [
+        {
+          title: "Ver Facturas",
+          url: "#",
+          icon: <Wallet />,
+        },
+        {
+          title: "Generar Factura",
+          url: "#",
+          icon: <Receipt />,
+        },
+      ],
+    },
+    {
+      label: "Gestión",
+      items: [
+        {
+          title: "Gestionar Usuarios",
+          url: "#",
+          icon: <UserCog />,
+        },
+        {
+          title: "Roles de Usuarios",
+          url: "#",
+          icon: <UserKey />,
+        },
+        {
+          title: "Gestionar Clientes",
+          icon: <IdCard />,
+          url: "#",
+        },
+        {
+          title: "Gestionar Productos",
+          icon: <PackageOpen />,
+          url: "#",
+        },
+        {
+          title: "Definir Estados de Pedidos",
+          url: "#",
+          icon: <Boxes />,
+        },
+        {
+          title: "Definir alerta de stock",
+          url: "#",
+          icon: <ScanLine />,
         },
       ],
     },
