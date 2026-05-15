@@ -1,6 +1,24 @@
 "use client"
 
 import * as React from "react"
+import {
+  Archive,
+  BarChart3,
+  Boxes,
+  BrainCircuit,
+  ClipboardList,
+  Factory,
+  FileClock,
+  GalleryVerticalEndIcon,
+  House,
+  Package,
+  PackagePlus,
+  Receipt,
+  ShieldCheck,
+  Truck,
+  UserPlus,
+  Users,
+} from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -12,50 +30,18 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {
-  GalleryVerticalEndIcon,
-  AudioLinesIcon,
-  TerminalIcon,
-  BriefcaseBusiness,
-  ScanBarcode,
-  BrainCircuit,
-  PackagePlus,
-  IdCard,
-  Receipt,
-  Wallet,
-  House,
-  PackageSearch,
-  PackageOpen,
-  UserCog,
-  Boxes,
-  UserKey,
-  ScanLine,
-  FolderPen,
-  Folder,
-} from "lucide-react"
 
-// This is sample data.
 const data = {
   user: {
-    name: "Evan",
-    email: "evan@example.com",
+    name: "Vida Frutos",
+    email: "admin@vidafrutos.cl",
     avatar: "",
   },
   teams: [
     {
       name: "Vida Frutos",
       logo: <GalleryVerticalEndIcon />,
-      plan: "",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLinesIcon />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <TerminalIcon />,
-      plan: "Free",
+      plan: "Inventario y ventas",
     },
   ],
   navMain: [
@@ -64,48 +50,33 @@ const data = {
       items: [
         {
           title: "Vista general",
-          url: "/index",
+          url: "/",
           icon: <House />,
         },
       ],
     },
     {
-      label: "Pedidos",
+      label: "Ventas",
       items: [
         {
-          title: "Nuevo Pedido",
-          url: "#",
+          title: "Pedidos",
+          url: "/pedidos",
+          icon: <ClipboardList />,
+        },
+        {
+          title: "Nuevo pedido",
+          url: "/pedidos/nuevo",
           icon: <PackagePlus />,
         },
         {
-          title: "Ver Pedidos",
-          url: "#",
-          icon: <PackageSearch />,
-        },
-      ],
-    },
-    {
-      label: "Clientes",
-      items: [
-        {
-          title: "Ver Clientes",
-          icon: <BriefcaseBusiness />,
-          url: "#",
-        },
-      ],
-    },
-    {
-      label: "Producción",
-      items: [
-        {
-          title: "Historial de Producción",
-          icon: <ScanBarcode />,
-          url: "#",
+          title: "Clientes",
+          url: "/clientes",
+          icon: <Users />,
         },
         {
-          title: "Predicción de Ventas (ML)",
-          icon: <BrainCircuit />,
-          url: "#",
+          title: "Nuevo cliente",
+          url: "/clientes/nuevo",
+          icon: <UserPlus />,
         },
       ],
     },
@@ -113,14 +84,39 @@ const data = {
       label: "Inventario",
       items: [
         {
-          title: "Ver Inventario",
-          icon: <Folder />,
-          url: "#",
+          title: "Stock",
+          url: "/inventario",
+          icon: <Boxes />,
         },
         {
-          title: "Actualizar Inventario",
-          icon: <FolderPen />,
-          url: "#"
+          title: "Actualizar stock",
+          url: "/inventario/actualizar",
+          icon: <Archive />,
+        },
+        {
+          title: "Productos",
+          url: "/productos",
+          icon: <Package />,
+        },
+      ],
+    },
+    {
+      label: "Produccion",
+      items: [
+        {
+          title: "Produccion diaria",
+          url: "/produccion",
+          icon: <Factory />,
+        },
+        {
+          title: "Despacho",
+          url: "/despacho",
+          icon: <Truck />,
+        },
+        {
+          title: "Prediccion IA",
+          url: "/prediccion",
+          icon: <BrainCircuit />,
         },
       ],
     },
@@ -128,49 +124,29 @@ const data = {
       label: "Tributario",
       items: [
         {
-          title: "Ver Facturas",
-          url: "#",
-          icon: <Wallet />,
-        },
-        {
-          title: "Generar Factura",
-          url: "#",
+          title: "Facturas",
+          url: "/facturas",
           icon: <Receipt />,
         },
       ],
     },
     {
-      label: "Gestión",
+      label: "Gestion",
       items: [
         {
-          title: "Gestionar Usuarios",
-          url: "#",
-          icon: <UserCog />,
+          title: "Reportes",
+          url: "/reportes",
+          icon: <BarChart3 />,
         },
         {
-          title: "Roles de Usuarios",
-          url: "#",
-          icon: <UserKey />,
+          title: "Administracion",
+          url: "/admin/usuarios",
+          icon: <ShieldCheck />,
         },
         {
-          title: "Gestionar Clientes",
-          icon: <IdCard />,
-          url: "#",
-        },
-        {
-          title: "Gestionar Productos",
-          icon: <PackageOpen />,
-          url: "#",
-        },
-        {
-          title: "Definir Estados de Pedidos",
-          url: "#",
-          icon: <Boxes />,
-        },
-        {
-          title: "Definir alerta de stock",
-          url: "#",
-          icon: <ScanLine />,
+          title: "Auditoria",
+          url: "/auditoria",
+          icon: <FileClock />,
         },
       ],
     },
@@ -179,7 +155,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible={"icon"} variant="sidebar" {...props}>
+    <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
