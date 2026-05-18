@@ -8,27 +8,25 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
 import { ProtectedRoute } from "@/components/protected-route"
 import { AppLayout } from "@/layouts/app-layout"
-import {
-  AdminUsersPage,
-  AuditPage,
-  CustomerDetailPage,
-  CustomerFormPage,
-  CustomersPage,
-  DispatchPage,
-  ForecastPage,
-  InventoryPage,
-  InventoryUpdatePage,
-  InvoiceFormPage,
-  InvoicesPage,
-  NewOrderPage,
-  OrderDetailPage,
-  OrdersPage,
-  ProductFormPage,
-  ProductsPage,
-  ProductionFormPage,
-  ProductionPage,
-  ReportsPage,
-} from "@/pages/app-pages"
+import { AdminUsersPage } from "@/pages/admin"
+import { AuditPage } from "@/pages/audit"
+import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage"
+import { CustomerFormPage } from "@/pages/customers/CustomerFormPage"
+import { CustomersPage } from "@/pages/customers"
+import { DispatchPage } from "@/pages/dispatch"
+import { ForecastPage } from "@/pages/forecast"
+import { InventoryPage } from "@/pages/inventory"
+import { InventoryUpdatePage } from "@/pages/inventory/InventoryUpdatePage"
+import { InvoiceFormPage } from "@/pages/invoices/InvoiceFormPage"
+import { InvoicesPage } from "@/pages/invoices"
+import { NewOrderPage } from "@/pages/orders/NewOrderPage"
+import { OrderDetailPage } from "@/pages/orders/OrderDetailPage"
+import { OrdersPage } from "@/pages/orders"
+import { ProductFormPage } from "@/pages/products/ProductFormPage"
+import { ProductsPage } from "@/pages/products"
+import { ProductionFormPage } from "@/pages/production/ProductionFormPage"
+import { ProductionPage } from "@/pages/production"
+import { ReportsPage } from "@/pages/reports"
 import Login from "@/pages/Login"
 import { NotFoundPage } from "@/pages/not-found-page"
 
