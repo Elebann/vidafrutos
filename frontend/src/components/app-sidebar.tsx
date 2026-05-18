@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   Archive,
@@ -30,11 +28,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/hooks/use-auth"
 
 const data = {
   user: {
     name: "Vida Frutos",
-    email: "admin@vidafrutos.cl",
     avatar: "",
   },
   teams: [
@@ -154,6 +152,15 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuth()
+
+  const userData = user
+    ? {
+        name: user.username || "Usuario",
+        avatar: "",
+      }
+    : data.user
+
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
@@ -163,7 +170,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain groups={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
