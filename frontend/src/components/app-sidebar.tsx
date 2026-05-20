@@ -16,11 +16,11 @@ import {
   Truck,
   UserPlus,
   Users,
+  Bean,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -164,7 +164,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {/* Minimal header with logo and app name */}
+        <div className="flex items-center gap-3 px-2 py-1">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#804f17] text-sidebar-primary-foreground">
+            <Bean className="h-6 w-6" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold leading-tight">VidaFrutos</span>
+            <span className="text-xs text-muted-foreground">Inventario y ventas</span>
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain groups={data.navMain} />
