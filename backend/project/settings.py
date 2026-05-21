@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-8e5igd87st&r2d!k*u!3m&*9(xeua30w5e=q5i7mz6x_76q$t$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]  # allow all hosts in development
 
 
 # Application definition
@@ -126,9 +126,23 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# In development allow the frontend origins. Use explicit origins to avoid
+# wildcard-origin + credentials issues.
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'http://192.168.56.1:5173',
+    'http://192.168.100.29:5173',
+]
+# Allow credentials (cookies, authorization headers, etc.) to be sent cross-origin
+CORS_ALLOW_CREDENTIALS = True
+
+# Trusted origins for CSRF protection (include the frontend dev URLs)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://192.168.56.1:5173',
+    'http://192.168.100.29:5173',
 ]
 
 # Internationalization
@@ -147,3 +161,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Development cookie settings: allow cross-site cookies in dev environment
+# Use these only in development. In production, set SAMESITE to 'Lax' or 'Strict'
+# and set SESSION_COOKIE_SECURE = True, CSRF_COOKIE_SECURE = True.
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False

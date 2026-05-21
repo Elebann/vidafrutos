@@ -44,20 +44,17 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FieldGroup>
-          <div className="flex flex-row items-center mx-auto gap-2 text-center *:text-[#643800]">
-            <div className="flex size-8 items-center justify-center rounded-md">
-              <Leaf className="size-6" />
+          <div className="mx-auto mb-2 flex w-full max-w-sm flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-md"> 
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[rgba(128,79,23,0.12)] to-[rgba(242,197,124,0.06)]">
+              <Leaf className="h-8 w-8 text-[var(--VFBrown)]" />
             </div>
-            <h1 className="text-2xl font-bold">VidaFrutos</h1>
+            <h1 className="text-3xl">VidaFrutos</h1>
+            <p className="text-sm text-muted-foreground">Inventario y ventas</p>
           </div>
 
-          <div>
-            <h2 className="text-md font-semibold text-neutral-600">
-              Bienvenido de nuevo
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Ingresa tu RUT y contraseña para acceder a tu cuenta.
-            </p>
+          <div className="mb-2">
+            <h2 className="text-lg font-semibold text-neutral-600">Bienvenido de nuevo</h2>
+            <p className="text-sm text-muted-foreground">Ingresa tu RUT y contraseña para acceder a tu cuenta.</p>
           </div>
 
           <Field>
@@ -95,9 +92,8 @@ export function LoginForm({
           <Field>
             <Button
               type="submit"
-              variant={"VFBrown"}
+              className={cn("w-full btn-vfbrown", isAuthLoading && "opacity-70")}
               disabled={isAuthLoading}
-              className="w-full"
             >
               {isAuthLoading ? "Accediendo..." : "Acceder"}
             </Button>

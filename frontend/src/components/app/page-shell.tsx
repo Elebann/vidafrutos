@@ -30,20 +30,26 @@ export function PageShell({
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
             {Icon && (
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#804f17]/20 bg-white text-[#804f17]">
-                <Icon className="size-5" />
-              </div>
+              <Icon className="m-auto size-10 justify-center items-center text-[#804f17]" />
             )}
             <div className="min-w-0">
-              <h1 className="text-2xl font-semibold leading-tight text-neutral-950">{title}</h1>
+              <h1 className="text-[#804f17] text-2xl leading-tight font-bold">
+                {title}
+              </h1>
               {description && (
-                <p className="mt-1 max-w-2xl text-sm leading-5 text-neutral-600">{description}</p>
+                <p className="mt-1 max-w-2xl text-sm leading-5 text-neutral-600">
+                  {description}
+                </p>
               )}
             </div>
           </div>
 
           {action && (
-            <Button className="h-10 w-full sm:w-auto" variant="VFBrown" render={<Link to={action.to} />}>
+            <Button
+              className="h-10 w-full sm:w-auto"
+              variant="VFBrown"
+              render={<Link to={action.to} />}
+            >
               {ActionIcon && <ActionIcon />}
               {action.label}
             </Button>

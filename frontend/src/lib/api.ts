@@ -1,7 +1,9 @@
 import axios from "axios"
 import type { AxiosInstance } from "axios"
 
-const API_BASE_URL = "http://127.0.0.1:8000"
+// Build the API base URL from the current hostname so the frontend will call
+// the backend on the same machine/IP used to open the frontend (works for LAN).
+const API_BASE_URL = `${location.protocol}//${location.hostname}:8000`
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -51,5 +53,4 @@ api.interceptors.response.use(
 )
 
 export default api
-
 

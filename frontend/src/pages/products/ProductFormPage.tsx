@@ -4,6 +4,7 @@ import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell } from "@/components/app/page-shell"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { categories } from "@/data/mock-data"
 
 export function ProductFormPage() {
@@ -14,7 +15,20 @@ export function ProductFormPage() {
         <FieldGroup>
           <Field>
             <FieldLabel>Categoria</FieldLabel>
-            <select className="h-10 rounded-lg border bg-white px-3 text-sm">{categories.map((category) => <option key={category.id}>{category.name}</option>)}</select>
+            <Select defaultValue={categories[0]?.id}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </Field>
         </FieldGroup>
         <TextField label="Precio" placeholder="1850" type="number" />

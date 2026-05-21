@@ -4,6 +4,7 @@ import { ClipboardCheck } from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { getCustomer, getOrderTotal, orders } from "@/data/mock-data"
 import { ProductLine } from "@/components/app/ProductLine"
 
@@ -26,9 +27,20 @@ export function OrderDetailPage() {
           <FieldGroup>
             <Field>
               <FieldLabel>Estado</FieldLabel>
-              <select className="h-10 rounded-lg border bg-white px-3 text-sm" defaultValue={order.state}>
-                {["Registrado", "Validado", "En produccion", "Listo para despacho", "Despachado", "Facturado"].map((state) => <option key={state}>{state}</option>)}
-              </select>
+              <Select defaultValue={order.state}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {["Registrado", "Validado", "En produccion", "Listo para despacho", "Despachado", "Facturado"].map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
           </FieldGroup>
           <TextField label="Observacion" placeholder="Motivo del cambio" />

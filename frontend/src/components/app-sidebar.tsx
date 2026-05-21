@@ -165,11 +165,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
         {/* Minimal header with logo and app name */}
-        <div className="flex items-center gap-3 px-2 py-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#804f17] text-sidebar-primary-foreground">
-            <Bean className="h-6 w-6" />
+        <div className="relative flex w-full items-center gap-3 px-3 py-2 transition-[padding,gap] duration-200 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0">
+
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-sidebar-border bg-[rgba(246,241,238,0.8)] p-2 transition-all duration-200
+            group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:left-1/2 group-data-[collapsible=icon]:top-1/2 group-data-[collapsible=icon]:-translate-x-1/2 group-data-[collapsible=icon]:-translate-y-1/2 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
+            <Bean className="h-5 w-5 text-VFBrown" />
           </div>
-          <div className="flex flex-col">
+
+          <div className="flex flex-col overflow-hidden transition-all duration-200 max-w-36 group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
             <span className="text-sm font-semibold leading-tight">VidaFrutos</span>
             <span className="text-xs text-muted-foreground">Inventario y ventas</span>
           </div>

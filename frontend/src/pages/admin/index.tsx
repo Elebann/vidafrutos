@@ -4,6 +4,7 @@ import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { products, roles, users } from "@/data/mock-data"
 
 export function AdminUsersPage() {
@@ -18,7 +19,25 @@ export function AdminUsersPage() {
         <FormCard submitLabel="Guardar usuario" title="Nuevo usuario">
           <TextField label="RUT" />
           <TextField label="Username" />
-          <FieldGroup><Field><FieldLabel>Rol</FieldLabel><select className="h-10 rounded-lg border bg-white px-3 text-sm">{roles.map((role) => <option key={role.id}>{role.name}</option>)}</select></Field></FieldGroup>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Rol</FieldLabel>
+              <Select defaultValue={roles[0]?.id}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {roles.map((role) => (
+                      <SelectItem key={role.id} value={role.id}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          </FieldGroup>
         </FormCard>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -30,7 +49,25 @@ export function AdminUsersPage() {
           <TextField label="Nombre estado" />
         </FormCard>
         <FormCard submitLabel="Guardar alerta" title="Alerta de stock">
-          <FieldGroup><Field><FieldLabel>Producto</FieldLabel><select className="h-10 rounded-lg border bg-white px-3 text-sm">{products.map((product) => <option key={product.id}>{product.name}</option>)}</select></Field></FieldGroup>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Producto</FieldLabel>
+              <Select defaultValue={products[0]?.id}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {products.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          </FieldGroup>
           <TextField label="Umbral minimo" type="number" />
         </FormCard>
       </div>

@@ -1,8 +1,17 @@
 import { PackagePlus } from "lucide-react"
 
 import { FormCard, TextField } from "@/components/app/form-card"
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { customers, getPackagedStock, products } from "@/data/mock-data"
 import { ProductLine } from "@/components/app/ProductLine"
 
@@ -13,9 +22,20 @@ export function NewOrderPage() {
         <FieldGroup>
           <Field>
             <FieldLabel>Cliente</FieldLabel>
-            <select className="h-10 rounded-lg border bg-white px-3 text-sm">
-              {customers.map((customer) => <option key={customer.id}>{customer.name}</option>)}
-            </select>
+            <Select defaultValue={customers[0]?.id}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {customers.map((customer) => (
+                    <SelectItem key={customer.id} value={customer.id}>
+                      {customer.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </Field>
         </FieldGroup>
         <TextField label="Fecha solicitada" type="date" value="2026-05-15" />
@@ -25,7 +45,7 @@ export function NewOrderPage() {
             <FieldGroup key={product.id}>
               <Field>
                 <FieldLabel>{product.name}</FieldLabel>
-                <input className="h-10 rounded-lg border bg-white px-3 text-sm" placeholder={`Disponible: ${stock?.availableStock ?? 0}`} type="number" />
+                <Input placeholder={`Disponible: ${stock?.availableStock ?? 0}`} type="number" />
               </Field>
             </FieldGroup>
           )

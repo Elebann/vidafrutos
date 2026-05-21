@@ -1,13 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+/* UI fonts are loaded in index.html (Playfair Display + Work Sans). */
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Inter Variable', sans-serif;
+    --font-heading: 'Playfair Display', serif;
+    --font-sans: 'Work Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -52,75 +52,80 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* Light theme palette (warm, organic) */
+    --background: #FFF8F5; /* soft cream */
+    --foreground: #2b2b2b; /* dark charcoal */
+    --card: #ffffff;
+    --card-foreground: #2b2b2b;
+    --popover: #ffffff;
+    --popover-foreground: #2b2b2b;
+    --primary: #804F17; /* VidaFrutos brown (brand) */
+    --primary-foreground: #fffefc;
+    --primary-600: #6b3f13;
+    --secondary: #f6f0ea;
+    --secondary-foreground: #5b4a3b;
+    --muted: #faf6f3;
+    --muted-foreground: #6b6b6b;
+    --accent: #F2C57C; /* warm accent */
+    --accent-foreground: #2b2b2b;
+    --destructive: #c0392b;
+    --border: #ece6e0;
+    /* input border color must be visible on white surfaces */
+    --input: #e6e6e0;
+    --ring: rgba(128,79,23,0.12);
+    --chart-1: #f7efe6;
+    --chart-2: #e9d6bf;
+    --chart-3: #d1b089;
+    --chart-4: #b07a4a;
+    --chart-5: #8a5a36;
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: #fffdfb;
+    --sidebar-foreground: #2b2b2b;
+    --sidebar-primary: #804F17;
+    --sidebar-primary-foreground: #fffefc;
+    --sidebar-accent: #f2e6d7;
+    --sidebar-accent-foreground: #5b4a3b;
+    --sidebar-border: #efe7df;
+    --sidebar-ring: rgba(128,79,23,0.08);
 
     /* Vida Frutos */
     --VFBrown: #804F17;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    /* Dark theme palette (deep, muted) */
+    --background: #0f1720;
+    --foreground: #e6eef6;
+    --card: #111827;
+    --card-foreground: #e6eef6;
+    --popover: #111827;
+    --popover-foreground: #e6eef6;
+    --primary: #b37a3f;
+    --primary-foreground: #0b0b0b;
+    --secondary: #14202a;
+    --secondary-foreground: #dbe8f3;
+    --muted: #0b1220;
+    --muted-foreground: #9aa4b2;
+    --accent: #9b7a4b;
+    --accent-foreground: #0b0b0b;
+    --destructive: #ff6b6b;
+    --border: rgba(255,255,255,0.06);
+    /* darker but visible input border in dark mode */
+    --input: rgba(255,255,255,0.08);
+    --ring: rgba(179,122,63,0.14);
+    --chart-1: #1b2630;
+    --chart-2: #27414b;
+    --chart-3: #3c5a5a;
+    --chart-4: #5a7b6b;
+    --chart-5: #7b5a3f;
+    --sidebar: #0b1220;
+    --sidebar-foreground: #e6eef6;
+    --sidebar-primary: #b37a3f;
+    --sidebar-primary-foreground: #0b0b0b;
+    --sidebar-accent: #14202a;
+    --sidebar-accent-foreground: #dbe8f3;
+    --sidebar-border: rgba(255,255,255,0.06);
+    --sidebar-ring: rgba(179,122,63,0.12);
 }
 
 @layer base {
@@ -133,4 +138,50 @@
   html {
     @apply font-sans;
     }
+}
+
+/* Headings use display font */
+h1,h2,h3,h4 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+/* Brand button variant helper (used by button components) */
+.btn-vfbrown {
+  background: linear-gradient(180deg,var(--primary),var(--primary-600));
+  color: var(--primary-foreground);
+  box-shadow: 0 6px 18px rgba(128,79,23,0.12);
+}
+
+/* Small grain overlay for texture */
+.grain {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><filter id="n"><feTurbulence baseFrequency="0.9" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.02"/></svg>');
+}
+
+/* Normalize select appearance to match Input component inside our Field system */
+[data-slot="field"] select,
+select[data-slot="select"] {
+  height: 2rem; /* match h-8 */
+  min-width: 0;
+  width: 100%;
+  padding: 0.25rem 0.625rem; /* px-2.5 py-1 */
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 1px solid var(--input, #e6e6e6);
+  background: var(--card);
+  color: inherit;
+  font-size: 0.9375rem; /* md text size */
+  /* allow native appearance so the browser/shadcn can render its own arrow */
+}
+
+[data-slot="field"] select:focus,
+select[data-slot="select"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--ring, rgba(128,79,23,0.12));
+  border-color: var(--primary);
+}
+
+/* add a subtle chevron on the right for all selects */
+[data-slot="field"] select {
+  /* use native arrow (do not inject custom chevron) */
+  padding-right: 0.75rem;
 }

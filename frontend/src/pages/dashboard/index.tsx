@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Archive,
   BarChart3,
+  BrainCircuit,
   Factory,
   PackagePlus,
   Receipt,
@@ -105,7 +106,7 @@ export function DashboardPage() {
         />
         <KpiCard
           detail="Promedio estimado del modulo predictivo."
-          icon={Factory}
+          icon={BrainCircuit}
           label="Confianza IA"
           tone="success"
           value="82%"
@@ -114,7 +115,7 @@ export function DashboardPage() {
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <SectionCard title="Acciones rapidas">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 sm:grid-cols-2">
             {[
               {
                 icon: PackagePlus,
@@ -143,7 +144,7 @@ export function DashboardPage() {
                 render={<Link to={item.to} />}
                 variant="outline"
               >
-                <item.icon className="size-4" />
+                <item.icon className="size-5" />
                 {item.label}
               </Button>
             ))}
