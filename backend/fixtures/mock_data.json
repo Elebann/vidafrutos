@@ -1,0 +1,81 @@
+[
+  {"model": "accounts.rol", "pk": 1, "fields": {"name": "Administrador"}},
+  {"model": "accounts.rol", "pk": 2, "fields": {"name": "Operario"}},
+  {"model": "accounts.rol", "pk": 3, "fields": {"name": "Despacho"}},
+  {"model": "accounts.rol", "pk": 4, "fields": {"name": "Ventas"}},
+
+  {"model": "products.category", "pk": 1, "fields": {"name": "Clásico"}},
+  {"model": "products.category", "pk": 2, "fields": {"name": "Confitados"}},
+  {"model": "products.category", "pk": 3, "fields": {"name": "Mixes"}},
+  {"model": "products.category", "pk": 4, "fields": {"name": "Japoneses"}},
+
+  {"model": "products.product", "pk": 1, "fields": {"category": 1, "name": "Mani sin sal", "price": 600, "active": true}},
+  {"model": "products.product", "pk": 2, "fields": {"category": 1, "name": "Mani salado", "price": 600, "active": true}},
+  {"model": "products.product", "pk": 3, "fields": {"category": 1, "name": "Almendras", "price": 700, "active": true}},
+  {"model": "products.product", "pk": 4, "fields": {"category": 1, "name": "Nueces", "price": 700, "active": false}},
+  {"model": "products.product", "pk": 5, "fields": {"category": 1, "name": "Pistacho", "price": 1200, "active": true}},
+  {"model": "products.product", "pk": 6, "fields": {"category": 1, "name": "Castañas de caju", "price": 1200, "active": true}},
+
+  {"model": "products.product", "pk": 7, "fields": {"category": 2, "name": "Mani Frambuesa", "price": 800, "active": true}},
+  {"model": "products.product", "pk": 8, "fields": {"category": 2, "name": "Confitado Sésamo", "price": 800, "active": true}},
+  {"model": "products.product", "pk": 9, "fields": {"category": 2, "name": "Cholito", "price": 1000, "active": true}},
+  {"model": "products.product", "pk": 10, "fields": {"category": 2, "name": "Banana Chip", "price": 900, "active": true}},
+  {"model": "products.product", "pk": 11, "fields": {"category": 2, "name": "Mango", "price": 1200, "active": true}},
+
+  {"model": "products.product", "pk": 12, "fields": {"category": 3, "name": "Mix Tropical", "price": 1400, "active": true}},
+  {"model": "products.product", "pk": 13, "fields": {"category": 3, "name": "Mix Semillas", "price": 1200, "active": true}},
+  {"model": "products.product", "pk": 14, "fields": {"category": 3, "name": "Mix Tradición", "price": 1000, "active": true}},
+  {"model": "products.product", "pk": 15, "fields": {"category": 3, "name": "Mix Energético", "price": 1400, "active": true}},
+
+  {"model": "products.product", "pk": 16, "fields": {"category": 4, "name": "Mani Japonés Natural", "price": 1000, "active": true}},
+  {"model": "products.product", "pk": 17, "fields": {"category": 4, "name": "Mani Japonés Merken", "price": 1000, "active": true}},
+  {"model": "products.product", "pk": 18, "fields": {"category": 4, "name": "Mani Japonés Mix", "price": 1000, "active": true}},
+
+
+  {"model": "products.rawstock", "pk": 1, "fields": {"product": 1, "quantity_kilogram": "63.4"}},
+  {"model": "products.rawstock", "pk": 2, "fields": {"product": 2, "quantity_kilogram": "41.7"}},
+  {"model": "products.rawstock", "pk": 3, "fields": {"product": 3, "quantity_kilogram": "22.1"}},
+  {"model": "products.rawstock", "pk": 4, "fields": {"product": 4, "quantity_kilogram": "18.8"}},
+
+  {"model": "products.packagedstock", "pk": 1, "fields": {"product": 1, "available_stock": 240, "allocated_stock": 96, "minimum_stock": 200}},
+  {"model": "products.packagedstock", "pk": 2, "fields": {"product": 2, "available_stock": 84, "allocated_stock": 72, "minimum_stock": 200}},
+  {"model": "products.packagedstock", "pk": 3, "fields": {"product": 3, "available_stock": 118, "allocated_stock": 40, "minimum_stock": 100}},
+  {"model": "products.packagedstock", "pk": 4, "fields": {"product": 4, "available_stock": 52, "allocated_stock": 35, "minimum_stock": 100}},
+  {"model": "products.packagedstock", "pk": 5, "fields": {"product": 5, "available_stock": 0, "allocated_stock": 0, "minimum_stock": 100}},
+
+  {"model": "clients.customer", "pk": 1, "fields": {"rut": "76.543.210-8", "name": "Minimarket Los Aromos", "address": "Av. Los Aromos 1240, Maipu"}},
+  {"model": "clients.customer", "pk": 2, "fields": {"rut": "77.111.222-3", "name": "Botilleria Don Pedro", "address": "Camino Melipilla 8890, Cerrillos"}},
+  {"model": "clients.customer", "pk": 3, "fields": {"rut": "78.555.100-1", "name": "Almacen Santa Marta", "address": "Santa Marta 440, Santiago"}},
+
+  {"model": "orders.orderstate", "pk": 1, "fields": {"state": "Registrado"}},
+  {"model": "orders.orderstate", "pk": 2, "fields": {"state": "Validado"}},
+  {"model": "orders.orderstate", "pk": 3, "fields": {"state": "En produccion"}},
+  {"model": "orders.orderstate", "pk": 4, "fields": {"state": "Listo para despacho"}},
+
+  {"model": "orders.order", "pk": 1022, "fields": {"customer": 1, "state": 2, "date": "2026-05-13T00:00:00Z"}},
+  {"model": "orders.order", "pk": 1023, "fields": {"customer": 2, "state": 2, "date": "2026-05-13T00:00:00Z"}},
+  {"model": "orders.order", "pk": 1024, "fields": {"customer": 1, "state": 2, "date": "2026-05-14T00:00:00Z"}},
+  {"model": "orders.order", "pk": 1025, "fields": {"customer": 2, "state": 3, "date": "2026-05-14T00:00:00Z"}},
+  {"model": "orders.order", "pk": 1026, "fields": {"customer": 3, "state": 4, "date": "2026-05-13T00:00:00Z"}},
+
+  {"model": "orders.orderdetail", "pk": 1, "fields": {"order": 1024, "product": 1, "quantity": 36}},
+  {"model": "orders.orderdetail", "pk": 2, "fields": {"order": 1024, "product": 2, "quantity": 48}},
+  {"model": "orders.orderdetail", "pk": 3, "fields": {"order": 1024, "product": 3, "quantity": 18}},
+  {"model": "orders.orderdetail", "pk": 4, "fields": {"order": 1025, "product": 2, "quantity": 96}},
+  {"model": "orders.orderdetail", "pk": 5, "fields": {"order": 1025, "product": 4, "quantity": 42}},
+  {"model": "orders.orderdetail", "pk": 6, "fields": {"order": 1026, "product": 1, "quantity": 24}},
+  {"model": "orders.orderdetail", "pk": 7, "fields": {"order": 1026, "product": 3, "quantity": 12}},
+
+  {"model": "orders.history", "pk": 1, "fields": {"order": 1024, "user": 1, "change_date": "2026-05-14T10:20:00Z", "affected_field": "estado", "prev_value": "Registrado", "new_value": "Validado"}},
+  {"model": "orders.history", "pk": 2, "fields": {"order": 1025, "user": 1, "change_date": "2026-05-14T12:05:00Z", "affected_field": "estado", "prev_value": "Validado", "new_value": "En produccion"}},
+  {"model": "orders.history", "pk": 3, "fields": {"order": 1026, "user": 1, "change_date": "2026-05-14T08:40:00Z", "affected_field": "estado", "prev_value": "En produccion", "new_value": "Listo para despacho"}},
+
+  {"model": "inventory.rawstockmovement", "pk": 1, "fields": {"product": 1, "user": 1, "movement_type": "ENTRADA", "quantity": "120.000", "date": "2026-05-14T09:10:00Z", "description": "Produccion diaria"}},
+  {"model": "inventory.rawstockmovement", "pk": 2, "fields": {"product": 2, "user": 1, "movement_type": "SALIDA", "quantity": "96.000", "date": "2026-05-14T12:00:00Z", "description": "Reserva pedido #1025"}},
+  {"model": "inventory.rawstockmovement", "pk": 3, "fields": {"product": 4, "user": 1, "movement_type": "MERMA", "quantity": "3.000", "date": "2026-05-13T17:35:00Z", "description": "Envases dañados"}},
+  {"model": "inventory.rawstockmovement", "pk": 4, "fields": {"product": 3, "user": 1, "movement_type": "AJUSTE", "quantity": "8.000", "date": "2026-05-12T16:15:00Z", "description": "Cuadratura semanal"}},
+
+  {"model": "billing.invoice", "pk": 5001, "fields": {"order": 1022, "user": 1, "date": "2026-05-13T00:00:00Z", "total": "67000.00", "payment_method": "TRANSFER"}},
+  {"model": "billing.invoice", "pk": 5002, "fields": {"order": 1023, "user": 1, "date": "2026-05-13T00:00:00Z", "total": "45800.00", "payment_method": "CASH"}},
+  {"model": "billing.invoice", "pk": 5003, "fields": {"order": 1026, "user": 1, "date": "2026-05-14T00:00:00Z", "total": "86200.00", "payment_method": "TRANSFER"}}
+]
