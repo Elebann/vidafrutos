@@ -1,1 +1,8 @@
-web: python manage.py migrate && gunicorn project.wsgi --bind 0.0.0.0:$PORT
+web: python manage.py migrate && python -c "
+import django, os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
+django.setup()
+from accounts.models import User
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser(username='admin', password='jocontra67', rut='21084778-2', email='josefa.aravena.p@.com')
+" && gunicorn project.wsgi --bind 0.0.0.0:$PORT
