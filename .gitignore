@@ -1,6 +1,7 @@
 # Entornos virtuales
 .env
 venv/
+venv
 *.env
 
 # Archivos de compilación y bytecode de Python
@@ -82,3 +83,6 @@ Thumbs.db
 
 # bd
 db.sqlite3
+
+# Django static files
+backend/staticfiles/
