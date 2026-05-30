@@ -1,10 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-# from .views import InventoryViewSet
+from .views import RawStockMovementViewSet
 
 router = DefaultRouter()
-# router.register(r'', InventoryViewSet)
+router.register(r'movements', RawStockMovementViewSet, basename='rawstockmovement')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,3 +1,12 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
-# Create your views here.
+from .models import Invoice
+from .serializers import InvoiceSerializer
+
+
+class InvoiceViewSet(viewsets.ModelViewSet):
+    """CRUD for invoices. Protected by authentication."""
+    queryset = Invoice.objects.select_related('order', 'user').all()
+    serializer_class = InvoiceSerializer
+    permission_classes = [IsAuthenticated]
