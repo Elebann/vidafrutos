@@ -163,6 +163,10 @@ CSRF_TRUSTED_ORIGINS = [
     'http://192.168.100.29:5173',
 ]
 
+# Add production origins from environment
+if os.environ.get('CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS += os.environ.get('CSRF_TRUSTED_ORIGINS').split(',')
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
