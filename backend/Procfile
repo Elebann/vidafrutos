@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && python -c "import django,os; os.environ.setdefault('DJANGO_SETTINGS_MODULE','project.settings'); django.setup(); from accounts.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser(rut='21084778-2',username='Jo',password='jo6767')" && gunicorn project.wsgi --bind 0.0.0.0:$PORT
+web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn project.wsgi --bind 0.0.0.0:$PORT
