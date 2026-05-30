@@ -4,9 +4,17 @@ import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { products } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Product } from "@/types/domain"
 
 export function InventoryUpdatePage() {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    apiClients.fetchProducts().then(setProducts).catch(() => {})
+  }, [])
+
   return (
     <PageShell description="Ajustes manuales y movimientos de materia prima." icon={Archive} title="Actualizar inventario">
       <div className="grid gap-4 lg:grid-cols-2">

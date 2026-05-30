@@ -16,14 +16,10 @@ import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
 import {
   formatCurrency,
-  getCriticalStocks,
-  getCustomer,
-  getMissingUnits,
-  getOrderTotal,
-  getProduct,
-  invoices,
-  orders,
 } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import { getProduct, getMissingUnits, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers, getCustomer } from "@/lib/dataCache"
 import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
@@ -73,9 +69,22 @@ function OrderRow({ order }: { order: Order }) {
 }
 
 export function DashboardPage() {
-  const critical = getCriticalStocks()
+  const [orders, setOrders] = useState<Order[]>([])
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [critical, setCritical] = useState<any[]>([])
+
+  useEffect(() => {
+    ensureProducts().catch(() => {})
+    ensurePackagedStock().catch(() => {})
+    ensureCustomers().catch(() => {})
+    apiClients.fetchOrders().then(setOrders).catch(() => {})
+    apiClients.fetchInvoices().then(setInvoices).catch(() => {})
+    // compute critical stocks from packaged stock
+    apiClients.fetchPackagedStock().then((ps) => setCritical(ps.filter((s) => s.availableStock <= s.minimumStock))).catch(() => {})
+  }, [])
+
   const pendingOrders = orders.filter((order) => order.state !== "Despachado" && order.state !== "Facturado")
-  const dailySales = invoices.reduce((total, invoice) => total + invoice.total, 0)
+  const dailySales = invoices.reduce((total, invoice) => total + (invoice.total ?? 0), 0)
 
   return (
     <PageShell

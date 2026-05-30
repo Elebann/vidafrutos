@@ -1,4 +1,4 @@
-import { getMissingUnits, getProduct } from "@/data/mock-data"
+import { getMissingUnits, getProduct } from "@/lib/dataCache"
 import { StatusBadge } from "@/components/app/status-badge"
 
 interface ProductLineProps {

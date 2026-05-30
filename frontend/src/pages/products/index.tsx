@@ -3,9 +3,20 @@ import { PackagePlus } from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
-import { categories, formatCurrency, products } from "@/data/mock-data"
+import { formatCurrency } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Product, Category } from "@/types/domain"
 
 export function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    apiClients.fetchProducts({ active: true }).then(setProducts).catch(() => {})
+    apiClients.fetchCategories().then(setCategories).catch(() => {})
+  }, [])
+
   return (
     <PageShell action={{ icon: PackagePlus, label: "Nuevo producto", to: "/productos/nuevo" }} description="Catalogo comercial y configuracion de categorias." icon={PackagePlus} title="Productos">
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">

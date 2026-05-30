@@ -2,11 +2,22 @@ import { Archive, Boxes } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
-import { getProduct, packagedStock, rawStock } from "@/data/mock-data"
+import { getProduct } from "@/lib/dataCache"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { PackagedStock, RawStock } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 import { MovementsSection } from "./MovementsSection"
 
 export function InventoryPage() {
+  const [packagedStock, setPackagedStock] = useState<PackagedStock[]>([])
+  const [rawStock, setRawStock] = useState<RawStock[]>([])
+
+  useEffect(() => {
+    apiClients.fetchPackagedStock().then(setPackagedStock).catch(() => {})
+    apiClients.fetchRawStock().then(setRawStock).catch(() => {})
+  }, [])
+
   return (
     <PageShell action={{ icon: Archive, label: "Actualizar inventario", to: "/inventario/actualizar" }} description="Stock envasado, materia prima y trazabilidad de movimientos." icon={Boxes} title="Inventario">
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">

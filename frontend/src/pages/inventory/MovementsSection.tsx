@@ -1,8 +1,17 @@
 import { SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
-import { getProduct, movements } from "@/data/mock-data"
+import { getProduct } from "@/lib/dataCache"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { StockMovement } from "@/types/domain"
 
 export function MovementsSection() {
+  const [movements, setMovements] = useState<StockMovement[]>([])
+
+  useEffect(() => {
+    apiClients.fetchMovements().then(setMovements).catch(() => {})
+  }, [])
+
   return (
     <SectionCard title="Historial de movimientos">
       <div className="grid gap-2">

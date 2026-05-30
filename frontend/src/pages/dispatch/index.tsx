@@ -3,7 +3,10 @@ import { Truck } from "lucide-react"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
-import { getCustomer, orders } from "@/data/mock-data"
+import { getCustomer, ensureCustomers, ensureProducts, ensurePackagedStock } from "@/lib/dataCache"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
 function orderTone(state: string): "green" | "yellow" | "blue" | "neutral" {
@@ -14,7 +17,17 @@ function orderTone(state: string): "green" | "yellow" | "blue" | "neutral" {
 }
 
 export function DispatchPage() {
+  const [orders, setOrders] = useState<Order[]>([])
+
+  useEffect(() => {
+    ensureCustomers().catch(() => {})
+    ensureProducts().catch(() => {})
+    ensurePackagedStock().catch(() => {})
+    apiClients.fetchOrders().then(setOrders).catch(() => {})
+  }, [])
+
   const dispatchOrders = orders.filter((order) => order.state === "Listo para despacho" || order.state === "En produccion" || order.state === "Validado")
+
   return (
     <PageShell description="Armado de cajas y confirmacion de salida." icon={Truck} title="Despacho">
       <div className="grid gap-3">

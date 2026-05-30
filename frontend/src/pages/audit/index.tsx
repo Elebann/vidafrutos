@@ -1,11 +1,19 @@
 import { FileClock } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { orders } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Order } from "@/types/domain"
 import { MovementsSection } from "@/pages/inventory/MovementsSection"
 
 export function AuditPage() {
-  const history = orders.flatMap((order) => order.history.map((item) => ({ ...item, orderId: order.id })))
+  const [orders, setOrders] = useState<Order[]>([])
+
+  useEffect(() => {
+    apiClients.fetchOrders().then(setOrders).catch(() => {})
+  }, [])
+
+  const history = orders.flatMap((order) => (order.history ?? []).map((item) => ({ ...item, orderId: order.id })))
   return (
     <PageShell description="Trazabilidad de pedidos y movimientos de inventario." icon={FileClock} title="Auditoria">
       <div className="grid gap-4 lg:grid-cols-2">

@@ -2,13 +2,28 @@ import { useParams } from "react-router-dom"
 import { Users } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { customers, formatCurrency, orders } from "@/data/mock-data"
+import { formatCurrency } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import { getCustomer, ensureCustomers } from "@/lib/dataCache"
+import apiClients from "@/lib/apiClients"
+import type { Order } from "@/types/domain"
 import { OrderCard } from "@/pages/orders/components"
 
 export function CustomerDetailPage() {
   const { customerId } = useParams()
-  const customer = customers.find((item) => item.id === Number(customerId)) ?? customers[0]
-  const customerOrders = orders.filter((order) => order.customerId === customer.id)
+  const [customer, setCustomer] = useState<any>(null)
+  const [customerOrders, setCustomerOrders] = useState<Order[]>([])
+
+  useEffect(() => {
+    const id = Number(customerId)
+    ensureCustomers().catch(() => {})
+    apiClients.fetchOrders().then((all) => setCustomerOrders(all.filter((o) => o.customerId === id))).catch(() => {})
+    // load customer from cache
+    ensureCustomers().then(() => setCustomer(getCustomer(id))).catch(() => {})
+  }, [customerId])
+
+  if (!customer) return <div>Loading...</div>
+
   return (
     <PageShell description={customer.address} icon={Users} title={customer.name}>
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">

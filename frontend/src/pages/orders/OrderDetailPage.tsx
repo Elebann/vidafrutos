@@ -5,12 +5,26 @@ import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { getCustomer, getOrderTotal, orders } from "@/data/mock-data"
+import { getCustomer, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
 export function OrderDetailPage() {
   const { orderId } = useParams()
-  const order = orders.find((item) => item.id === Number(orderId)) ?? orders[0]
+  const [order, setOrder] = useState<Order | null>(null)
+
+  useEffect(() => {
+    const id = Number(orderId)
+    ensureProducts().catch(() => {})
+    ensurePackagedStock().catch(() => {})
+    ensureCustomers().catch(() => {})
+    apiClients.fetchOrderDetails(id).then((o) => setOrder(o)).catch(() => {})
+  }, [orderId])
+
+  if (!order) return <div>Loading...</div>
+
   const customer = getCustomer(order.customerId)
 
   return (

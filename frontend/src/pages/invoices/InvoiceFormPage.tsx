@@ -4,9 +4,19 @@ import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { getCustomer, orders } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import { getCustomer, ensureCustomers } from "@/lib/dataCache"
+import type { Order } from "@/types/domain"
 
 export function InvoiceFormPage() {
+  const [orders, setOrders] = useState<Order[]>([])
+
+  useEffect(() => {
+    ensureCustomers().catch(() => {})
+    apiClients.fetchOrders().then(setOrders).catch(() => {})
+  }, [])
+
   return (
     <PageShell description="Emision simulada desde un pedido validado." icon={Receipt} title="Generar factura">
       <FormCard submitLabel="Generar factura" title="Datos tributarios">

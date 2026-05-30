@@ -4,7 +4,10 @@ import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge } from "@/components/app/status-badge"
 import { KpiCard } from "@/components/app/kpi-card"
-import { formatCurrency, invoices } from "@/data/mock-data"
+import { formatCurrency } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Invoice } from "@/types/domain"
 
 function InvoiceCard({ invoice }: { invoice: typeof invoices[0] }) {
   return (
@@ -31,6 +34,12 @@ function InvoiceRow({ invoice }: { invoice: typeof invoices[0] }) {
 }
 
 export function InvoicesPage() {
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+
+  useEffect(() => {
+    apiClients.fetchInvoices().then(setInvoices).catch(() => {})
+  }, [])
+
   return (
     <PageShell action={{ icon: Receipt, label: "Generar factura", to: "/facturas/generar" }} description="Facturas emitidas y resumen de pagos." icon={Receipt} title="Facturacion">
       <div className="grid gap-3 sm:grid-cols-3">

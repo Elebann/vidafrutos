@@ -12,10 +12,22 @@ import {
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { customers, getPackagedStock, products } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import { ensureProducts, ensureCustomers, ensurePackagedStock, getPackagedStock } from "@/lib/dataCache"
+import type { Product, Customer } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
 export function NewOrderPage() {
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    ensurePackagedStock().catch(() => {})
+    apiClients.fetchCustomers().then(setCustomers).catch(() => {})
+    apiClients.fetchProducts().then(setProducts).catch(() => {})
+  }, [])
+
   return (
     <PageShell description="Formulario pensado para registrar pedidos en terreno desde telefono." icon={PackagePlus} title="Nuevo pedido">
       <FormCard submitLabel="Registrar pedido" title="Datos del pedido">

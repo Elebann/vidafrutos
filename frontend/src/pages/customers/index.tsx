@@ -6,9 +6,12 @@ import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/app/SearchBar"
-import { formatCurrency, customers } from "@/data/mock-data"
+import { formatCurrency } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Customer } from "@/types/domain"
 
-function CustomerCard({ customer }: { customer: typeof customers[0] }) {
+function CustomerCard({ customer }: { customer: Customer }) {
   return (
     <div className="rounded-lg border bg-white p-4">
       <p className="font-semibold">{customer.name}</p>
@@ -32,7 +35,7 @@ function CustomerCard({ customer }: { customer: typeof customers[0] }) {
   )
 }
 
-function CustomerRow({ customer }: { customer: typeof customers[0] }) {
+function CustomerRow({ customer }: { customer: Customer }) {
   return (
     <>
       <td className="px-4 py-3 font-medium">{customer.name}</td>
@@ -57,6 +60,12 @@ function CustomerRow({ customer }: { customer: typeof customers[0] }) {
 }
 
 export function CustomersPage() {
+  const [customers, setCustomers] = useState<Customer[]>([])
+
+  useEffect(() => {
+    apiClients.fetchCustomers().then(setCustomers).catch(() => {})
+  }, [])
+
   return (
     <PageShell
       action={{ icon: UserPlus, label: "Nuevo cliente", to: "/clientes/nuevo" }}

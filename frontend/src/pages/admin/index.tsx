@@ -5,9 +5,22 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { products, roles, users } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import { ensureProducts } from "@/lib/dataCache"
+import type { Product, Role, User } from "@/types/domain"
 
 export function AdminUsersPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
+  const [users, setUsers] = useState<User[]>([])
+
+  useEffect(() => {
+    apiClients.fetchRoles().then(setRoles).catch(() => {})
+    apiClients.fetchUsers().then(setUsers).catch(() => {})
+    apiClients.fetchProducts().then(setProducts).catch(() => {})
+  }, [])
+
   return (
     <PageShell description="Usuarios, roles, estados y alertas base del sistema." icon={ShieldCheck} title="Administracion">
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
@@ -22,12 +35,12 @@ export function AdminUsersPage() {
           <FieldGroup>
             <Field>
               <FieldLabel>Rol</FieldLabel>
-              <Select defaultValue={roles[0]?.id}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
+                <Select defaultValue={roles[0]?.id}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
                     {roles.map((role) => (
                       <SelectItem key={role.id} value={role.id}>
                         {role.name}

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
-import { getCustomer, getMissingUnits, getOrderTotal } from "@/data/mock-data"
+import { getCustomer, getMissingUnits, getOrderTotal } from "@/lib/dataCache"
 import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 

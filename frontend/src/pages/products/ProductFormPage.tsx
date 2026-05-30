@@ -5,9 +5,17 @@ import { PageShell } from "@/components/app/page-shell"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { categories } from "@/data/mock-data"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
+import type { Category } from "@/types/domain"
 
 export function ProductFormPage() {
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    apiClients.fetchCategories().then(setCategories).catch(() => {})
+  }, [])
+
   return (
     <PageShell description="Alta o modificacion de producto comercializable." icon={PackagePlus} title="Nuevo producto">
       <FormCard submitLabel="Guardar producto" title="Datos del producto">
