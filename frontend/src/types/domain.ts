@@ -27,6 +27,8 @@ export interface Customer {
 export interface OrderDetail {
   productId: number
   quantity: number
+  // Optional unit price when provided by backend in nested detail
+  price?: number
 }
 
 export type OrderState =

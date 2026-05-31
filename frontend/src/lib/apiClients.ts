@@ -86,6 +86,15 @@ export async function fetchCustomers(): Promise<Customer[]> {
   }
 }
 
+export async function createCustomer(payload: { rut: string; name: string; address: string }): Promise<Customer | null> {
+  try {
+    const res = await api.post('/api/clients/', payload)
+    return mapCustomer(res.data)
+  } catch (e) {
+    return null
+  }
+}
+
 export async function fetchPackagedStock(): Promise<PackagedStock[]> {
   try {
     const res = await api.get('/api/products/')
@@ -134,7 +143,7 @@ export async function fetchOrders(): Promise<Order[]> {
       date: o.date,
       requestedDate: o.requested_date ?? undefined,
       // If the list endpoint includes details, map them; otherwise leave empty array
-      details: (o.details ?? []).map((d: any) => ({ productId: d.product?.id ?? d.product, quantity: d.quantity })),
+      details: (o.details ?? []).map((d: any) => ({ productId: d.product?.id ?? d.product, quantity: d.quantity, price: d.price ?? d.unit_price ?? undefined })),
       history: (o.history ?? []).map((h: any) => ({ date: h.change_date ?? h.date, user: h.user?.username ?? h.user, field: h.affected_field ?? h.field, previousValue: h.prev_value ?? h.previousValue, newValue: h.new_value ?? h.newValue })),
     }))
   } catch (e) {
@@ -256,4 +265,5 @@ export default {
   fetchMovements,
   createOrder,
   fetchForecasts,
+  createCustomer
 }

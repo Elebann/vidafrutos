@@ -5,7 +5,7 @@ from .models import Customer
 from .serializers import CustomerSerializer
 
 
-class ClientsViewSet(viewsets.ReadOnlyModelViewSet):
+class ClientsViewSet(viewsets.ModelViewSet):
     """Read-only viewset for customers. Protected by authentication."""
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
