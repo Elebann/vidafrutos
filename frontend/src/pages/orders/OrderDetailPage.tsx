@@ -16,7 +16,10 @@ export function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null)
 
   useEffect(() => {
+    if (!orderId) return
     const id = Number(orderId)
+    if (Number.isNaN(id)) return
+
     ensureProducts().catch(() => {})
     ensurePackagedStock().catch(() => {})
     ensureCustomers().catch(() => {})

@@ -4,12 +4,12 @@ import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge } from "@/components/app/status-badge"
 import { KpiCard } from "@/components/app/kpi-card"
-import { formatCurrency } from "@/data/mock-data"
+import { formatCurrency } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { Invoice } from "@/types/domain"
 
-function InvoiceCard({ invoice }: { invoice: typeof invoices[0] }) {
+function InvoiceCard({ invoice }: { invoice: Invoice }) {
   return (
     <div className="rounded-lg border bg-white p-4">
       <div className="flex items-start justify-between gap-3">
@@ -21,7 +21,7 @@ function InvoiceCard({ invoice }: { invoice: typeof invoices[0] }) {
   )
 }
 
-function InvoiceRow({ invoice }: { invoice: typeof invoices[0] }) {
+function InvoiceRow({ invoice }: { invoice: Invoice }) {
   return (
     <>
       <td className="px-4 py-3 font-medium">#{invoice.id}</td>

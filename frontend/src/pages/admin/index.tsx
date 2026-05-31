@@ -7,7 +7,6 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
-import { ensureProducts } from "@/lib/dataCache"
 import type { Product, Role, User } from "@/types/domain"
 
 export function AdminUsersPage() {

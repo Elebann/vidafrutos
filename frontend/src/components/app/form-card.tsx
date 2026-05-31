@@ -8,20 +8,24 @@ export function FormCard({
   children,
   submitLabel = "Guardar",
   title,
+  onSubmit,
+  submitDisabled,
 }: {
   children: React.ReactNode
   submitLabel?: string
   title: string
+  onSubmit?: (e: React.FormEvent) => void
+  submitDisabled?: boolean
 }) {
   return (
     <SectionCard title={title}>
-      <form className="grid gap-4 sm:grid-cols-2">
+      <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
         {children}
         <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:justify-end">
           <Button type="button" variant="outline">
             Cancelar
           </Button>
-          <Button type="button" variant="VFBrown">
+          <Button type="submit" variant="VFBrown" disabled={submitDisabled}>
             {submitLabel}
           </Button>
         </div>
@@ -35,17 +39,19 @@ export function TextField({
   placeholder,
   type = "text",
   value,
+  onChange,
 }: {
   label: string
   placeholder?: string
   type?: string
   value?: string
+  onChange?: (value: string) => void
 }) {
   return (
     <FieldGroup>
       <Field>
         <FieldLabel>{label}</FieldLabel>
-        <Input defaultValue={value} placeholder={placeholder} type={type} />
+        <Input value={value} placeholder={placeholder} type={type} onChange={onChange ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value) : undefined} />
       </Field>
     </FieldGroup>
   )

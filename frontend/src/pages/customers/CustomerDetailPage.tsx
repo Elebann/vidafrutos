@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 import { Users } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { formatCurrency } from "@/data/mock-data"
+import { formatCurrency } from "@/lib/format"
 import { useEffect, useState } from "react"
 import { getCustomer, ensureCustomers } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"

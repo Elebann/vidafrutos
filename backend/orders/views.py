@@ -45,11 +45,29 @@ class OrderViewSet(viewsets.ModelViewSet):
 			return OrderWriteSerializer
 		return OrderSerializer
 
-	@action(detail=True, methods=['get'], url_path='details')
+	@action(detail=True, methods=['get', 'post'], url_path='details')
 	def details(self, request, pk=None):
 		order = self.get_object()
-		serializer = OrderWithDetailsSerializer(order)
-		return Response(serializer.data)
+		# GET: return nested order with details
+		if request.method == 'GET':
+			serializer = OrderWithDetailsSerializer(order)
+			return Response(serializer.data)
+
+		# POST: allow creating one or many OrderDetail entries for this order
+		# Expect payload as either a single object {product: <id>, quantity: <n>} or a list of such objects
+		data = request.data
+		items = data if isinstance(data, list) else [data]
+		created = []
+		for item in items:
+			# ensure order is set to this order
+			payload = dict(item)
+			payload['order'] = order.id
+			serializer = OrderDetailWriteSerializer(data=payload)
+			serializer.is_valid(raise_exception=True)
+			serializer.save()
+			created.append(serializer.data)
+
+		return Response(created, status=201)
 
 
 class OrderDetailViewSet(viewsets.ModelViewSet):

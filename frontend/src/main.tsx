@@ -71,7 +71,7 @@ function AppRoutes() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider>
+    <ThemeProvider defaultTheme="light">
       <BrowserRouter>
         <AuthProvider>
           <AppRoutes />

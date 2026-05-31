@@ -14,9 +14,7 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
-import {
-  formatCurrency,
-} from "@/data/mock-data"
+import { formatCurrency } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import { getProduct, getMissingUnits, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers, getCustomer } from "@/lib/dataCache"
@@ -161,22 +159,23 @@ export function DashboardPage() {
         </SectionCard>
 
         <SectionCard title="Alertas de stock">
-          <div className="grid gap-2">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {critical.map((stock) => {
               const product = getProduct(stock.productId)
               return (
                 <div
-                  className="flex items-center justify-between gap-3 rounded-md border border-red-100 bg-red-50 px-3 py-2"
+                  className="flex items-center justify-between gap-3 rounded-sm border px-3 py-2"
                   key={stock.productId}
                 >
                   <div>
                     <p className="text-sm font-medium">{product?.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Minimo {stock.minimumStock} unidades
+                      Mín. establecido: {stock.minimumStock}
                     </p>
                   </div>
+
                   <StatusBadge tone="red">
-                    {stock.availableStock} disp.
+                    {stock.availableStock}
                   </StatusBadge>
                 </div>
               )

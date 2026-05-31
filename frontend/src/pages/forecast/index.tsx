@@ -3,9 +3,9 @@ import { Factory } from "lucide-react"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { KpiCard } from "@/components/app/kpi-card"
 import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
-import { forecasts } from "@/data/mock-data"
 import { getProduct, ensureProducts } from "@/lib/dataCache"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import apiClients from "@/lib/apiClients"
 
 function riskTone(risk: string): BadgeTone {
   if (risk === "Alto") return "red"
@@ -14,8 +14,11 @@ function riskTone(risk: string): BadgeTone {
 }
 
 export function ForecastPage() {
+  const [forecasts, setForecasts] = useState<any[]>([])
+
   useEffect(() => {
     ensureProducts().catch(() => {})
+    apiClients.fetchForecasts().then(setForecasts).catch(() => {})
   }, [])
   return (
     <PageShell description="Pronostico simulado alimentado por ventas historicas y pedidos recientes." icon={Factory} title="Prediccion IA">

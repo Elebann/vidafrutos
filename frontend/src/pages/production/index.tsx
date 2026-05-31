@@ -1,18 +1,23 @@
 import { Factory } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { forecasts } from "@/data/mock-data"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { ensureProducts, ensurePackagedStock } from "@/lib/dataCache"
+import apiClients from "@/lib/apiClients"
 import { ProductLine } from "@/components/app/ProductLine"
 import { MovementsSection } from "@/pages/inventory/MovementsSection"
 
 export function ProductionPage() {
+  const [forecasts, setForecasts] = useState<any[]>([])
+
   useEffect(() => {
     ensureProducts().catch(() => {})
     ensurePackagedStock().catch(() => {})
+    apiClients.fetchForecasts().then(setForecasts).catch(() => {})
   }, [])
+
   const suggestions = forecasts.filter((forecast) => forecast.suggestedProduction > 0)
+
   return (
     <PageShell action={{ icon: Factory, label: "Registrar produccion", to: "/produccion/registrar" }} description="Planificacion diaria basada en faltantes y demanda esperada." icon={Factory} title="Produccion">
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
