@@ -44,7 +44,6 @@ export function OrderRow({ order }: { order: Order }) {
       <td className="px-4 py-3 font-medium">#{order.id}</td>
       <td className="px-4 py-3">{customer?.name}</td>
       <td className="px-4 py-3"><StatusBadge tone={orderTone(order.state)}>{order.state}</StatusBadge></td>
-      <td className="px-4 py-3 font-medium">{getOrderTotal(order)}</td>
       <td className="px-4 py-3"><Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">Ver</Button></td>
     </>
   )

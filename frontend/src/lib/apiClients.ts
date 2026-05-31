@@ -127,7 +127,16 @@ export async function fetchOrders(): Promise<Order[]> {
   try {
     const res = await api.get('/api/orders/')
     // map minimal fields to frontend order shape
-    return res.data.map((o: any) => ({ id: o.id, customerId: o.customer?.id ?? o.customer, state: o.state?.state ?? (o.state as any), date: o.date, requestedDate: o.requested_date ?? undefined, details: [] as any[], history: [] as any[] }))
+    return res.data.map((o: any) => ({
+      id: o.id,
+      customerId: o.customer?.id ?? o.customer,
+      state: o.state?.state ?? o.state,
+      date: o.date,
+      requestedDate: o.requested_date ?? undefined,
+      // If the list endpoint includes details, map them; otherwise leave empty array
+      details: (o.details ?? []).map((d: any) => ({ productId: d.product?.id ?? d.product, quantity: d.quantity })),
+      history: (o.history ?? []).map((h: any) => ({ date: h.change_date ?? h.date, user: h.user?.username ?? h.user, field: h.affected_field ?? h.field, previousValue: h.prev_value ?? h.previousValue, newValue: h.new_value ?? h.newValue })),
+    }))
   } catch (e) {
     return []
   }

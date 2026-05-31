@@ -13,17 +13,44 @@ export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
 
   useEffect(() => {
-    // prefetch related caches
-    ensureProducts().catch(() => {})
-    ensureCustomers().catch(() => {})
-    ensurePackagedStock().catch(() => {})
-    apiClients.fetchOrders().then(setOrders).catch(() => {})
+    // Prefetch related caches and ensure they are loaded before fetching orders so
+    // order totals (which depend on product prices) can be calculated synchronously
+    // during render. We intentionally await caches here and then fetch orders.
+    ;(async () => {
+      try {
+        await ensureProducts()
+      } catch {
+        // ignore
+      }
+      try {
+        await ensureCustomers()
+      } catch {
+        // ignore
+      }
+      try {
+        await ensurePackagedStock()
+      } catch {
+        // ignore
+      }
+
+      try {
+        const fetched = await apiClients.fetchOrders()
+        setOrders(fetched)
+      } catch {
+        // ignore
+      }
+    })()
   }, [])
 
   return (
     <PageShell action={{ icon: PackagePlus, label: "Nuevo pedido", to: "/pedidos/nuevo" }} description="Registro, validacion de stock y seguimiento de pedidos." icon={PackagePlus} title="Pedidos">
       <SearchBar placeholder="Buscar por cliente, estado o numero de pedido" />
-      <ResponsiveList columns={["Pedido", "Cliente", "Estado", "Total", "Accion"]} items={orders} keyExtractor={(order) => order.id} renderCard={(order) => <OrderCard order={order} />} renderRow={(order) => <OrderRow order={order} />} />
+      <ResponsiveList
+        columns={["Pedido", "Cliente", "Estado", "Acción"]}
+        items={orders}
+        keyExtractor={(order) => order.id}
+        renderCard={(order) => <OrderCard order={order} />}
+        renderRow={(order) => <OrderRow order={order} />} />
     </PageShell>
   )
 }
