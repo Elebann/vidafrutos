@@ -286,7 +286,6 @@ export default {
   fetchInvoices,
   fetchMovements,
   createOrder,
-  fetchForecasts,
   createCustomer,
   mapPackagedStock,
   mapRawStock,
