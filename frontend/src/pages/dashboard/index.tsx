@@ -158,7 +158,7 @@ export function DashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Alertas de stock">
+        <SectionCard title="Productos con stock bajo">
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {critical.map((stock) => {
               const product = getProduct(stock.productId)

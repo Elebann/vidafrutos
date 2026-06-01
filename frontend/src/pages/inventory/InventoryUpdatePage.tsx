@@ -1,5 +1,4 @@
-import { Archive } from "lucide-react"
-
+import { Archive, Boxes } from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -233,15 +232,34 @@ export function InventoryUpdatePage() {
   }
 
   return (
-    <PageShell description="Ajustes manuales y movimientos de materia prima." icon={Archive} title="Actualizar inventario">
+    <PageShell
+      description="Ajustes manuales y movimientos de materia prima."
+      icon={Archive}
+      title="Actualizar inventario"
+      action={{
+        icon: Boxes,
+        label: "Ver Inventario",
+        to: "/inventario",
+      }}
+    >
       <div className="grid gap-4 lg:grid-cols-2">
-        <FormCard submitLabel="Registrar movimiento" title="Movimiento de materia prima" onSubmit={handleSubmitMovement} submitDisabled={isSubmitting}>
+        <FormCard
+          submitLabel="Registrar movimiento"
+          title="Movimiento de materia prima"
+          onSubmit={handleSubmitMovement}
+          submitDisabled={isSubmitting}
+        >
           <FieldGroup>
             <Field>
               <FieldLabel>Producto</FieldLabel>
-              <Select value={String(selectedProductId || "")} onValueChange={(v) => setSelectedProductId(String(v))}>
+              <Select
+                value={String(selectedProductId || "")}
+                onValueChange={(v) => setSelectedProductId(String(v))}
+              >
                 <SelectTrigger>
-                  <SelectValue>{selectedProduct?.name ?? "Seleccionar"}</SelectValue>
+                  <SelectValue>
+                    {selectedProduct?.name ?? "Seleccionar"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -258,85 +276,143 @@ export function InventoryUpdatePage() {
           <FieldGroup>
             <Field>
               <FieldLabel>Tipo</FieldLabel>
-               <Select value={movementType} onValueChange={(v) => setMovementType(String(v))}>
-                 <SelectTrigger>
-                   <SelectValue>{movementType}</SelectValue>
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectGroup>
-                     {["ENTRADA", "SALIDA", "AJUSTE", "MERMA"].map((t) => (
-                       <SelectItem key={t} value={t}>
-                         {t}
-                       </SelectItem>
-                     ))}
-                   </SelectGroup>
-                 </SelectContent>
-               </Select>
+              <Select
+                value={movementType}
+                onValueChange={(v) => setMovementType(String(v))}
+              >
+                <SelectTrigger>
+                  <SelectValue>{movementType}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {["ENTRADA", "SALIDA", "AJUSTE", "MERMA"].map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
           </FieldGroup>
           <div>
-            <TextField label="Cantidad gramos" type="number" value={gramsValue} onChange={(v) => setGramsValue(v)} />
-            {gramsValidationMessage && <div className="text-destructive text-sm mt-1">{gramsValidationMessage}</div>}
+            <TextField
+              label="Cantidad gramos"
+              type="number"
+              value={gramsValue}
+              onChange={(v) => setGramsValue(v)}
+            />
+            {gramsValidationMessage && (
+              <div className="mt-1 text-sm text-destructive">
+                {gramsValidationMessage}
+              </div>
+            )}
           </div>
-          <TextField label="Descripcion" placeholder="Motivo del movimiento" value={description} onChange={(v) => setDescription(v)} />
+          <TextField
+            label="Descripcion"
+            placeholder="Motivo del movimiento"
+            value={description}
+            onChange={(v) => setDescription(v)}
+          />
         </FormCard>
 
-        <FormCard submitLabel="Guardar" title="Stock envasado" onSubmit={handleSavePackaged} submitDisabled={isSavingPackaged}>
+        <FormCard
+          submitLabel="Guardar"
+          title="Stock envasado"
+          onSubmit={handleSavePackaged}
+          submitDisabled={isSavingPackaged}
+        >
           <FieldGroup>
             <Field>
               <FieldLabel>Producto</FieldLabel>
-                <Select value={String(packagedProductId || "")} onValueChange={(v) => setPackagedProductId(String(v))}>
-                  <SelectTrigger>
-                    <SelectValue>{packagedSelectedProduct?.name ?? "Seleccionar"}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={String(product.id)}>
-                          {product.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+              <Select
+                value={String(packagedProductId || "")}
+                onValueChange={(v) => setPackagedProductId(String(v))}
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {packagedSelectedProduct?.name ?? "Seleccionar"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {products.map((product) => (
+                      <SelectItem key={product.id} value={String(product.id)}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
           </FieldGroup>
-          <TextField label="Cantidad envasada" type="number" value={packagedQuantity} onChange={(v) => setPackagedQuantity(v)} />
+          <TextField
+            label="Cantidad envasada"
+            type="number"
+            value={packagedQuantity}
+            onChange={(v) => setPackagedQuantity(v)}
+          />
           <FieldGroup>
             <Field>
               <FieldLabel>Merma</FieldLabel>
               <div className="flex items-center gap-2">
-                <Checkbox checked={packagedMermaEnabled} onCheckedChange={(checked) => setPackagedMermaEnabled(Boolean(checked))} />
+                <Checkbox
+                  checked={packagedMermaEnabled}
+                  onCheckedChange={(checked) =>
+                    setPackagedMermaEnabled(Boolean(checked))
+                  }
+                />
                 <span className="text-sm">Agregar merma</span>
               </div>
             </Field>
           </FieldGroup>
           {packagedMermaEnabled && (
-            <TextField label="Cantidad de merma (gr)" type="number" value={packagedMermaGrams} onChange={(v) => setPackagedMermaGrams(v)} />
+            <TextField
+              label="Cantidad de merma (gr)"
+              type="number"
+              value={packagedMermaGrams}
+              onChange={(v) => setPackagedMermaGrams(v)}
+            />
           )}
-          <TextField label="Comentario" placeholder="Detalle opcional" value={packagedComment} onChange={(v) => setPackagedComment(v)} />
-          <div className="sm:col-span-2 flex justify-end">
-            <Button type="button" variant="outline" onClick={handleAddPackagedEntry}>
+          {/*<TextField label="Comentario" placeholder="Detalle opcional" value={packagedComment} onChange={(v) => setPackagedComment(v)} />*/}
+          <div className="flex sm:col-span-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAddPackagedEntry}
+            >
               Agregar a la lista
             </Button>
           </div>
-          <div className="sm:col-span-2 space-y-2">
+          <div className="space-y-2 sm:col-span-2">
             <div className="text-sm font-medium">Resumen</div>
             {packagedEntries.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Sin productos agregados.</div>
+              <div className="text-sm text-muted-foreground">
+                Sin productos agregados.
+              </div>
             ) : (
               <div className="space-y-2">
                 {packagedEntries.map((entry) => (
-                  <div key={entry.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm">
+                  <div
+                    key={entry.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
+                  >
                     <div>
                       <div className="font-medium">{entry.productName}</div>
                       <div className="text-muted-foreground">
-                        {entry.quantity} un • {entry.quantity * entry.gramsPerUnit} gr
-                        {entry.mermaGrams > 0 ? ` + ${entry.mermaGrams} gr merma` : ""}
+                        {entry.quantity} un •{" "}
+                        {entry.quantity * entry.gramsPerUnit} gr
+                        {entry.mermaGrams > 0
+                          ? ` + ${entry.mermaGrams} gr merma`
+                          : ""}
                         {entry.comment ? ` • ${entry.comment}` : ""}
                       </div>
                     </div>
-                    <Button type="button" variant="ghost" onClick={() => handleRemovePackagedEntry(entry.id)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => handleRemovePackagedEntry(entry.id)}
+                    >
                       Quitar
                     </Button>
                   </div>

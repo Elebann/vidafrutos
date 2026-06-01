@@ -4,6 +4,7 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
 import { getProduct } from "@/lib/dataCache"
 import { useEffect, useState } from "react"
+import { ensureProducts } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
 import type { PackagedStock, RawStock } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
@@ -14,8 +15,26 @@ export function InventoryPage() {
   const [rawStock, setRawStock] = useState<RawStock[]>([])
 
   useEffect(() => {
-    apiClients.fetchPackagedStock().then(setPackagedStock).catch(() => {})
-    apiClients.fetchRawStock().then(setRawStock).catch(() => {})
+    let cancelled = false
+
+    ;(async () => {
+      try {
+        await ensureProducts()
+        if (cancelled) return
+
+        const [packaged, raw] = await Promise.all([apiClients.fetchPackagedStock(), apiClients.fetchRawStock()])
+        if (cancelled) return
+
+        setPackagedStock(packaged)
+        setRawStock(raw)
+      } catch {
+        // keep page usable even if one request fails
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -33,7 +52,7 @@ export function InventoryPage() {
                     <StatusBadge tone={critical ? "red" : "green"}>{critical ? "Critico" : "OK"}</StatusBadge>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                    <div><strong>{stock.availableStock}</strong><span className="block text-xs text-muted-foreground">Disp.</span></div>
+                    <div><strong>{stock.availableStock}</strong><span className="block text-xs text-muted-foreground">Envasado</span></div>
                     <div><strong>{stock.allocatedStock}</strong><span className="block text-xs text-muted-foreground">Reserv.</span></div>
                     <div><strong>{stock.minimumStock}</strong><span className="block text-xs text-muted-foreground">Min.</span></div>
                   </div>
