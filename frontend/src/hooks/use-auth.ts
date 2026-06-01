@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { AuthContext } from "@/contexts/auth-context"
+import { AuthContext } from "@/contexts/auth-context-value"
 
 export function useAuth() {
   const context = useContext(AuthContext)
@@ -8,5 +8,4 @@ export function useAuth() {
   }
   return context
 }
-
 

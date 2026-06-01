@@ -4,8 +4,8 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { KpiCard } from "@/components/app/kpi-card"
 import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
 import { getProduct, ensureProducts } from "@/lib/dataCache"
-import { useEffect, useState } from "react"
-import apiClients from "@/lib/apiClients"
+import { useEffect } from "react"
+import type { Forecast } from "@/types/domain"
 
 function riskTone(risk: string): BadgeTone {
   if (risk === "Alto") return "red"
@@ -14,7 +14,7 @@ function riskTone(risk: string): BadgeTone {
 }
 
 export function ForecastPage() {
-  const [forecasts, setForecasts] = useState<any[]>([])
+  const forecasts: Forecast[] = []
 
   useEffect(() => {
     ensureProducts().catch(() => {})

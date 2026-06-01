@@ -18,7 +18,7 @@ import { formatCurrency } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import { getProduct, getMissingUnits, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers, getCustomer } from "@/lib/dataCache"
-import type { Order } from "@/types/domain"
+import type { Invoice, Order, PackagedStock } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
 function orderTone(state: string): BadgeTone {
@@ -68,8 +68,8 @@ function OrderRow({ order }: { order: Order }) {
 
 export function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([])
-  const [invoices, setInvoices] = useState<any[]>([])
-  const [critical, setCritical] = useState<any[]>([])
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [critical, setCritical] = useState<PackagedStock[]>([])
 
   useEffect(() => {
     ensureProducts().catch(() => {})

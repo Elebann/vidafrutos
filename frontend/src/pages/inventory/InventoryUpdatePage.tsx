@@ -5,11 +5,11 @@ import { PageShell } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { useEffect, useState } from "react"
-import api from "@/lib/api"
+import apiClients from "@/lib/apiClients"
+import type { ApiProduct } from "@/lib/apiTypes"
 
 export function InventoryUpdatePage() {
-  // use the raw backend product objects (they include raw_stock and packaged_stock)
-  const [products, setProducts] = useState<any[]>([])
+  const [products, setProducts] = useState<ApiProduct[]>([])
   const [selectedProductId, setSelectedProductId] = useState<string>("")
   const [movementType, setMovementType] = useState<string>("ENTRADA")
   const [gramsValue, setGramsValue] = useState<string>("")
@@ -17,10 +17,9 @@ export function InventoryUpdatePage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   useEffect(() => {
-    api
-      .get("/api/products/")
-      .then((res) => {
-        const list = res.data ?? []
+    apiClients
+      .fetchBackendProducts()
+      .then((list) => {
         setProducts(list)
         if (list.length > 0) setSelectedProductId(String(list[0].id))
       })
@@ -28,13 +27,13 @@ export function InventoryUpdatePage() {
   }, [])
 
   const selectedProduct = products.find((p) => String(p.id) === String(selectedProductId)) ?? products[0]
-  // validation: compute how many packaged units would be produced
   const gramsNumber = parseFloat(gramsValue || "0")
-  const packagedCount = selectedProduct && selectedProduct.grams ? gramsNumber / selectedProduct.grams : 0
-  const minimumRequired = selectedProduct?.packaged_stock?.minimum_stock ?? 0
+  const productGrams = Number(selectedProduct?.grams ?? 0)
+  const packagedCount = productGrams > 0 ? gramsNumber / productGrams : 0
+  const minimumRequired = Number(selectedProduct?.packaged_stock?.minimum_stock ?? 0)
   const gramsValidationMessage =
     gramsValue && packagedCount < minimumRequired
-      ? `El valor ingresado no cumple el mínimo requerido para producir ${minimumRequired} unidades (${selectedProduct.grams} gr. por bolsa.).`
+      ? `El valor ingresado no cumple el mínimo requerido para producir ${minimumRequired} unidades (${productGrams} gr. por bolsa.).`
       : null
 
   async function handleSubmitMovement() {
@@ -45,34 +44,32 @@ export function InventoryUpdatePage() {
     if (isNaN(q) || q <= 0) return
 
     const pid = selectedProduct.id
-    const currentRaw = parseFloat((selectedProduct.raw_stock?.total_grams ?? selectedProduct.raw_stock?.quantity_kilogram ?? 0) as any) || 0
+    const currentRaw = Number(selectedProduct.raw_stock?.total_grams ?? selectedProduct.raw_stock?.quantity_kilogram ?? 0) || 0
     const updatedRaw = movementType === "ENTRADA" ? currentRaw + q : currentRaw - q
 
     setIsSubmitting(true)
     try {
-      const isoDate = new Date().toISOString()
-      const movementBody = { product_id: pid, movement_type: movementType, quantity: q, date: isoDate, description: description || "" }
       try {
-        await api.post("/api/inventory/movements/", movementBody)
-      } catch (err: any) {
+        await apiClients.createInventoryMovement({
+          productId: pid,
+          movementType,
+          quantity: q,
+          description,
+        })
+      } catch (err) {
         console.error("Failed to create movement", err)
-        alert(`Error ${err?.response?.status ?? "no-status"} al registrar movimiento.`)
+        alert("No se pudo registrar el movimiento.")
         return
       }
 
-      // 2) update raw stock on product resource
-      // Try POST /api/products (some backends expect this) then PATCH /api/products/{id}/ as fallback
-      let rawUpdateSucceeded = false
       try {
-        await api.patch(`/api/products/${pid}/`, { raw_stock_total_grams: updatedRaw })
-        rawUpdateSucceeded = true
-      } catch (errPatch: any) {
+        await apiClients.updateProductRawStock(pid, updatedRaw)
+      } catch (errPatch) {
         console.error("Failed to update raw_stock via PATCH", errPatch)
         alert("Movimiento registrado, pero no se pudo actualizar el stock en crudo.")
       }
 
-      // 3) update local state to reflect new raw stock
-      setProducts((prev: any[]) => prev.map((p) => (String(p.id) === String(pid) ? { ...p, raw_stock: { ...(p.raw_stock ?? {}), total_grams: updatedRaw } } : p)))
+      setProducts((prev) => prev.map((p) => (String(p.id) === String(pid) ? { ...p, raw_stock: { ...(p.raw_stock ?? {}), total_grams: updatedRaw } } : p)))
 
       // reset form fields
       setGramsValue("")

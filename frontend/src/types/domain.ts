@@ -21,7 +21,7 @@ export interface Customer {
   rut: string
   name: string
   address: string
-  lastOrderDate: string
+  lastOrderDate?: string
   balance: number
 }
 
@@ -53,7 +53,7 @@ export interface Order {
   customerId: number
   state: OrderState
   date: string
-  requestedDate: string
+  requestedDate?: string
   details: OrderDetail[]
   history: OrderHistory[]
 }
@@ -64,7 +64,7 @@ export interface Invoice {
   userId: number
   date: string
   total: number
-  paymentMethod: "Efectivo" | "Transferencia" | "Debito" | "Credito"
+  paymentMethod: string
 }
 
 export interface Role {
@@ -84,7 +84,7 @@ export interface User {
 
 export interface RawStock {
   productId: number
-  total_grams: number
+  totalGrams: number
 }
 
 export interface PackagedStock {

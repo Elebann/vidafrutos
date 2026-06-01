@@ -4,19 +4,19 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { useEffect, useState } from "react"
 import { getCustomer, ensureCustomers } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
-import type { Order } from "@/types/domain"
+import type { Customer, Order } from "@/types/domain"
 import { OrderCard } from "@/pages/orders/components"
 
 export function CustomerDetailPage() {
   const { customerId } = useParams()
-  const [customer, setCustomer] = useState<any>(null)
+  const [customer, setCustomer] = useState<Customer | null>(null)
   const [customerOrders, setCustomerOrders] = useState<Order[]>([])
 
   useEffect(() => {
     const id = Number(customerId)
     ensureCustomers().catch(() => {})
     apiClients.fetchOrders().then((all) => setCustomerOrders(all.filter((o) => o.customerId === id))).catch(() => {})
-    ensureCustomers().then(() => setCustomer(getCustomer(id))).catch(() => {})
+    ensureCustomers().then(() => setCustomer(getCustomer(id) ?? null)).catch(() => {})
   }, [customerId])
 
   if (!customer) return <div>Loading...</div>

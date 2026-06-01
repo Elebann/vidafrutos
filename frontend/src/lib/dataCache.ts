@@ -36,10 +36,7 @@ export function getPackagedStock(productId: number): PackagedStock | undefined {
 
 export function getOrderTotal(order: Order): number {
   return order.details.reduce((total, detail) => {
-    // Prefer price provided on the detail (some backends include it), otherwise
-    // fall back to the product master price from cache. This covers cases where
-    // product cache isn't populated or price changed since order creation.
-    const detailPrice = (detail as any).price as number | undefined
+    const detailPrice = detail.price
     if (typeof detailPrice === 'number') return total + detailPrice * detail.quantity
     const product = getProduct(detail.productId)
     return total + (product?.price ?? 0) * detail.quantity

@@ -28,7 +28,7 @@ export function NewOrderPage() {
   // single static selector state
   const [currentProductId, setCurrentProductId] = useState<number | null>(null)
   const [currentQuantity, setCurrentQuantity] = useState<number>(1)
-  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10))
+  const [date] = useState<string>(() => new Date().toISOString().slice(0, 10))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {

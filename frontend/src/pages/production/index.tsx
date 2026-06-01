@@ -1,14 +1,14 @@
 import { Factory } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { ensureProducts, ensurePackagedStock } from "@/lib/dataCache"
-import apiClients from "@/lib/apiClients"
 import { ProductLine } from "@/components/app/ProductLine"
 import { MovementsSection } from "@/pages/inventory/MovementsSection"
+import type { Forecast } from "@/types/domain"
 
 export function ProductionPage() {
-  const [forecasts, setForecasts] = useState<any[]>([])
+  const forecasts: Forecast[] = []
 
   useEffect(() => {
     ensureProducts().catch(() => {})

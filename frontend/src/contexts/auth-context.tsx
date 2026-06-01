@@ -1,48 +1,31 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { useState, useCallback, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 import api from "@/lib/api"
+import { AuthContext, type User } from "@/contexts/auth-context-value"
 
-interface User {
-  username: string
-  rut?: string
-  rol?: number
+function restoreStoredUser(): User | null {
+  const token = localStorage.getItem("access_token")
+  const storedUser = localStorage.getItem("user")
+
+  if (!token || !storedUser) return null
+
+  try {
+    return JSON.parse(storedUser) as User
+  } catch (error) {
+    console.error("Error al restaurar sesión:", error)
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
+    localStorage.removeItem("user")
+    return null
+  }
 }
-
-interface AuthContextType {
-  user: User | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  login: (rut: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(() => restoreStoredUser())
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   const isAuthenticated = user !== null
-
-  // Restaurar sesión al cargar la app
-  useEffect(() => {
-    const token = localStorage.getItem("access_token")
-    const storedUser = localStorage.getItem("user")
-
-    if (token && storedUser) {
-      try {
-        const userData = JSON.parse(storedUser)
-        setUser(userData)
-      } catch (error) {
-        console.error("Error al restaurar sesión:", error)
-        localStorage.removeItem("access_token")
-        localStorage.removeItem("refresh_token")
-        localStorage.removeItem("user")
-      }
-    }
-    setIsLoading(false)
-  }, [])
 
   const login = useCallback(async (rut: string, password: string) => {
     setIsLoading(true)
@@ -100,6 +83,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   )
 }
-
 
 
