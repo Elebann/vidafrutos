@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.views import CustomTokenObtainPairView
+from .views import api_index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +34,6 @@ urlpatterns = [
     path('api/orders/', include('orders.urls')),
     path('api/inventory/', include('inventory.urls')),
     path('api/billing/', include('billing.urls')),
+    # API index - list available endpoints under /api/
+    path('api/', api_index, name='api-index'),
 ]

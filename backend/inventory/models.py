@@ -21,13 +21,11 @@ class RawStockMovement(models.Model):
         max_length=50,
         choices=MOVEMENT_CHOICES
     )
-    quantity = models.DecimalField(
-        max_digits=10,
-        decimal_places=3,
-        help_text="Cantidad en kilos"
+    quantity = models.IntegerField(
+        help_text="Cantidad en gramos"
     )
     date = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.movement_type} - {self.product} ({self.quantity} kg)"
+        return f"{self.movement_type} - {self.product} ({self.quantity} gr)"

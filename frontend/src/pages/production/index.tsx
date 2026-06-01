@@ -13,7 +13,7 @@ export function ProductionPage() {
   useEffect(() => {
     ensureProducts().catch(() => {})
     ensurePackagedStock().catch(() => {})
-    apiClients.fetchForecasts().then(setForecasts).catch(() => {})
+    // apiClients.fetchForecasts().then(setForecasts).catch(() => {})
   }, [])
 
   const suggestions = forecasts.filter((forecast) => forecast.suggestedProduction > 0)

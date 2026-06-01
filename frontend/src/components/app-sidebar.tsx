@@ -82,12 +82,12 @@ const data = {
       label: "Inventario",
       items: [
         {
-          title: "Stock",
+          title: "Inventario",
           url: "/inventario",
           icon: <Boxes />,
         },
         {
-          title: "Actualizar stock",
+          title: "Actualizar Inventario",
           url: "/inventario/actualizar",
           icon: <Archive />,
         },

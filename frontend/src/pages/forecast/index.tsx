@@ -18,7 +18,7 @@ export function ForecastPage() {
 
   useEffect(() => {
     ensureProducts().catch(() => {})
-    apiClients.fetchForecasts().then(setForecasts).catch(() => {})
+    // apiClients.fetchForecasts().then(setForecasts).catch(() => {})
   }, [])
   return (
     <PageShell description="Pronostico simulado alimentado por ventas historicas y pedidos recientes." icon={Factory} title="Prediccion IA">
