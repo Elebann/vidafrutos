@@ -1,10 +1,10 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Rol, User
-from .serializers import RolSerializer, UserSerializer
+from .serializers import RolSerializer, UserCreateSerializer, UserSerializer
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -33,8 +33,11 @@ class RolViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.select_related('rol').all()
-    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        return UserSerializer

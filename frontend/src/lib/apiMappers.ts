@@ -122,7 +122,7 @@ export function mapUser(user: ApiUser): User {
     username: user.username ?? "",
     name: user.username ?? "",
     roleId: user.rol?.id ?? user.roleId ?? 0,
-    active: true,
+    active: user.is_active ?? true,
   }
 }
 

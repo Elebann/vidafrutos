@@ -13,12 +13,77 @@ export function AdminUsersPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [roles, setRoles] = useState<Role[]>([])
   const [users, setUsers] = useState<User[]>([])
+  const [rut, setRut] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [selectedRoleId, setSelectedRoleId] = useState<string>("")
+  const [isSubmittingUser, setIsSubmittingUser] = useState(false)
 
   useEffect(() => {
-    apiClients.fetchRoles().then(setRoles).catch(() => {})
+    apiClients
+      .fetchRoles()
+      .then((loadedRoles) => {
+        setRoles(loadedRoles)
+        if (loadedRoles.length > 0) {
+          setSelectedRoleId(String(loadedRoles[0].id))
+        }
+      })
+      .catch(() => {})
     apiClients.fetchUsers().then(setUsers).catch(() => {})
     apiClients.fetchProducts().then(setProducts).catch(() => {})
   }, [])
+
+  async function handleNewUser(e: React.FormEvent) {
+    e.preventDefault()
+
+    if (isSubmittingUser) return
+
+    const trimmedRut = rut.trim()
+    const trimmedUsername = username.trim()
+
+    if (!trimmedRut || !trimmedUsername || password.length < 8) {
+      alert("RUT, usuario y contraseña son requeridos (la contraseña debe tener al menos 8 caracteres)")
+      return
+    }
+
+    if (/\s/.test(trimmedUsername)) {
+      alert("El usuario no puede contener espacios")
+      return
+    }
+
+    if (roles.length > 0 && !selectedRoleId) {
+      alert("Debes seleccionar un rol")
+      return
+    }
+
+    setIsSubmittingUser(true)
+    try {
+      const created = await apiClients.createUser({
+        rut: trimmedRut,
+        username: trimmedUsername,
+        password,
+        rol: selectedRoleId ? Number(selectedRoleId) : undefined,
+      })
+
+      if (!created) {
+        alert("Error creando usuario")
+        return
+      }
+
+      const refreshedUsers = await apiClients.fetchUsers()
+      setUsers(refreshedUsers)
+
+      setRut("")
+      setUsername("")
+      setPassword("")
+      alert("Usuario creado")
+    } catch (error) {
+      console.error(error)
+      alert("Error creando usuario")
+    } finally {
+      setIsSubmittingUser(false)
+    }
+  }
 
   return (
     <PageShell description="Usuarios, roles, estados y alertas base del sistema." icon={ShieldCheck} title="Administracion">
@@ -28,20 +93,21 @@ export function AdminUsersPage() {
             {users.map((user) => <div className="flex items-center justify-between gap-3 rounded-md border bg-neutral-50 px-3 py-2" key={user.id}><div><p className="font-medium">{user.name}</p><p className="text-xs text-muted-foreground">{user.rut}</p></div><StatusBadge tone={user.active ? "green" : "neutral"}>{roles.find((role) => role.id === user.roleId)?.name}</StatusBadge></div>)}
           </div>
         </SectionCard>
-        <FormCard submitLabel="Guardar usuario" title="Nuevo usuario">
-          <TextField label="RUT" />
-          <TextField label="Username" />
+        <FormCard submitLabel="Guardar usuario" title="Nuevo usuario" onSubmit={handleNewUser} submitDisabled={isSubmittingUser}>
+          <TextField label="Rut" value={rut} onChange={setRut} />
+          <TextField label="Usuario" value={username} onChange={(value) => setUsername(value.replace(/\s/g, ""))} />
+          <TextField label="Contraseña" type="password" value={password} onChange={setPassword} />
           <FieldGroup>
             <Field>
               <FieldLabel>Rol</FieldLabel>
-                <Select defaultValue={roles[0]?.id}>
+                <Select value={selectedRoleId} onValueChange={(value) => setSelectedRoleId(value ?? "")}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Seleccionar rol" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                     {roles.map((role) => (
-                      <SelectItem key={role.id} value={role.id}>
+                      <SelectItem key={role.id} value={String(role.id)}>
                         {role.name}
                       </SelectItem>
                     ))}
@@ -64,14 +130,14 @@ export function AdminUsersPage() {
           <FieldGroup>
             <Field>
               <FieldLabel>Producto</FieldLabel>
-              <Select defaultValue={products[0]?.id}>
+              <Select defaultValue={products[0] ? String(products[0].id) : undefined}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
+                      <SelectItem key={product.id} value={String(product.id)}>
                         {product.name}
                       </SelectItem>
                     ))}

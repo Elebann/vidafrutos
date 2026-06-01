@@ -45,6 +45,7 @@ export interface ApiUser {
   username?: string | null
   rol?: { id: number } | null
   roleId?: number | null
+  is_active?: boolean
 }
 
 export interface ApiOrderDetail {
@@ -107,4 +108,11 @@ export interface CreateInventoryMovementPayload {
   quantity: number
   date?: string
   description?: string
+}
+
+export interface CreateUserPayload {
+  username: string
+  rut: string
+  password: string
+  rol?: number
 }

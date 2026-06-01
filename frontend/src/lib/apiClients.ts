@@ -34,6 +34,7 @@ import type {
   ApiUser,
   CreateInventoryMovementPayload,
   CreateOrderPayload,
+  CreateUserPayload,
 } from "@/lib/apiTypes"
 
 async function getList<TResponse, TResult>(
@@ -98,6 +99,16 @@ export function fetchRoles(): Promise<Role[]> {
 
 export function fetchUsers(): Promise<User[]> {
   return getList<ApiUser, User>("/api/accounts/users/", mapUser)
+}
+
+export async function createUser(payload: CreateUserPayload): Promise<User | null> {
+  try {
+    const response = await api.post<ApiUser>("/api/accounts/users/", payload)
+    return mapUser(response.data)
+  } catch (error) {
+    console.error("Error creating user", error)
+    return null
+  }
 }
 
 export function fetchOrders(): Promise<Order[]> {
@@ -214,6 +225,7 @@ export default {
   fetchRawStock,
   fetchRoles,
   fetchUsers,
+  createUser,
   fetchOrders,
   fetchOrderStates,
   updateOrderState,
