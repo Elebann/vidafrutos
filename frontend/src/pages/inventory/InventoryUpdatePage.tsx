@@ -1,12 +1,24 @@
 import { Archive } from "lucide-react"
 
 import { FormCard, TextField } from "@/components/app/form-card"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { PageShell } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import apiClients from "@/lib/apiClients"
 import type { ApiProduct } from "@/lib/apiTypes"
+
+type PackagedEntry = {
+  id: string
+  productId: number
+  productName: string
+  quantity: number
+  gramsPerUnit: number
+  mermaGrams: number
+  comment: string
+}
 
 export function InventoryUpdatePage() {
   const [products, setProducts] = useState<ApiProduct[]>([])
@@ -15,18 +27,29 @@ export function InventoryUpdatePage() {
   const [gramsValue, setGramsValue] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [packagedProductId, setPackagedProductId] = useState<string>("")
+  const [packagedQuantity, setPackagedQuantity] = useState<string>("")
+  const [packagedMermaEnabled, setPackagedMermaEnabled] = useState<boolean>(false)
+  const [packagedMermaGrams, setPackagedMermaGrams] = useState<string>("")
+  const [packagedComment, setPackagedComment] = useState<string>("")
+  const [packagedEntries, setPackagedEntries] = useState<PackagedEntry[]>([])
+  const [isSavingPackaged, setIsSavingPackaged] = useState<boolean>(false)
 
   useEffect(() => {
     apiClients
       .fetchBackendProducts()
       .then((list) => {
         setProducts(list)
-        if (list.length > 0) setSelectedProductId(String(list[0].id))
+        if (list.length > 0) {
+          if (!selectedProductId) setSelectedProductId(String(list[0].id))
+          if (!packagedProductId) setPackagedProductId(String(list[0].id))
+        }
       })
       .catch(() => {})
   }, [])
 
   const selectedProduct = products.find((p) => String(p.id) === String(selectedProductId)) ?? products[0]
+  const packagedSelectedProduct = products.find((p) => String(p.id) === String(packagedProductId)) ?? products[0]
   const gramsNumber = parseFloat(gramsValue || "0")
   const productGrams = Number(selectedProduct?.grams ?? 0)
   const packagedCount = productGrams > 0 ? gramsNumber / productGrams : 0
@@ -35,6 +58,133 @@ export function InventoryUpdatePage() {
     gramsValue && packagedCount < minimumRequired
       ? `El valor ingresado no cumple el mínimo requerido para producir ${minimumRequired} unidades (${productGrams} gr. por bolsa.).`
       : null
+
+  const getRawTotalGrams = (product?: ApiProduct) => Number(product?.raw_stock?.total_grams ?? product?.raw_stock?.quantity_kilogram ?? 0) || 0
+  const getAvailablePackagedStock = (product?: ApiProduct) => Number(product?.packaged_stock?.available_stock ?? 0) || 0
+
+  function handleAddPackagedEntry() {
+    if (!packagedSelectedProduct) return
+
+    const quantity = Number(packagedQuantity || "0")
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      alert("Ingresa una cantidad válida para envasar.")
+      return
+    }
+
+    const gramsPerUnit = Number(packagedSelectedProduct.grams ?? 0)
+    if (!Number.isFinite(gramsPerUnit) || gramsPerUnit <= 0) {
+      alert("El producto seleccionado no tiene gramos por unidad configurados.")
+      return
+    }
+
+    const mermaGrams = packagedMermaEnabled ? Number(packagedMermaGrams || "0") : 0
+    if (packagedMermaEnabled && (!Number.isFinite(mermaGrams) || mermaGrams <= 0)) {
+      alert("Ingresa una cantidad de merma válida.")
+      return
+    }
+
+    const productId = Number(packagedSelectedProduct.id)
+    const alreadyUsed = packagedEntries
+      .filter((entry) => entry.productId === productId)
+      .reduce((total, entry) => total + entry.quantity * entry.gramsPerUnit + entry.mermaGrams, 0)
+
+    const requiredRaw = quantity * gramsPerUnit + mermaGrams
+    const availableRaw = getRawTotalGrams(packagedSelectedProduct) - alreadyUsed
+
+    if (requiredRaw > availableRaw) {
+      alert("No hay suficiente stock de materia prima para este envasado.")
+      return
+    }
+
+    setPackagedEntries((prev) => [
+      ...prev,
+      {
+        id: `${productId}-${Date.now()}`,
+        productId,
+        productName: packagedSelectedProduct.name,
+        quantity,
+        gramsPerUnit,
+        mermaGrams,
+        comment: packagedComment.trim(),
+      },
+    ])
+
+    setPackagedQuantity("")
+    setPackagedMermaEnabled(false)
+    setPackagedMermaGrams("")
+    setPackagedComment("")
+  }
+
+  function handleRemovePackagedEntry(entryId: string) {
+    setPackagedEntries((prev) => prev.filter((entry) => entry.id !== entryId))
+  }
+
+  async function handleSavePackaged(event?: FormEvent) {
+    event?.preventDefault()
+
+    if (packagedEntries.length === 0) {
+      alert("Agrega al menos un producto a la lista.")
+      return
+    }
+
+    const aggregates = new Map<number, { totalUnits: number; totalRaw: number }>()
+
+    for (const entry of packagedEntries) {
+      const current = aggregates.get(entry.productId) ?? { totalUnits: 0, totalRaw: 0 }
+      const entryRaw = entry.quantity * entry.gramsPerUnit + entry.mermaGrams
+      aggregates.set(entry.productId, {
+        totalUnits: current.totalUnits + entry.quantity,
+        totalRaw: current.totalRaw + entryRaw,
+      })
+    }
+
+    const updates = [] as Array<{ productId: number; newAvailable: number; newRaw: number }>
+    for (const [productId, aggregate] of aggregates) {
+      const product = products.find((p) => Number(p.id) === productId)
+      if (!product) continue
+
+      const rawTotal = getRawTotalGrams(product)
+      if (aggregate.totalRaw > rawTotal) {
+        alert(`El producto ${product.name} no tiene stock suficiente en crudo.`)
+        return
+      }
+
+      const newAvailable = getAvailablePackagedStock(product) + aggregate.totalUnits
+      const newRaw = rawTotal - aggregate.totalRaw
+      updates.push({ productId, newAvailable, newRaw })
+    }
+
+    setIsSavingPackaged(true)
+    try {
+      for (const update of updates) {
+        await apiClients.updateProductPackagedStock(update.productId, update.newAvailable)
+        await apiClients.updateProductRawStock(update.productId, update.newRaw)
+      }
+
+      setProducts((prev) =>
+        prev.map((product) => {
+          const update = updates.find((item) => Number(product.id) === item.productId)
+          if (!update) return product
+          return {
+            ...product,
+            raw_stock: { ...(product.raw_stock ?? {}), total_grams: update.newRaw },
+            packaged_stock: { ...(product.packaged_stock ?? {}), available_stock: update.newAvailable },
+          }
+        })
+      )
+
+      setPackagedEntries([])
+      setPackagedQuantity("")
+      setPackagedMermaEnabled(false)
+      setPackagedMermaGrams("")
+      setPackagedComment("")
+    } catch (error) {
+      console.error("Error updating packaged stock", error)
+      alert("No se pudo guardar el envasado. Intenta nuevamente.")
+    } finally {
+      setIsSavingPackaged(false)
+    }
+  }
 
   async function handleSubmitMovement() {
 
@@ -130,13 +280,14 @@ export function InventoryUpdatePage() {
           </div>
           <TextField label="Descripcion" placeholder="Motivo del movimiento" value={description} onChange={(v) => setDescription(v)} />
         </FormCard>
-        <FormCard submitLabel="Actualizar stock" title="Stock envasado">
+
+        <FormCard submitLabel="Guardar" title="Stock envasado" onSubmit={handleSavePackaged} submitDisabled={isSavingPackaged}>
           <FieldGroup>
             <Field>
               <FieldLabel>Producto</FieldLabel>
-                <Select value={String(selectedProductId || "")} onValueChange={(v) => setSelectedProductId(String(v))}>
+                <Select value={String(packagedProductId || "")} onValueChange={(v) => setPackagedProductId(String(v))}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>{packagedSelectedProduct?.name ?? "Seleccionar"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -150,9 +301,49 @@ export function InventoryUpdatePage() {
                 </Select>
             </Field>
           </FieldGroup>
-          <TextField label="Disponible" type="number" />
-          <TextField label="Reservado" type="number" />
-          <TextField label="Minimo" type="number" />
+          <TextField label="Cantidad envasada" type="number" value={packagedQuantity} onChange={(v) => setPackagedQuantity(v)} />
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Merma</FieldLabel>
+              <div className="flex items-center gap-2">
+                <Checkbox checked={packagedMermaEnabled} onCheckedChange={(checked) => setPackagedMermaEnabled(Boolean(checked))} />
+                <span className="text-sm">Agregar merma</span>
+              </div>
+            </Field>
+          </FieldGroup>
+          {packagedMermaEnabled && (
+            <TextField label="Cantidad de merma (gr)" type="number" value={packagedMermaGrams} onChange={(v) => setPackagedMermaGrams(v)} />
+          )}
+          <TextField label="Comentario" placeholder="Detalle opcional" value={packagedComment} onChange={(v) => setPackagedComment(v)} />
+          <div className="sm:col-span-2 flex justify-end">
+            <Button type="button" variant="outline" onClick={handleAddPackagedEntry}>
+              Agregar a la lista
+            </Button>
+          </div>
+          <div className="sm:col-span-2 space-y-2">
+            <div className="text-sm font-medium">Resumen</div>
+            {packagedEntries.length === 0 ? (
+              <div className="text-sm text-muted-foreground">Sin productos agregados.</div>
+            ) : (
+              <div className="space-y-2">
+                {packagedEntries.map((entry) => (
+                  <div key={entry.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm">
+                    <div>
+                      <div className="font-medium">{entry.productName}</div>
+                      <div className="text-muted-foreground">
+                        {entry.quantity} un • {entry.quantity * entry.gramsPerUnit} gr
+                        {entry.mermaGrams > 0 ? ` + ${entry.mermaGrams} gr merma` : ""}
+                        {entry.comment ? ` • ${entry.comment}` : ""}
+                      </div>
+                    </div>
+                    <Button type="button" variant="ghost" onClick={() => handleRemovePackagedEntry(entry.id)}>
+                      Quitar
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </FormCard>
       </div>
     </PageShell>

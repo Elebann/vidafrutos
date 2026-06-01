@@ -160,6 +160,10 @@ export async function updateProductRawStock(productId: number, totalGrams: numbe
   await api.patch(`/api/products/${productId}/`, { raw_stock_total_grams: totalGrams })
 }
 
+export async function updateProductPackagedStock(productId: number, availableStock: number): Promise<void> {
+  await api.patch(`/api/products/${productId}/`, { packaged_stock_available_stock: availableStock })
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
     const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
@@ -218,5 +222,6 @@ export default {
   fetchMovements,
   createInventoryMovement,
   updateProductRawStock,
+  updateProductPackagedStock,
   createOrder,
 }
