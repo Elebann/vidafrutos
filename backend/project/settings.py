@@ -151,6 +151,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://192.168.56.1:5173',
     'http://192.168.100.29:5173',
+    'https://server-production-36cb.up.railway.app'
 ]
 # Allow credentials (cookies, authorization headers, etc.) to be sent cross-origin
 CORS_ALLOW_CREDENTIALS = True
@@ -161,6 +162,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://192.168.56.1:5173',
     'http://192.168.100.29:5173',
+    'https://server-production-36cb.up.railway.app'
 ]
 
 # Add production origins from environment

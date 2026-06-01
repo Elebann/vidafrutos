@@ -262,15 +262,14 @@ export async function createOrder(payload: { customerId: number | null; date?: s
   }
 }
 
-export async function fetchForecasts(): Promise<Forecast[]> {
-  try {
-    const res = await api.get('/api/forecasts/')
-    return res.data
-  } catch (e) {
-    // No in-memory mock fallback; return empty list
-    return []
-  }
-}
+// export async function fetchForecasts(): Promise<Forecast[]> {
+//   try {
+//     const res = await api.get('/api/forecasts/')
+//     return res.data
+//   } catch (e) {
+//     return []
+//   }
+// }
 
 export default {
   fetchProducts,

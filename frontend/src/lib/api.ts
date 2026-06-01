@@ -3,7 +3,8 @@ import type { AxiosInstance } from "axios"
 
 // Build the API base URL from the current hostname so the frontend will call
 // the backend on the same machine/IP used to open the frontend (works for LAN).
-const API_BASE_URL = `${location.protocol}//${location.hostname}:8000`
+// const API_BASE_URL = `${location.protocol}//${location.hostname}:8000`
+const API_BASE_URL = `https://server-production-36cb.up.railway.app`
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
