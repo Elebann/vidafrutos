@@ -5,6 +5,7 @@ import api from "@/lib/api"
 interface User {
   username: string
   rut?: string
+  rol?: number
 }
 
 interface AuthContextType {
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userInfo: User = {
         username: userData?.username || rut,
         rut: rut,
+        rol: userData?.rol
       }
       localStorage.setItem("user", JSON.stringify(userInfo))
 

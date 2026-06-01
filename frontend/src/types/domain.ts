@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 
-export type RoleName = "Administracion" | "Ventas" | "Produccion"
+export type RoleName = "Administracion" | "Ventas" | "Operario" | "Despacho"
 
 export interface Category {
   id: number
@@ -12,6 +12,7 @@ export interface Product {
   categoryId: number
   name: string
   price: number
+  grams: number
   active: boolean
 }
 
@@ -83,7 +84,7 @@ export interface User {
 
 export interface RawStock {
   productId: number
-  quantityKilogram: number
+  total_grams: number
 }
 
 export interface PackagedStock {

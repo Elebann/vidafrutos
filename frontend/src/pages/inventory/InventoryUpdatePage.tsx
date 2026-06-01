@@ -55,7 +55,7 @@ export function InventoryUpdatePage() {
                </Select>
             </Field>
           </FieldGroup>
-          <TextField label="Cantidad kilos" type="number" />
+          <TextField label="Cantidad gramos" type="number" />
           <TextField label="Descripcion" placeholder="Motivo del movimiento" />
         </FormCard>
         <FormCard submitLabel="Actualizar stock" title="Stock envasado">

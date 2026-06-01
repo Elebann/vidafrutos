@@ -18,6 +18,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['user'] = {
             'username': self.user.username,
             'rut': getattr(self.user, 'rut', None),
+            'rol': self.user.rol_id,
+            'rol_name': self.user.rol.name if self.user.rol else None,
         }
         return data
 

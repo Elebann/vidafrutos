@@ -9,6 +9,7 @@ function mapProduct(p: any): Product {
     categoryId: p.category, // backend uses `category`
     name: p.name,
     price: p.price,
+    grams: p.grams,
     active: p.active,
   }
 }
@@ -44,7 +45,7 @@ function mapPackagedStock(p: any): PackagedStock {
 function mapRawStock(r: any): RawStock {
   return {
     productId: r.product,
-    quantityKilogram: parseFloat(r.quantity_kilogram ?? r.quantity ?? 0),
+    total_grams: parseFloat(r.quantity_kilogram ?? r.quantity ?? 0),
   }
 }
 
@@ -165,16 +166,36 @@ export async function fetchOrderDetails(orderId: number): Promise<Order> {
       history: (o.history ?? []).map((h: any) => ({ date: h.change_date ?? h.date, user: h.user?.username ?? h.user, field: h.affected_field ?? h.field, previousValue: h.prev_value ?? h.previousValue, newValue: h.new_value ?? h.newValue })),
     }
   } catch (e) {
-    // Return a minimal placeholder order when backend fails; avoid relying on mock data
+    // Return a minimal placeholder order when backend fails;
     return {
       id: orderId,
       customerId: (null as any),
       state: 'Registrado',
       date: new Date().toISOString().slice(0, 10),
-      requestedDate: undefined,
+      requestedDate: "N/D",
       details: [] as any[],
       history: [] as any[],
     }
+  }
+}
+
+export async function fetchOrderStates(): Promise<{ id: number; state: string }[]> {
+  try {
+    const res = await api.get('/api/orders/states/')
+    return res.data
+  } catch (e) {
+    return []
+  }
+}
+
+export async function updateOrderState(orderId: number, stateId: number, observation?: string): Promise<any> {
+  try {
+    const body: any = { state: stateId }
+    if (observation) body.observation = observation
+    const res = await api.patch(`/api/orders/${orderId}/`, body)
+    return res.data
+  } catch (e) {
+    throw e
   }
 }
 
@@ -260,10 +281,14 @@ export default {
   fetchRoles,
   fetchUsers,
   fetchOrders,
+  fetchOrderStates,
+  updateOrderState,
   fetchOrderDetails,
   fetchInvoices,
   fetchMovements,
   createOrder,
   fetchForecasts,
-  createCustomer
+  createCustomer,
+  mapPackagedStock,
+  mapRawStock,
 }

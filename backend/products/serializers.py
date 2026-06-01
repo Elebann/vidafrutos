@@ -9,7 +9,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class RawStockSerializer(serializers.ModelSerializer):
     class Meta:
         model = RawStock
-        fields = ['quantity_kilogram']
+        fields = ['total_grams']
 
 class PackagedStockSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +28,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'name',
             'price',
             'active',
+            'grams',
             'category',
             'category_name',
             'raw_stock',
