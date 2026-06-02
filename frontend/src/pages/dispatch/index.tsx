@@ -8,15 +8,10 @@ import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
-
-function orderTone(state: string): "green" | "yellow" | "blue" | "neutral" {
-  if (state === "Despachado" || state === "Facturado") return "green"
-  if (state === "En produccion") return "yellow"
-  if (state === "Listo para despacho") return "blue"
-  return "neutral"
-}
+import { useNavigate } from "react-router-dom"
 
 export function DispatchPage() {
+  const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
 
   useEffect(() => {
@@ -26,7 +21,7 @@ export function DispatchPage() {
     apiClients.fetchOrders().then(setOrders).catch(() => {})
   }, [])
 
-  const dispatchOrders = orders.filter((order) => order.state === "Listo para despacho" || order.state === "En produccion" || order.state === "Validado")
+  const dispatchOrders = orders.filter((order) => order.state === "En produccion")
 
   return (
     <PageShell
@@ -44,7 +39,7 @@ export function DispatchPage() {
                   {getCustomer(order.customerId)?.name}
                 </p>
               </div>
-              <StatusBadge tone={orderTone(order.state)}>
+              <StatusBadge tone="yellow">
                 {order.state}
               </StatusBadge>
             </div>
@@ -53,8 +48,11 @@ export function DispatchPage() {
                 <ProductLine key={detail.productId} {...detail} />
               ))}
             </div>
-            <Button className="mt-4 w-full sm:w-auto" variant="secondary">
-              Confirmar despacho
+            <Button 
+              className="mt-4 w-full sm:w-auto" 
+              onClick={() => navigate(`/despacho/${order.id}`)}
+            >
+              Armar pedido
             </Button>
           </SectionCard>
         ))}
