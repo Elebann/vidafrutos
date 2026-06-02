@@ -17,6 +17,7 @@ import {
   UserPlus,
   Users,
   Bean,
+  PackageOpen,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -99,30 +100,35 @@ const data = {
       ],
     },
     {
-      label: "Produccion",
+      label: "Producción",
       items: [
         {
-          title: "Produccion diaria",
+          title: "Producción diaria",
           url: "/produccion",
           icon: <Factory />,
         },
         {
-          title: "Despacho",
+          title: "Armado de caja",
           url: "/despacho",
-          icon: <Truck />,
+          icon: <PackageOpen />,
         },
         {
-          title: "Prediccion IA",
+          title: "Envíos",
+          icon: <Truck />,
+          url: "/enviados",
+        },
+        {
+          title: "Predicción IA",
           url: "/prediccion",
           icon: <BrainCircuit />,
         },
       ],
     },
     {
-      label: "Tributario",
+      label: "Registro de pagos",
       items: [
         {
-          title: "Facturas",
+          title: "Pagos",
           url: "/facturas",
           icon: <Receipt />,
         },

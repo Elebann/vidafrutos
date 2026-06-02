@@ -1,7 +1,7 @@
 import { Archive, Boxes } from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+// import { Checkbox } from "@/components/ui/checkbox"
 import { PageShell } from "@/components/app/page-shell"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
@@ -352,28 +352,28 @@ export function InventoryUpdatePage() {
             value={packagedQuantity}
             onChange={(v) => setPackagedQuantity(v)}
           />
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Merma</FieldLabel>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={packagedMermaEnabled}
-                  onCheckedChange={(checked) =>
-                    setPackagedMermaEnabled(Boolean(checked))
-                  }
-                />
-                <span className="text-sm">Agregar merma</span>
-              </div>
-            </Field>
-          </FieldGroup>
-          {packagedMermaEnabled && (
-            <TextField
-              label="Cantidad de merma (gr)"
-              type="number"
-              value={packagedMermaGrams}
-              onChange={(v) => setPackagedMermaGrams(v)}
-            />
-          )}
+          {/*<FieldGroup>*/}
+          {/*  <Field>*/}
+          {/*    <FieldLabel>Merma</FieldLabel>*/}
+          {/*    <div className="flex items-center gap-2">*/}
+          {/*      <Checkbox*/}
+          {/*        checked={packagedMermaEnabled}*/}
+          {/*        onCheckedChange={(checked) =>*/}
+          {/*          setPackagedMermaEnabled(Boolean(checked))*/}
+          {/*        }*/}
+          {/*      />*/}
+          {/*      <span className="text-sm">Agregar merma</span>*/}
+          {/*    </div>*/}
+          {/*  </Field>*/}
+          {/*</FieldGroup>*/}
+          {/*{packagedMermaEnabled && (*/}
+          {/*  <TextField*/}
+          {/*    label="Cantidad de merma (gr)"*/}
+          {/*    type="number"*/}
+          {/*    value={packagedMermaGrams}*/}
+          {/*    onChange={(v) => setPackagedMermaGrams(v)}*/}
+          {/*  />*/}
+          {/*)}*/}
           {/*<TextField label="Comentario" placeholder="Detalle opcional" value={packagedComment} onChange={(v) => setPackagedComment(v)} />*/}
           <div className="flex sm:col-span-2">
             <Button

@@ -41,7 +41,7 @@ export function InvoicesPage() {
   }, [])
 
   return (
-    <PageShell action={{ icon: Receipt, label: "Generar factura", to: "/facturas/generar" }} description="Facturas emitidas y resumen de pagos." icon={Receipt} title="Facturacion">
+    <PageShell action={{ icon: Receipt, label: "Generar factura", to: "/facturas/generar" }} description="Resumen y confirmación de pagos." icon={Receipt} title="Registro de Pagos">
       <div className="grid gap-3 sm:grid-cols-3">
         {["Efectivo", "Transferencia", "Debito/Credito"].map((method) => <KpiCard detail="Resumen simulado del periodo." icon={Receipt} key={method} label={method} value={formatCurrency(method === "Transferencia" ? 153200 : 45800)} />)}
       </div>

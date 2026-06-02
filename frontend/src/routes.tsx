@@ -24,6 +24,7 @@ import { ProductionPage } from "@/pages/production"
 import { ProtectedRoute } from "@/components/protected-route"
 import { ReportsPage } from "@/pages/reports"
 import Login from "@/pages/Login"
+import { DeliveredOrders } from "@/pages/dispatch/DeliveredOrders.tsx"
 
 export function AppRoutes() {
   return (
@@ -52,6 +53,7 @@ export function AppRoutes() {
         <Route path="produccion" element={<ProductionPage />} />
         <Route path="produccion/registrar" element={<ProductionFormPage />} />
         <Route path="despacho" element={<DispatchPage />} />
+        <Route path="enviados" element={<DeliveredOrders />} />
         <Route path="facturas" element={<InvoicesPage />} />
         <Route path="facturas/generar" element={<InvoiceFormPage />} />
         <Route path="prediccion" element={<ForecastPage />} />

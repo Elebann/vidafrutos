@@ -28,7 +28,7 @@ export function NewOrderPage() {
   // single static selector state
   const [currentProductId, setCurrentProductId] = useState<number | null>(null)
   const [currentQuantity, setCurrentQuantity] = useState<number>(1)
-  const [date] = useState<string>(() => new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -118,7 +118,13 @@ export function NewOrderPage() {
           <FieldGroup className="sm:col-span-2">
             <Field>
               <FieldLabel>Fecha solicitada</FieldLabel>
-              <Input type="date" value={date} />
+              <Input
+                type="date"
+                value={date}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDate(e.target.value)
+                }
+              />
             </Field>
           </FieldGroup>
 
@@ -147,6 +153,7 @@ export function NewOrderPage() {
                           const stock = getPackagedStock(product.id)
                           const availableStock = stock?.availableStock ?? 0
                           const minimumStock = stock?.minimumStock ?? 0
+                          const warningStock = minimumStock * 1.5
                           const isBelowMinimum = availableStock < minimumStock
                           return (
                             <SelectItem
@@ -155,8 +162,15 @@ export function NewOrderPage() {
                             >
                               <span>{product.name} </span>
 
-                              <span className={isBelowMinimum ? "text-red-600" : ""}>
-                                ({availableStock}/{minimumStock})
+                              <span className={
+                                isBelowMinimum
+                                  ? "text-red-600"
+                                  :
+                                availableStock <= warningStock
+                                  ? "text-yellow-600"
+                                  : ""
+                              }>
+                                ({availableStock})
                               </span>
                             </SelectItem>
                           )
