@@ -37,8 +37,8 @@ export type OrderState =
   | "Validado"
   | "En produccion"
   | "Listo para despacho"
-  | "Despachado"
-  | "Facturado"
+  | "Enviado"
+  | "Pago confirmado"
 
 export interface OrderHistory {
   date: string

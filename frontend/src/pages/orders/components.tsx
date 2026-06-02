@@ -6,9 +6,10 @@ import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 
 function orderTone(state: string): BadgeTone {
-  if (state === "Despachado" || state === "Facturado") return "green"
   if (state === "En produccion") return "yellow"
   if (state === "Listo para despacho") return "blue"
+  if (state === "Enviado") return "purple"
+  if (state === "Pago confirmado") return "green"
   return "neutral"
 }
 

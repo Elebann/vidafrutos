@@ -31,8 +31,8 @@ const ORDER_STATES: readonly OrderState[] = [
   "Validado",
   "En produccion",
   "Listo para despacho",
-  "Despachado",
-  "Facturado",
+  "Enviado",
+  "Pago confirmado",
 ]
 
 const STOCK_MOVEMENT_TYPES: readonly StockMovementType[] = ["ENTRADA", "SALIDA", "AJUSTE", "MERMA"]

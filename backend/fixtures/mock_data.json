@@ -78,6 +78,8 @@
   {"model": "orders.orderstate", "pk": 2, "fields": {"state": "Validado"}},
   {"model": "orders.orderstate", "pk": 3, "fields": {"state": "En produccion"}},
   {"model": "orders.orderstate", "pk": 4, "fields": {"state": "Listo para despacho"}},
+  {"model": "orders.orderstate", "pk": 5, "fields": {"state": "Enviado"}},
+  {"model": "orders.orderstate", "pk": 6, "fields": {"state": "Pago confirmado"}},
 
   {"model": "orders.order", "pk": 1022, "fields": {"customer": 1, "state": 2, "date": "2026-05-13T00:00:00Z"}},
   {"model": "orders.order", "pk": 1023, "fields": {"customer": 2, "state": 2, "date": "2026-05-13T00:00:00Z"}},
