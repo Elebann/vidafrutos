@@ -28,7 +28,7 @@ export interface Customer {
 export interface OrderDetail {
   productId: number
   quantity: number
-  // Optional unit price when provided by backend in nested detail
+  /** Line total = unit price × quantity, as stored by the backend. */
   price?: number
 }
 

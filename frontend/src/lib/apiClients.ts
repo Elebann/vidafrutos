@@ -1,5 +1,5 @@
 import api from "@/lib/api"
-import { getProduct } from "@/lib/dataCache"
+import { getProduct, getPackagedStock, updatePackagedStockInCache } from "@/lib/dataCache"
 import {
   mapCategory,
   mapCustomer,
@@ -226,15 +226,41 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
 
     for (const item of payload.items ?? []) {
       if (!orderId) continue
+      const productId = item.productId
+      const quantity = item.quantity
+      if (!productId || quantity <= 0) continue
+
+      // Line total = unit price * quantity (stored on the detail)
+      const unitPrice = getProduct(productId)?.price ?? 0
+      const lineTotal = unitPrice * quantity
+
+      // 1) Create the order detail with the correct line total
       try {
-        const unitPrice = getProduct(item.productId ?? 0)?.price ?? 0
         await api.post(`/api/orders/${orderId}/details/`, {
-          product: item.productId,
-          quantity: item.quantity,
-          price: unitPrice,
+          product: productId,
+          quantity,
+          price: lineTotal,
         })
       } catch (error) {
         console.error(`Error adding detail to order ${orderId}`, error)
+        continue
+      }
+
+      // 2) Move stock from available → allocated
+      try {
+        const currentStock = getPackagedStock(productId)
+        const newAvailable = (currentStock?.availableStock ?? 0) - quantity
+        const newAllocated = (currentStock?.allocatedStock ?? 0) + quantity
+        await api.patch(`/api/products/${productId}/`, {
+          packaged_stock_available_stock: newAvailable,
+          packaged_stock_allocated_stock: newAllocated,
+        })
+        updatePackagedStockInCache(productId, {
+          availableStock: newAvailable,
+          allocatedStock: newAllocated,
+        })
+      } catch (error) {
+        console.error(`Error updating stock for product ${productId}`, error)
       }
     }
 

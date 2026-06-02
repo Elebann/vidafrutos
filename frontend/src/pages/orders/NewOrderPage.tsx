@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import apiClients from "@/lib/apiClients"
-import { ensurePackagedStock, getPackagedStock } from "@/lib/dataCache"
+import { ensurePackagedStock, ensureProducts, getPackagedStock } from "@/lib/dataCache"
 import type { Product, Customer } from "@/types/domain"
 import { cn } from "@/lib/utils"
 
@@ -77,11 +77,6 @@ function OrderItemRow({
           <X className="size-4" />
         </Button>
       </div>
-
-      {/*<div*/}
-      {/*  aria-hidden*/}
-      {/*  className="my-3 h-px w-10 bg-gradient-to-r from-[#804f17] to-transparent"*/}
-      {/*/>*/}
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1">
@@ -167,6 +162,7 @@ export function NewOrderPage() {
 
   useEffect(() => {
     ensurePackagedStock().catch(() => {})
+    ensureProducts().catch(() => {})
     apiClients.fetchCustomers().then(setCustomers).catch(() => {})
     apiClients.fetchProducts().then(setProducts).catch(() => {})
   }, [])
@@ -186,6 +182,27 @@ export function NewOrderPage() {
     // Basic validation (do before setting submitting state)
     if (!payload.customerId) return alert("Seleccione un cliente antes de registrar el pedido")
     if (payload.items.length === 0) return alert("Agregue al menos un producto con cantidad mayor a 0")
+
+    // Check for insufficient stock — ask confirmation if any product exceeds availability
+    const insufficientItems = payload.items
+      .map((item) => {
+        if (!item.productId) return null
+        const available = getPackagedStock(item.productId)?.availableStock ?? 0
+        if (item.quantity > available) {
+          const product = products.find((p) => p.id === item.productId)
+          return product?.name ?? `Producto ${item.productId}`
+        }
+        return null
+      })
+      .filter((name): name is string => name !== null)
+
+    if (insufficientItems.length > 0) {
+      const message =
+        insufficientItems.length === 1
+          ? `El producto "${insufficientItems[0]}" no tiene stock suficiente. ¿Deseas registrar el pedido de todas formas?`
+          : `Hay ${insufficientItems.length} productos con stock insuficiente. ¿Deseas registrar el pedido de todas formas?`
+      if (!confirm(message)) return
+    }
 
     setIsSubmitting(true)
 

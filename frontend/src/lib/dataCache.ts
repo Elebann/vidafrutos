@@ -38,24 +38,34 @@ export function getPackagedStock(productId: number): PackagedStock | undefined {
   return packagedStockCache?.find((s) => s.productId === productId)
 }
 
+export function updatePackagedStockInCache(
+  productId: number,
+  updates: Partial<Pick<PackagedStock, "availableStock" | "allocatedStock" | "minimumStock">>
+): void {
+  if (!packagedStockCache) return
+  const index = packagedStockCache.findIndex((s) => s.productId === productId)
+  if (index === -1) return
+  packagedStockCache[index] = { ...packagedStockCache[index], ...updates }
+}
+
 export function getOrderTotal(order: Order): number {
   if (!order.details || order.details.length === 0) {
     console.warn("No details in order:", order.id)
     return 0
   }
-  
+
   const total = order.details.reduce((sum, detail) => {
     const detailPrice = detail.price
     if (typeof detailPrice === 'number') {
-      console.log(`Detail ${detail.productId}: using detail.price =`, detailPrice, `qty =`, detail.quantity)
-      return sum + detailPrice * detail.quantity
+      // price is the line total (unit price * quantity) as stored by the backend
+      return sum + detailPrice
     }
+    // fallback: compute line total from product unit price
     const product = getProduct(detail.productId)
     const price = product?.price ?? 0
-    console.log(`Detail ${detail.productId}: product =`, product?.name, `price =`, price, `qty =`, detail.quantity)
     return sum + price * detail.quantity
   }, 0)
-  
+
   console.log("Order total calculated:", total)
   return total
 }
