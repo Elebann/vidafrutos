@@ -23,6 +23,7 @@ class ProductSerializer(serializers.ModelSerializer):
     # allow updating raw stock total grams via a write-only field
     raw_stock_total_grams = serializers.IntegerField(write_only=True, required=False)
     packaged_stock_available_stock = serializers.IntegerField(write_only=True, required=False)
+    packaged_stock_minimum_stock = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = Product
@@ -38,39 +39,49 @@ class ProductSerializer(serializers.ModelSerializer):
             'packaged_stock',
             'raw_stock_total_grams',
             'packaged_stock_available_stock',
+            'packaged_stock_minimum_stock',
         ]
 
     def update(self, instance, validated_data):
         # handle raw stock update if provided
         raw_total = validated_data.pop('raw_stock_total_grams', None)
         packaged_available = validated_data.pop('packaged_stock_available_stock', None)
+        packaged_minimum = validated_data.pop('packaged_stock_minimum_stock', None)
         instance = super().update(instance, validated_data)
         if raw_total is not None:
             # update or create the RawStock one-to-one record
             RawStock.objects.update_or_create(product=instance, defaults={'total_grams': raw_total})
-        if packaged_available is not None:
+        if packaged_available is not None or packaged_minimum is not None:
             try:
                 packaged = PackagedStock.objects.get(product=instance)
-                packaged.available_stock = packaged_available
-                packaged.save(update_fields=['available_stock'])
+                if packaged_available is not None:
+                    packaged.available_stock = packaged_available
+                if packaged_minimum is not None:
+                    packaged.minimum_stock = packaged_minimum
+                packaged.save()
             except PackagedStock.DoesNotExist:
                 PackagedStock.objects.create(
                     product=instance,
-                    available_stock=packaged_available,
+                    available_stock=packaged_available or 0,
                     allocated_stock=0,
-                    minimum_stock=0,
+                    minimum_stock=packaged_minimum or 0,
                 )
         return instance
 
     def create(self, validated_data):
         raw_total = validated_data.pop('raw_stock_total_grams', None)
         packaged_available = validated_data.pop('packaged_stock_available_stock', None)
+        packaged_minimum = validated_data.pop('packaged_stock_minimum_stock', None)
         instance = super().create(validated_data)
         if raw_total is not None:
             RawStock.objects.update_or_create(product=instance, defaults={'total_grams': raw_total})
-        if packaged_available is not None:
+        if packaged_available is not None or packaged_minimum is not None:
             PackagedStock.objects.update_or_create(
                 product=instance,
-                defaults={'available_stock': packaged_available, 'allocated_stock': 0, 'minimum_stock': 0},
+                defaults={
+                    'available_stock': packaged_available or 0,
+                    'allocated_stock': 0,
+                    'minimum_stock': packaged_minimum or 0,
+                },
             )
         return instance

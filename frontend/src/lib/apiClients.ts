@@ -175,6 +175,10 @@ export async function updateProductPackagedStock(productId: number, availableSto
   await api.patch(`/api/products/${productId}/`, { packaged_stock_available_stock: availableStock })
 }
 
+export async function updateProductMinimumStock(productId: number, minimumStock: number): Promise<void> {
+  await api.patch(`/api/products/${productId}/`, { packaged_stock_minimum_stock: minimumStock })
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
     const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
@@ -235,5 +239,6 @@ export default {
   createInventoryMovement,
   updateProductRawStock,
   updateProductPackagedStock,
+  updateProductMinimumStock,
   createOrder,
 }
