@@ -19,10 +19,19 @@ type PackagedEntry = {
   comment: string
 }
 
+type MovementOption = "ENTRADA" | "SALIDA" | "AJUSTE" | "MERMA"
+
+const MOVEMENT_OPTIONS: readonly MovementOption[] = [
+  "ENTRADA",
+  // "SALIDA",
+  // "AJUSTE",
+  "MERMA",
+]
+
 export function InventoryUpdatePage() {
   const [products, setProducts] = useState<ApiProduct[]>([])
   const [selectedProductId, setSelectedProductId] = useState<string>("")
-  const [movementType, setMovementType] = useState<string>("ENTRADA")
+  const [movementType, setMovementType] = useState<MovementOption>("ENTRADA")
   const [gramsValue, setGramsValue] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -54,7 +63,7 @@ export function InventoryUpdatePage() {
   const packagedCount = productGrams > 0 ? gramsNumber / productGrams : 0
   const minimumRequired = Number(selectedProduct?.packaged_stock?.minimum_stock ?? 0)
   const gramsValidationMessage =
-    gramsValue && packagedCount < minimumRequired
+    movementType === "ENTRADA" && gramsValue && packagedCount < minimumRequired
       ? `El valor ingresado no cumple el mínimo requerido para producir ${minimumRequired} unidades (${productGrams} gr. por bolsa.).`
       : null
 
@@ -185,49 +194,109 @@ export function InventoryUpdatePage() {
     }
   }
 
-  async function handleSubmitMovement() {
+  async function handleEntrada(
+    product: ApiProduct,
+    q: number,
+    description: string,
+  ) {
+    const pid = product.id
+    const currentRaw = getRawTotalGrams(product)
+    const updatedRaw = currentRaw + q
+
+    setIsSubmitting(true)
+    try {
+      await apiClients.createInventoryMovement({
+        productId: pid,
+        movementType: "ENTRADA",
+        quantity: q,
+        description,
+      })
+      await apiClients.updateProductRawStock(pid, updatedRaw)
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          String(p.id) === String(pid)
+            ? { ...p, raw_stock: { ...(p.raw_stock ?? {}), total_grams: updatedRaw } }
+            : p,
+        ),
+      )
+
+      setGramsValue("")
+      setDescription("")
+    } catch (err) {
+      console.error("Failed ENTRADA movement", err)
+      alert("No se pudo registrar el movimiento de entrada.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleMerma(
+      product: ApiProduct,
+      q: number,
+      description: string,
+  ){
+    const pid = product.id
+    const currentRaw = getRawTotalGrams(product)
+    const updatedRaw = currentRaw - q
+
+    setIsSubmitting(true)
+    try {
+      await apiClients.createInventoryMovement({
+        productId: pid,
+        movementType: "MERMA",
+        quantity: q,
+        description,
+      })
+      await apiClients.updateProductRawStock(pid, updatedRaw)
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          String(p.id) === String(pid)
+            ? {
+                ...p,
+                raw_stock: { ...(p.raw_stock ?? {}), total_grams: updatedRaw },
+              }
+            : p
+        )
+      )
+
+      setGramsValue("")
+      setDescription("")
+    } catch (err) {
+      console.error("Failed MERMA movement", err)
+      alert("No se pudo registrar el movimiento de merma.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleSubmitMovement(event?: FormEvent) {
+    event?.preventDefault()
 
     if (!selectedProduct) return
 
     const q = parseFloat(gramsValue || "0")
     if (isNaN(q) || q <= 0) return
 
-    const pid = selectedProduct.id
-    const currentRaw = Number(selectedProduct.raw_stock?.total_grams ?? selectedProduct.raw_stock?.quantity_kilogram ?? 0) || 0
-    const updatedRaw = movementType === "ENTRADA" ? currentRaw + q : currentRaw - q
+    if (movementType === "ENTRADA") {
+      await handleEntrada(selectedProduct, q, description)
+      return
+    }
 
-    setIsSubmitting(true)
-    try {
-      try {
-        await apiClients.createInventoryMovement({
-          productId: pid,
-          movementType,
-          quantity: q,
-          description,
-        })
-      } catch (err) {
-        console.error("Failed to create movement", err)
-        alert("No se pudo registrar el movimiento.")
-        return
-      }
+    if (movementType === "SALIDA") {
+      // TODO: lógica de SALIDA pendiente
+      return
+    }
 
-      try {
-        await apiClients.updateProductRawStock(pid, updatedRaw)
-      } catch (errPatch) {
-        console.error("Failed to update raw_stock via PATCH", errPatch)
-        alert("Movimiento registrado, pero no se pudo actualizar el stock en crudo.")
-      }
+    if (movementType === "AJUSTE") {
+      // todo: lo haremos algun dia
+      return
+    }
 
-      setProducts((prev) => prev.map((p) => (String(p.id) === String(pid) ? { ...p, raw_stock: { ...(p.raw_stock ?? {}), total_grams: updatedRaw } } : p)))
-
-      // reset form fields
-      setGramsValue("")
-      setDescription("")
-    } catch (err) {
-      console.error(err)
-      alert("Error inesperado al registrar movimiento")
-    } finally {
-      setIsSubmitting(false)
+    if (movementType === "MERMA") {
+      await handleMerma(selectedProduct, q, description)
+      return
     }
   }
 
@@ -278,14 +347,14 @@ export function InventoryUpdatePage() {
               <FieldLabel>Tipo</FieldLabel>
               <Select
                 value={movementType}
-                onValueChange={(v) => setMovementType(String(v))}
+                onValueChange={(v) => setMovementType(v as MovementOption)}
               >
                 <SelectTrigger>
                   <SelectValue>{movementType}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {["ENTRADA", "SALIDA", "AJUSTE", "MERMA"].map((t) => (
+                    {MOVEMENT_OPTIONS.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
                       </SelectItem>
