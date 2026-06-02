@@ -47,6 +47,9 @@ importers:
       react-router-dom:
         specifier: ^7.14.2
         version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      rut-kit:
+        specifier: ^0.4.1
+        version: 0.4.1(zod@4.4.3)
       shadcn:
         specifier: ^4.5.0
         version: 4.5.0(@types/node@24.12.2)(typescript@5.9.3)
@@ -2324,6 +2327,15 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  rut-kit@0.4.1:
+    resolution: {integrity: sha512-3J11/GC9zqtdGi3I9h0DDQFK+3IYjobr88SxoXmlPoDA8EnzQN0omWCMMsVw0TrbbKOwDjYbqiCpCO514n4Pcg==}
+    engines: {node: '>=18.13.0'}
+    peerDependencies:
+      zod: ^4.3.5
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
@@ -4747,6 +4759,10 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  rut-kit@0.4.1(zod@4.4.3):
+    optionalDependencies:
+      zod: 4.4.3
 
   safer-buffer@2.1.2: {}
 

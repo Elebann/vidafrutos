@@ -3,38 +3,69 @@ import { ShieldCheck } from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useEffect, useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { userSchema, type UserFormData } from "@/schemas/userSchema"
 import apiClients from "@/lib/apiClients"
 import type { Role, User } from "@/types/domain"
 import type { ApiProduct } from "@/lib/apiTypes"
+import { cn } from "@/lib/utils"
 
 export function AdminUsersPage() {
   const [products, setProducts] = useState<ApiProduct[]>([])
   const [roles, setRoles] = useState<Role[]>([])
   const [users, setUsers] = useState<User[]>([])
-  const [rut, setRut] = useState("")
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [selectedRoleId, setSelectedRoleId] = useState<string>("")
   const [selectedProductId, setSelectedProductId] = useState<string>("")
   const [minimumStockValue, setMinimumStockValue] = useState<string>("")
-  const [isSubmittingUser, setIsSubmittingUser] = useState(false)
   const [isSubmittingMinimumStock, setIsSubmittingMinimumStock] = useState(false)
 
-  const selectedRole = roles.find((role) => String(role.id) === selectedRoleId)
-  const defaultProductId = products[0] ? String(products[0].id) : ""
-  const effectiveProductId = selectedProductId || defaultProductId
-  const selectedProduct = products.find((product) => String(product.id) === effectiveProductId)
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    getValues,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UserFormData>({
+    // @ts-expect-error Zod v4 type inference issue with @hookform/resolvers
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      rut: "",
+      username: "",
+      password: "",
+      rol: "",
+    },
+    mode: "onBlur",
+  })
+
+  const selectedProduct = products.find(
+    (product) => String(product.id) === (selectedProductId || String(products[0]?.id ?? "")),
+  )
 
   useEffect(() => {
     apiClients
       .fetchRoles()
       .then((loadedRoles) => {
         setRoles(loadedRoles)
-        if (loadedRoles.length > 0) {
-          setSelectedRoleId(String(loadedRoles[0].id))
+        if (loadedRoles.length > 0 && !getValues("rol")) {
+          setValue("rol", String(loadedRoles[0].id), { shouldValidate: false })
         }
       })
       .catch(() => {})
@@ -44,6 +75,7 @@ export function AdminUsersPage() {
       .then((loadedProducts) => {
         setProducts(loadedProducts)
         if (loadedProducts.length > 0) {
+          setSelectedProductId(String(loadedProducts[0].id))
           const first = loadedProducts[0]
           if (first.packaged_stock?.minimum_stock !== undefined) {
             setMinimumStockValue(String(first.packaged_stock.minimum_stock))
@@ -51,7 +83,7 @@ export function AdminUsersPage() {
         }
       })
       .catch(() => {})
-  }, [])
+  }, [setValue, getValues])
 
   function handleProductChange(productId: string) {
     setSelectedProductId(productId)
@@ -63,36 +95,13 @@ export function AdminUsersPage() {
     }
   }
 
-  async function handleNewUser(e: React.FormEvent) {
-    e.preventDefault()
-
-    if (isSubmittingUser) return
-
-    const trimmedRut = rut.trim()
-    const trimmedUsername = username.trim()
-
-    if (!trimmedRut || !trimmedUsername || password.length < 8) {
-      alert("RUT, usuario y contraseña son requeridos (la contraseña debe tener al menos 8 caracteres)")
-      return
-    }
-
-    if (/\s/.test(trimmedUsername)) {
-      alert("El usuario no puede contener espacios")
-      return
-    }
-
-    if (roles.length > 0 && !selectedRoleId) {
-      alert("Debes seleccionar un rol")
-      return
-    }
-
-    setIsSubmittingUser(true)
+  const onSubmitUser = async (data: UserFormData) => {
     try {
       const created = await apiClients.createUser({
-        rut: trimmedRut,
-        username: trimmedUsername,
-        password,
-        rol: selectedRoleId ? Number(selectedRoleId) : undefined,
+        rut: data.rut,
+        username: data.username,
+        password: data.password,
+        rol: data.rol ? Number(data.rol) : undefined,
       })
 
       if (!created) {
@@ -103,15 +112,16 @@ export function AdminUsersPage() {
       const refreshedUsers = await apiClients.fetchUsers()
       setUsers(refreshedUsers)
 
-      setRut("")
-      setUsername("")
-      setPassword("")
+      reset({
+        rut: "",
+        username: "",
+        password: "",
+        rol: roles[0] ? String(roles[0].id) : "",
+      })
       alert("Usuario creado")
     } catch (error) {
       console.error(error)
       alert("Error creando usuario")
-    } finally {
-      setIsSubmittingUser(false)
     }
   }
 
@@ -189,43 +199,98 @@ export function AdminUsersPage() {
         <FormCard
           submitLabel="Guardar usuario"
           title="Nuevo usuario"
-          onSubmit={handleNewUser}
-          submitDisabled={isSubmittingUser}
+          onSubmit={handleSubmit(onSubmitUser)}
+          submitDisabled={isSubmitting}
         >
-          <TextField label="Rut" value={rut} onChange={setRut} />
-          <TextField
-            label="Usuario"
-            value={username}
-            onChange={(value) => setUsername(value.replace(/\s/g, ""))}
-          />
-          <TextField
-            label="Contraseña"
-            type="password"
-            value={password}
-            onChange={setPassword}
-          />
           <FieldGroup>
-            <Field>
+            <Field data-invalid={!!errors.rut}>
+              <FieldLabel htmlFor="rut">RUT</FieldLabel>
+              <Input
+                id="rut"
+                type="text"
+                placeholder="Sin puntos, con guión. (Ej. 12345678-9)"
+                {...register("rut")}
+                aria-invalid={errors.rut ? "true" : "false"}
+                className={cn(errors.rut && "border-red-500")}
+              />
+              {errors.rut && (
+                <FieldError errors={[{ message: errors.rut.message }]} />
+              )}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field data-invalid={!!errors.username}>
+              <FieldLabel htmlFor="username">Usuario</FieldLabel>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Nombre sin espacios"
+                {...register("username")}
+                aria-invalid={errors.username ? "true" : "false"}
+                className={cn(errors.username && "border-red-500")}
+              />
+              {errors.username && (
+                <FieldError errors={[{ message: errors.username.message }]} />
+              )}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                placeholder="************"
+                {...register("password")}
+                aria-invalid={errors.password ? "true" : "false"}
+                className={cn(errors.password && "border-red-500")}
+              />
+              {errors.password && (
+                <FieldError errors={[{ message: errors.password.message }]} />
+              )}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field data-invalid={!!errors.rol}>
               <FieldLabel>Rol</FieldLabel>
-              <Select
-                value={selectedRoleId}
-                onValueChange={(value) => setSelectedRoleId(value ?? "")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar rol">
-                    {selectedRole ? selectedRole.name : null}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {roles.map((role) => (
-                      <SelectItem key={role.id} value={String(role.id)}>
-                        {role.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="rol"
+                render={({ field }) => {
+                  const roleName = roles.find(
+                    (role) => String(role.id) === field.value,
+                  )?.name
+                  return (
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value ?? "")}
+                    >
+                      <SelectTrigger
+                        aria-invalid={errors.rol ? "true" : "false"}
+                      >
+                        <SelectValue placeholder="Seleccionar rol">
+                          {roleName ?? null}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={String(role.id)}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )
+                }}
+              />
+              {errors.rol && (
+                <FieldError errors={[{ message: errors.rol.message }]} />
+              )}
             </Field>
           </FieldGroup>
         </FormCard>
@@ -248,7 +313,7 @@ export function AdminUsersPage() {
             <Field>
               <FieldLabel>Producto</FieldLabel>
               <Select
-                value={effectiveProductId}
+                value={selectedProductId}
                 onValueChange={(value) => handleProductChange(value ?? "")}
               >
                 <SelectTrigger>
