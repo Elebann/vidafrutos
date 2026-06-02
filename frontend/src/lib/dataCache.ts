@@ -7,8 +7,12 @@ let packagedStockCache: PackagedStock[] | null = null
 
 export async function ensureProducts(): Promise<void> {
   if (productCache.size > 0) return
-  const products = await apiClients.fetchProducts()
-  products.forEach((p) => productCache.set(p.id, p))
+  try {
+    const products = await apiClients.fetchProducts()
+    products.forEach((p) => productCache.set(p.id, p))
+  } catch (err) {
+    console.error("Error loading products:", err)
+  }
 }
 
 export async function ensureCustomers(): Promise<void> {
@@ -35,12 +39,25 @@ export function getPackagedStock(productId: number): PackagedStock | undefined {
 }
 
 export function getOrderTotal(order: Order): number {
-  return order.details.reduce((total, detail) => {
+  if (!order.details || order.details.length === 0) {
+    console.warn("No details in order:", order.id)
+    return 0
+  }
+  
+  const total = order.details.reduce((sum, detail) => {
     const detailPrice = detail.price
-    if (typeof detailPrice === 'number') return total + detailPrice * detail.quantity
+    if (typeof detailPrice === 'number') {
+      console.log(`Detail ${detail.productId}: using detail.price =`, detailPrice, `qty =`, detail.quantity)
+      return sum + detailPrice * detail.quantity
+    }
     const product = getProduct(detail.productId)
-    return total + (product?.price ?? 0) * detail.quantity
+    const price = product?.price ?? 0
+    console.log(`Detail ${detail.productId}: product =`, product?.name, `price =`, price, `qty =`, detail.quantity)
+    return sum + price * detail.quantity
   }, 0)
+  
+  console.log("Order total calculated:", total)
+  return total
 }
 
 export function getMissingUnits(productId: number, requested: number): number {

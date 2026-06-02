@@ -23,13 +23,23 @@ class OrderStateWriteSerializer(serializers.ModelSerializer):
         fields = ['state']
 
 
+class OrderDetailNestedSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = OrderDetail
+        fields = ['id', 'product', 'quantity', 'price']
+        read_only_fields = ['id']
+
+
 class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
     state = OrderStateSerializer(read_only=True)
+    details = OrderDetailNestedSerializer(source='orderdetail_set', many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'state', 'date']
+        fields = ['id', 'customer', 'state', 'date', 'details']
         read_only_fields = ['id', 'date']
 
 
@@ -49,16 +59,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderDetail
-        fields = ['id', 'order', 'product', 'quantity']
-        read_only_fields = ['id']
-
-
-class OrderDetailNestedSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
-
-    class Meta:
-        model = OrderDetail
-        fields = ['id', 'product', 'quantity']
+        fields = ['id', 'order', 'product', 'quantity', 'price']
         read_only_fields = ['id']
 
 
@@ -81,8 +82,11 @@ class OrderDetailWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderDetail
-        fields = ['id', 'order', 'product', 'quantity']
+        fields = ['id', 'order', 'product', 'quantity', 'price']
         read_only_fields = ['id']
+        extra_kwargs = {
+            'price': {'required': False, 'default': 0},
+        }
 
 
 class HistorySerializer(serializers.ModelSerializer):

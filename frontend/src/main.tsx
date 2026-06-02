@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
+import { Toaster } from "react-hot-toast"
 
 import "./index.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -13,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <AuthProvider>
           <AppRoutes />
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

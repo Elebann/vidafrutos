@@ -81,7 +81,7 @@ export function DashboardPage() {
     apiClients.fetchPackagedStock().then((ps) => setCritical(ps.filter((s) => s.availableStock <= s.minimumStock))).catch(() => {})
   }, [])
 
-  const pendingOrders = orders.filter((order) => order.state !== "Despachado" && order.state !== "Facturado")
+  const pendingOrders = orders.filter((order) => order.state !== "Enviado" && order.state !== "Pago confirmado")
   const dailySales = invoices.reduce((total, invoice) => total + (invoice.total ?? 0), 0)
 
   return (
