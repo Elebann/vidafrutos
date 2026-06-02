@@ -9,12 +9,14 @@ export function FormCard({
   submitLabel = "Guardar",
   title,
   onSubmit,
+  onCancel,
   submitDisabled,
 }: {
   children: React.ReactNode
   submitLabel?: string
   title: string
   onSubmit?: (e: React.FormEvent) => void
+  onCancel?: () => void
   submitDisabled?: boolean
 }) {
   return (
@@ -22,7 +24,7 @@ export function FormCard({
       <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
         {children}
         <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
           <Button type="submit" variant="VFBrown" disabled={submitDisabled}>

@@ -19,6 +19,7 @@ class OrderDetail(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey('products.Product', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField()
+    price = models.IntegerField(default=0)
 
     def __str__(self):
         return f"#{self.order_id} - {self.product.name} x{self.quantity}"

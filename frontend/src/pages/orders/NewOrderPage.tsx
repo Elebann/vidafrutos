@@ -1,4 +1,4 @@
-import { PackagePlus } from "lucide-react"
+import { PackageOpen, PackagePlus, X } from "lucide-react"
 
 import { FormCard } from "@/components/app/form-card"
 import {
@@ -17,8 +17,142 @@ import { Button } from "@/components/ui/button"
 import apiClients from "@/lib/apiClients"
 import { ensurePackagedStock, getPackagedStock } from "@/lib/dataCache"
 import type { Product, Customer } from "@/types/domain"
+import { cn } from "@/lib/utils"
 
 type OrderProduct = { productId: number | null; quantity: number }
+
+function formatSpanishDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number)
+  if (!year || !month || !day) return isoDate
+  return new Date(year, month - 1, day).toLocaleDateString("es-CL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+function OrderItemRow({
+  item,
+  index,
+  product,
+  availableStock,
+  onIncrement,
+  onDecrement,
+  onRemove,
+}: {
+  item: OrderProduct
+  index: number
+  product: Product | undefined
+  availableStock: number
+  onIncrement: (index: number) => void
+  onDecrement: (index: number) => void
+  onRemove: (index: number) => void
+}) {
+  const isInsufficient = item.quantity > availableStock
+  const productName = product?.name ?? `Producto ${item.productId ?? "?"}`
+  const gramsLabel =
+    product?.grams && product.grams > 0
+      ? `${product.grams} g por unidad`
+      : null
+
+  return (
+    <article className="group relative overflow-hidden rounded-xl border border-[#643800]/15 bg-white p-4 shadow-[0_1px_0_rgba(128,79,23,0.04),0_2px_6px_-2px_rgba(128,79,23,0.06)] transition-all duration-300 ease-out hover:border-[#804f17]/30">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h4 className="font-[family-name:var(--font-heading)] text-[1.2rem] leading-[1.1] tracking-tight text-neutral-900">
+            {productName}
+          </h4>
+          {gramsLabel && (
+            <p className="mt-0.5 text-xs text-neutral-500">{gramsLabel}</p>
+          )}
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onRemove(index)}
+          aria-label={`Eliminar ${productName} del pedido`}
+          className="size-7 shrink-0 p-0 text-neutral-400 hover:bg-red-50 hover:text-red-600"
+        >
+          <X className="size-4" />
+        </Button>
+      </div>
+
+      {/*<div*/}
+      {/*  aria-hidden*/}
+      {/*  className="my-3 h-px w-10 bg-gradient-to-r from-[#804f17] to-transparent"*/}
+      {/*/>*/}
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => onDecrement(index)}
+            disabled={item.quantity <= 1}
+            aria-label={`Disminuir cantidad de ${productName}`}
+            className="size-7 p-0"
+          >
+            −
+          </Button>
+          <div className="flex h-7 min-w-10 items-center justify-center font-[family-name:var(--font-heading)] text-lg leading-none text-neutral-900 tabular-nums">
+            {item.quantity}
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => onIncrement(index)}
+            aria-label={`Aumentar cantidad de ${productName}`}
+            className="size-7 p-0"
+          >
+            +
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden text-right sm:block">
+            <span className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-neutral-500">
+              Stock
+            </span>
+            <p className="text-sm font-medium text-neutral-700 tabular-nums">
+              {availableStock}
+            </p>
+          </div>
+          <span
+            className={cn(
+              "inline-flex items-center rounded-md border px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.14em]",
+              isInsufficient
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-emerald-200 bg-emerald-50 text-emerald-700",
+            )}
+          >
+            {isInsufficient ? "Insuficiente" : "Suficiente"}
+          </span>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function EmptyOrderState() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#643800]/25 bg-[#fdf3e8]/40 px-6 py-12 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-white text-[#804f17] ring-1 ring-[#804f17]/15">
+        <PackageOpen className="size-5" />
+      </div>
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium text-neutral-700">
+          Aún no hay productos en el pedido
+        </p>
+        <p className="text-xs text-neutral-500">
+          Selecciona un producto y agrégalo desde el formulario para verlo aquí
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export function NewOrderPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -70,6 +204,28 @@ export function NewOrderPage() {
     }
   }
 
+  function handleCancel() {
+    setOrderProducts([])
+  }
+
+  function handleIncrement(index: number) {
+    setOrderProducts((prev) =>
+      prev.map((item, idx) =>
+        idx === index ? { ...item, quantity: item.quantity + 1 } : item,
+      ),
+    )
+  }
+
+  function handleDecrement(index: number) {
+    setOrderProducts((prev) =>
+      prev.map((item, idx) =>
+        idx === index && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item,
+      ),
+    )
+  }
+
   return (
     <PageShell
       description="Se calculará automáticamente qué necesita producir"
@@ -83,6 +239,7 @@ export function NewOrderPage() {
           e.preventDefault()
           registerOrder()
         }}
+        onCancel={handleCancel}
         submitDisabled={isSubmitting}
       >
 
@@ -195,7 +352,7 @@ export function NewOrderPage() {
             </FieldGroup>
           </div>
 
-          <div className="mt-2 flex gap-2">
+          <div className="flex gap-2 items-end">
             <Button
               type="button"
               variant="VFBrown"
@@ -238,87 +395,73 @@ export function NewOrderPage() {
       </FormCard>
 
       <SectionCard title="Resumen y cantidad a producir">
-        <div>
+        <div className="grid gap-4 border-b border-[#643800]/10 pb-5 sm:grid-cols-2">
           <div>
-            <span className="text-[#804f17] font-semibold">Cliente: </span>
-            {
-              selectedCustomerId
-              ? (customers.find((c) => c.id === selectedCustomerId)?.name)
-              : (<span>Seleccione cliente...</span>)
-            }
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#804f17]/75">
+              Cliente
+            </p>
+            <p className="mt-1 font-[family-name:var(--font-heading)] text-lg leading-tight text-neutral-900">
+              {selectedCustomerId
+                ? customers.find((c) => c.id === selectedCustomerId)?.name
+                : "Selecciona un cliente"}
+            </p>
           </div>
           <div>
-            <span className="text-[#804f17] font-semibold">Fecha:</span> {date}
-          </div>
-
-          <div className="space-y-2">
-            {orderProducts.filter((p) => p.productId).length === 0 && (
-              <div>No hay productos en el pedido</div>
-            )}
-            {orderProducts.map((op, i) => {
-              if (!op.productId) return null
-              const prod = products.find((p) => p.id === op.productId)
-              const stock = getPackagedStock(op.productId)
-              return (
-                <div key={i} className="rounded border p-2">
-                  <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
-                    <div>
-                      <span>{prod?.name ?? `Producto ${op.productId}`}</span>
-                      <div>Pedido: {op.quantity}</div>
-                    </div>
-                    <div className="text-right">
-                      <div>Disponible: {stock?.availableStock ?? 0}</div>
-                      <div
-                        className={
-                          op.quantity > (stock?.availableStock ?? 0)
-                            ? "text-red-600"
-                            : "text-green-600"
-                        }
-                      >
-                        {op.quantity > (stock?.availableStock ?? 0)
-                          ? "Insuficiente"
-                          : "OK"}
-                      </div>
-                    </div>
-                    <div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() =>
-                          setOrderProducts((s) =>
-                            s.filter((_, idx2) => idx2 !== i)
-                          )
-                        }
-                      >
-                        Eliminar
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-
-            {orderProducts.length > 0 && (
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    if (
-                      !confirm(
-                        "Todos los productos serán eliminados. Continuar?"
-                      )
-                    )
-                      return
-                    setOrderProducts([])
-                  }}
-                >
-                  Vaciar productos (limpiar)
-                </Button>
-              </div>
-            )}
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#804f17]/75">
+              Fecha solicitada
+            </p>
+            <p className="mt-1 font-[family-name:var(--font-heading)] text-lg leading-tight text-neutral-900">
+              {formatSpanishDate(date)}
+            </p>
           </div>
         </div>
+
+        <div className="mt-5 space-y-3">
+          {orderProducts.filter((p) => p.productId).length === 0 ? (
+            <EmptyOrderState />
+          ) : (
+            orderProducts.map((op, i) => {
+              if (!op.productId) return null
+              const product = products.find((p) => p.id === op.productId)
+              const availableStock =
+                getPackagedStock(op.productId)?.availableStock ?? 0
+              return (
+                <OrderItemRow
+                  key={op.productId ?? i}
+                  item={op}
+                  index={i}
+                  product={product}
+                  availableStock={availableStock}
+                  onIncrement={handleIncrement}
+                  onDecrement={handleDecrement}
+                  onRemove={(idx) =>
+                    setOrderProducts((prev) =>
+                      prev.filter((_, idx2) => idx2 !== idx),
+                    )
+                  }
+                />
+              )
+            })
+          )}
+        </div>
+
+        {orderProducts.length > 0 && (
+          <div className="mt-5 flex justify-end border-t border-[#643800]/10 pt-4">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (
+                  !confirm("Todos los productos serán eliminados. ¿Continuar?")
+                )
+                  return
+                setOrderProducts([])
+              }}
+            >
+              Vaciar pedido
+            </Button>
+          </div>
+        )}
       </SectionCard>
     </PageShell>
   )
