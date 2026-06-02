@@ -17,11 +17,46 @@ export function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all")
+  const [togglingId, setTogglingId] = useState<number | null>(null)
 
   useEffect(() => {
     apiClients.fetchProducts().then(setProducts).catch(() => {})
     apiClients.fetchCategories().then(setCategories).catch(() => {})
   }, [])
+
+  async function handleToggleActive(product: Product) {
+    if (togglingId !== null) return
+
+    const previousState = product.active
+    const newState = !previousState
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, active: newState } : p)),
+    )
+    setTogglingId(product.id)
+
+    try {
+      const updated = await apiClients.toggleProductActive(product.id, newState)
+      if (!updated) {
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, active: previousState } : p,
+          ),
+        )
+        alert("No se pudo cambiar el estado del producto.")
+      }
+    } catch (error) {
+      console.error("Error toggling product active state", error)
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, active: previousState } : p,
+        ),
+      )
+      alert("No se pudo cambiar el estado del producto.")
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
   // Filter products based on search and status
   const filteredProducts = products.filter((product) => {
@@ -94,7 +129,16 @@ export function ProductsPage() {
                       <p className="font-semibold">
                         {product.name}
                       </p>
-                      <StatusBadge tone={product.active ? "green" : "neutral"}>
+                      <StatusBadge
+                        tone={product.active ? "green" : "neutral"}
+                        onClick={() => handleToggleActive(product)}
+                        disabled={togglingId === product.id}
+                        ariaLabel={
+                          product.active
+                            ? `Desactivar ${product.name}`
+                            : `Activar ${product.name}`
+                        }
+                      >
                         {product.active ? "Activo" : "Inactivo"}
                       </StatusBadge>
                     </div>

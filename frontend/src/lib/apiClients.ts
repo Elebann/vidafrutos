@@ -179,6 +179,16 @@ export async function updateProductMinimumStock(productId: number, minimumStock:
   await api.patch(`/api/products/${productId}/`, { packaged_stock_minimum_stock: minimumStock })
 }
 
+export async function toggleProductActive(productId: number, active: boolean): Promise<ApiProduct | null> {
+  try {
+    const response = await api.patch<ApiProduct>(`/api/products/${productId}/`, { active })
+    return response.data
+  } catch (error) {
+    console.error(`Error toggling product ${productId} active state`, error)
+    return null
+  }
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
     const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
@@ -241,4 +251,5 @@ export default {
   updateProductPackagedStock,
   updateProductMinimumStock,
   createOrder,
+  toggleProductActive
 }

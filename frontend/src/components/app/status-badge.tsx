@@ -17,20 +17,39 @@ export function StatusBadge({
   children,
   className,
   tone = "neutral",
+  onClick,
+  disabled,
+  ariaLabel,
 }: {
   children: React.ReactNode
   className?: string
   tone?: BadgeTone
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  disabled?: boolean
+  ariaLabel?: string
 }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex min-h-6 items-center rounded-md border px-2 py-0.5 text-xs font-medium",
-        toneClasses[tone],
-        className
-      )}
-    >
-      {children}
-    </span>
+  const isInteractive = Boolean(onClick)
+  const computedClassName = cn(
+    "inline-flex min-h-6 items-center rounded-md border px-2 py-0.5 text-xs font-medium",
+    toneClasses[tone],
+    isInteractive &&
+      "cursor-pointer transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+    className,
   )
+
+  if (isInteractive) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        className={computedClassName}
+      >
+        {children}
+      </button>
+    )
+  }
+
+  return <span className={computedClassName}>{children}</span>
 }
