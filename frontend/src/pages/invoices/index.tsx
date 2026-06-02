@@ -4,10 +4,17 @@ import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge } from "@/components/app/status-badge"
 import { KpiCard } from "@/components/app/kpi-card"
-import { formatCurrency } from "@/lib/format"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { formatCurrency, formatDate } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { Invoice } from "@/types/domain"
+import { InvoiceFormPage } from "./InvoiceFormPage"
+
+const MONTHS = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+]
 
 function InvoiceCard({ invoice }: { invoice: Invoice }) {
   return (
@@ -26,7 +33,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
     <>
       <td className="px-4 py-3 font-medium">#{invoice.id}</td>
       <td className="px-4 py-3">#{invoice.orderId}</td>
-      <td className="px-4 py-3">{invoice.date}</td>
+      <td className="px-4 py-3">{formatDate(invoice.date)}</td>
       <td className="px-4 py-3">{invoice.paymentMethod}</td>
       <td className="px-4 py-3 font-medium">{formatCurrency(invoice.total)}</td>
     </>
@@ -35,22 +42,60 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
 
 export function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   useEffect(() => {
     apiClients.fetchInvoices().then(setInvoices).catch(() => {})
-  }, [])
+  }, [isSheetOpen])
+
+  const filteredInvoices = invoices.filter((inv) => {
+    const invDate = new Date(inv.date)
+    return invDate.getMonth() === selectedMonth
+  })
 
   return (
-    <PageShell action={{ icon: Receipt, label: "Generar factura", to: "/facturas/generar" }} description="Resumen y confirmación de pagos." icon={Receipt} title="Registro de Pagos">
+    <PageShell
+      action={{ icon: Receipt, label: "Registrar pago", onClick: () => setIsSheetOpen(true) }}
+      description="Resumen y confirmación de pagos."
+      icon={Receipt}
+      title="Registro de Pagos"
+    >
+      <div className="mb-4 flex items-center gap-3">
+        <span className="text-sm font-medium text-muted-foreground">Filtrar por mes:</span>
+        <Select value={String(selectedMonth)} onValueChange={(v) => setSelectedMonth(Number(v))}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={MONTHS[selectedMonth]} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {MONTHS.map((name, idx) => (
+                <SelectItem key={idx} value={String(idx)}>{name}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-3">
-        {["Efectivo", "Transferencia", "Debito/Credito"].map((method) => <KpiCard detail="Resumen simulado del periodo." icon={Receipt} key={method} label={method} value={formatCurrency(method === "Transferencia" ? 153200 : 45800)} />)}
+        {["Efectivo", "Transferencia", "Debito/Credito"].map((method) => (
+          <KpiCard detail="Resumen simulado del periodo." icon={Receipt} key={method} label={method} value={formatCurrency(method === "Transferencia" ? 153200 : 45800)} />
+        ))}
       </div>
       <ResponsiveList
         columns={["Factura", "Pedido", "Fecha", "Metodo", "Total"]}
-        items={invoices}
+        items={filteredInvoices}
         keyExtractor={(invoice) => invoice.id}
         renderCard={(invoice) => <InvoiceCard invoice={invoice} />}
         renderRow={(invoice) => <InvoiceRow invoice={invoice} />}
+      />
+
+      <InvoiceFormPage
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        onSuccess={() => {
+          apiClients.fetchInvoices().then(setInvoices).catch(() => {})
+        }}
       />
     </PageShell>
   )

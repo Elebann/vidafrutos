@@ -11,7 +11,6 @@ import { DispatchPage } from "@/pages/dispatch"
 import { ForecastPage } from "@/pages/forecast"
 import { InventoryPage } from "@/pages/inventory"
 import { InventoryUpdatePage } from "@/pages/inventory/InventoryUpdatePage"
-import { InvoiceFormPage } from "@/pages/invoices/InvoiceFormPage"
 import { InvoicesPage } from "@/pages/invoices"
 import { NewOrderPage } from "@/pages/orders/NewOrderPage"
 import { NotFoundPage } from "@/pages/not-found-page"
@@ -56,8 +55,7 @@ export function AppRoutes() {
         <Route path="despacho" element={<DispatchPage />} />
         <Route path="despacho/:orderId" element={<OrderDispatchDetailPage />} />
         <Route path="enviados" element={<DeliveredOrders />} />
-        <Route path="facturas" element={<InvoicesPage />} />
-        <Route path="facturas/generar" element={<InvoiceFormPage />} />
+        <Route path="pagos" element={<InvoicesPage />} />
         <Route path="prediccion" element={<ForecastPage />} />
         <Route path="reportes" element={<ReportsPage />} />
         <Route path="admin/usuarios" element={<AdminUsersPage />} />

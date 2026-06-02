@@ -1,4 +1,5 @@
 import api from "@/lib/api"
+import { getProduct } from "@/lib/dataCache"
 import {
   mapCategory,
   mapCustomer,
@@ -153,6 +154,30 @@ export function fetchInvoices(): Promise<Invoice[]> {
   return getList<ApiInvoice, Invoice>("/api/billing/invoices/", mapInvoice)
 }
 
+export async function createInvoice(payload: {
+  orderId: number
+  paymentMethod: string
+  total: number
+}): Promise<Invoice | null> {
+  try {
+    const paymentMethodMap: Record<string, string> = {
+      Transferencia: "TRANSFER",
+      Efectivo: "CASH",
+      Debito: "DEBIT_CARD",
+      Credito: "CREDIT_CARD",
+    }
+    const response = await api.post<ApiInvoice>("/api/billing/invoices/", {
+      order: payload.orderId,
+      total: payload.total,
+      payment_method: paymentMethodMap[payload.paymentMethod] ?? payload.paymentMethod,
+    })
+    return mapInvoice(response.data)
+  } catch (error) {
+    console.error("Error creating invoice", error)
+    return null
+  }
+}
+
 export function fetchMovements(): Promise<StockMovement[]> {
   return getList<ApiStockMovement, StockMovement>("/api/inventory/movements/", mapStockMovement)
 }
@@ -202,9 +227,11 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
     for (const item of payload.items ?? []) {
       if (!orderId) continue
       try {
+        const unitPrice = getProduct(item.productId ?? 0)?.price ?? 0
         await api.post(`/api/orders/${orderId}/details/`, {
           product: item.productId,
           quantity: item.quantity,
+          price: unitPrice,
         })
       } catch (error) {
         console.error(`Error adding detail to order ${orderId}`, error)
@@ -245,6 +272,7 @@ export default {
   updateOrderState,
   fetchOrderDetails,
   fetchInvoices,
+  createInvoice,
   fetchMovements,
   createInventoryMovement,
   updateProductRawStock,

@@ -129,7 +129,7 @@ const data = {
       items: [
         {
           title: "Pagos",
-          url: "/facturas",
+          url: "/pagos",
           icon: <Receipt />,
         },
       ],

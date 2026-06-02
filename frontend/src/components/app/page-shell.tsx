@@ -15,7 +15,8 @@ export function PageShell({
   action?: {
     icon?: LucideIcon
     label: string
-    to: string
+    to?: string
+    onClick?: () => void
   }
   children: React.ReactNode
   description?: string
@@ -44,11 +45,21 @@ export function PageShell({
             </div>
           </div>
 
-          {action && (
+          {action && action.to && (
             <Button
               className="h-10 w-full sm:w-auto"
               variant="VFBrown"
               render={<Link to={action.to} />}
+            >
+              {ActionIcon && <ActionIcon />}
+              {action.label}
+            </Button>
+          )}
+          {action && action.onClick && !action.to && (
+            <Button
+              className="h-10 w-full sm:w-auto"
+              variant="VFBrown"
+              onClick={action.onClick}
             >
               {ActionIcon && <ActionIcon />}
               {action.label}
