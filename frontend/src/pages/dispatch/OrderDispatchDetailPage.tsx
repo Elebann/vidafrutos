@@ -6,7 +6,6 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { getCustomer, getProduct, ensureCustomers, ensureProducts } from "@/lib/dataCache"
-import { StatusBadge } from "@/components/app/status-badge"
 import apiClients from "@/lib/apiClients"
 import type { Order } from "@/types/domain"
 
@@ -118,9 +117,7 @@ export function OrderDispatchDetailPage() {
                       {detail.quantity} unidades solicitadas
                     </p>
                   </div>
-                  {isSelected && (
-                    <StatusBadge tone="green">Seleccionado</StatusBadge>
-                  )}
+
                 </div>
               )
             })}

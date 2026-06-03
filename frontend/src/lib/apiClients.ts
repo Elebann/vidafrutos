@@ -252,7 +252,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
     const orderResponse = await api.post<ApiOrder>("/api/orders/", {
       customer: payload.customerId,
       date: orderDate,
-      state: 1,
+      state: 3, //en producción
     })
     const orderId = orderResponse.data?.id
 
