@@ -167,7 +167,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://192.168.56.1:5173',
     'http://192.168.100.29:5173',
-    'https://server-production-36cb.up.railway.app'
+    'https://server-production-36cb.up.railway.app',
+    'https://elebann.github.io'
 ]
 
 # Add production origins from environment
