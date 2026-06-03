@@ -1,0 +1,88 @@
+# Entornos virtuales
+.env
+venv/
+venv
+*.env
+
+# Archivos de compilación y bytecode de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+
+# Paquetes
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+sdist/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+
+# Test
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Node.js
+node_modules/
+node_modules
+frontend/node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+node_modules
+dist
+dist-ssr
+*.local
+
+# Builds de React
+/build
+/public/static/
+
+# logs
+*.log
+*.pot
+*.mo
+*.pid
+*.log.*
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editores
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.bak
+*.tmp
+
+# Archivos del sistema operativo
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# bd
+db.sqlite3
+
+# Django static files
+backend/staticfiles/
