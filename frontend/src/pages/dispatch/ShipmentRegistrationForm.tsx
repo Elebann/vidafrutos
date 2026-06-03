@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import apiClients from "@/lib/apiClients"
+import { uploadToCloudinary, getExtensionFromFileName } from "@/lib/cloudinary"
 import type { Order } from "@/types/domain"
 
 interface ShipmentRegistrationFormProps {
@@ -10,6 +11,9 @@ interface ShipmentRegistrationFormProps {
   onSuccess: () => void
   onClose: () => void
 }
+
+const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic", "pdf"])
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
 export function ShipmentRegistrationForm({
   order,
@@ -23,17 +27,26 @@ export function ShipmentRegistrationForm({
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setPhotoFile(file)
-      setError("")
+    if (!file) return
+
+    const extension = getExtensionFromFileName(file.name)
+    if (!ALLOWED_EXTENSIONS.has(extension)) {
+      setError(`Formato no permitido (.${extension}). Usa: ${Array.from(ALLOWED_EXTENSIONS).join(", ")}.`)
+      return
     }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setError("El archivo excede el tamaño máximo de 10 MB.")
+      return
+    }
+
+    setPhotoFile(file)
+    setError("")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    // Validate order number matches
     if (!orderNumber) {
       setError("Ingresa el número del pedido")
       return
@@ -45,13 +58,29 @@ export function ShipmentRegistrationForm({
     }
 
     if (!photoFile) {
-      setError("Selecciona una foto")
+      setError("Selecciona un archivo de evidencia")
       return
     }
 
     setIsSubmitting(true)
     try {
-      // Get the state ID for "Despachado"
+      // 1) Upload file directly to Cloudinary from the browser
+      const cloudinaryResult = await uploadToCloudinary(photoFile)
+
+      // 2) Persist the Cloudinary reference in our backend
+      const evidence = await apiClients.uploadDeliveryEvidence(order.id, {
+        publicId: cloudinaryResult.publicId,
+        extension: cloudinaryResult.extension,
+        bytes: cloudinaryResult.bytes,
+      })
+
+      if (!evidence) {
+        setError("La evidencia se subió a Cloudinary, pero no se pudo registrar en el sistema.")
+        setIsSubmitting(false)
+        return
+      }
+
+      // 3) Update order state to "Enviado"
       const states = await apiClients.fetchOrderStates()
       const dispatchedState = states.find((s) => s.state === "Enviado")
 
@@ -61,11 +90,7 @@ export function ShipmentRegistrationForm({
         return
       }
 
-      // Update order state
       await apiClients.updateOrderState(order.id, dispatchedState.id)
-
-      // Show success message
-      alert("El pedido se registró como enviado")
 
       // Reset form and close
       setOrderNumber("")
@@ -73,7 +98,9 @@ export function ShipmentRegistrationForm({
       onSuccess()
     } catch (err) {
       console.error(err)
-      setError("Error al registrar el envío")
+      const message =
+        err instanceof Error ? err.message : "Error al registrar el envío"
+      setError(message)
       setIsSubmitting(false)
     }
   }
@@ -98,10 +125,10 @@ export function ShipmentRegistrationForm({
 
       <FieldGroup>
         <Field>
-          <FieldLabel>Foto de entrega</FieldLabel>
+          <FieldLabel>Evidencia de entrega (imagen o PDF)</FieldLabel>
           <Input
             type="file"
-            accept="image/*"
+            accept="image/*,application/pdf"
             onChange={handlePhotoChange}
             disabled={isSubmitting}
           />
@@ -130,7 +157,7 @@ export function ShipmentRegistrationForm({
           disabled={isSubmitting || !orderNumber || !photoFile}
           className="flex-1"
         >
-          {isSubmitting ? "Procesando..." : "Registrar envío"}
+          {isSubmitting ? "Subiendo..." : "Registrar envío"}
         </Button>
       </div>
     </form>

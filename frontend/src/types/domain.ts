@@ -122,3 +122,18 @@ export interface NavGroup {
     icon: LucideIcon
   }>
 }
+
+export interface DeliveryEvidence {
+  id: number
+  orderId: number
+  publicId: string
+  extension: string
+  bytes: number
+  uploadedBy: {
+    id: number
+    username: string
+  }
+  uploadedAt: string
+  isArchived: boolean
+  url: string
+}

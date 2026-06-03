@@ -1,6 +1,7 @@
 import type {
   Category,
   Customer,
+  DeliveryEvidence,
   Invoice,
   Order,
   OrderState,
@@ -16,6 +17,7 @@ import type {
 import type {
   ApiCategory,
   ApiCustomer,
+  ApiDeliveryEvidence,
   ApiId,
   ApiInvoice,
   ApiOrder,
@@ -174,5 +176,22 @@ export function mapStockMovement(movement: ApiStockMovement): StockMovement {
     quantity: numberFrom(movement.quantity),
     date: movement.date ?? "",
     description: movement.description ?? "",
+  }
+}
+
+export function mapDeliveryEvidence(evidence: ApiDeliveryEvidence): DeliveryEvidence {
+  return {
+    id: evidence.id,
+    orderId: numberFrom(evidence.order_id),
+    publicId: stringFrom(evidence.public_id),
+    extension: stringFrom(evidence.extension),
+    bytes: numberFrom(evidence.bytes),
+    uploadedBy: {
+      id: idFrom(evidence.uploaded_by, 0),
+      username: evidence.uploaded_by?.username ?? "",
+    },
+    uploadedAt: evidence.uploaded_at ?? "",
+    isArchived: Boolean(evidence.is_archived),
+    url: stringFrom(evidence.url),
   }
 }

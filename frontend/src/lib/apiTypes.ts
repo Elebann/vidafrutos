@@ -116,3 +116,21 @@ export interface CreateUserPayload {
   password: string
   rol?: number
 }
+
+export interface ApiDeliveryEvidence {
+  id: number
+  order_id: number
+  public_id: string
+  extension: string
+  bytes: number
+  uploaded_by?: { id: number; username?: string | null } | null
+  uploaded_at: string
+  is_archived: boolean
+  url: string
+}
+
+export interface CreateDeliveryEvidencePayload {
+  publicId: string
+  extension: string
+  bytes: number
+}

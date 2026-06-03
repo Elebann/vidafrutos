@@ -1,9 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import History, Order, OrderDetail, OrderState
+from .models import DeliveryEvidence, History, Order, OrderDetail, OrderState
 from .serializers import (
+	DeliveryEvidenceSerializer,
+	DeliveryEvidenceWriteSerializer,
 	HistorySerializer,
 	HistoryWriteSerializer,
 	OrderDetailSerializer,
@@ -68,6 +70,37 @@ class OrderViewSet(viewsets.ModelViewSet):
 			created.append(serializer.data)
 
 		return Response(created, status=201)
+
+	@action(detail=True, methods=['get', 'post'], url_path='evidence')
+	def evidence(self, request, pk=None):
+		order = self.get_object()
+
+		if request.method == 'GET':
+			evidence = DeliveryEvidence.objects.filter(order=order).first()
+			if evidence is None:
+				return Response(None, status=status.HTTP_200_OK)
+			return Response(DeliveryEvidenceSerializer(evidence, context={'request': request}).data)
+
+		write_serializer = DeliveryEvidenceWriteSerializer(data=request.data)
+		write_serializer.is_valid(raise_exception=True)
+
+		if DeliveryEvidence.objects.filter(order=order).exists():
+			return Response(
+				{'detail': 'Este pedido ya tiene evidencia registrada.'},
+				status=status.HTTP_409_CONFLICT,
+			)
+
+		evidence = DeliveryEvidence.objects.create(
+			order=order,
+			public_id=write_serializer.validated_data['public_id'],
+			extension=write_serializer.validated_data['extension'],
+			bytes=write_serializer.validated_data['bytes'],
+			uploaded_by=request.user,
+		)
+		return Response(
+			DeliveryEvidenceSerializer(evidence, context={'request': request}).data,
+			status=status.HTTP_201_CREATED,
+		)
 
 
 class OrderDetailViewSet(viewsets.ModelViewSet):

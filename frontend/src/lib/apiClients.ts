@@ -3,6 +3,7 @@ import { getProduct, getPackagedStock, updatePackagedStockInCache } from "@/lib/
 import {
   mapCategory,
   mapCustomer,
+  mapDeliveryEvidence,
   mapInvoice,
   mapOrder,
   mapPackagedStock,
@@ -15,6 +16,7 @@ import {
 import type {
   Category,
   Customer,
+  DeliveryEvidence,
   Invoice,
   Order,
   PackagedStock,
@@ -27,12 +29,14 @@ import type {
 import type {
   ApiCategory,
   ApiCustomer,
+  ApiDeliveryEvidence,
   ApiInvoice,
   ApiOrder,
   ApiProduct,
   ApiRole,
   ApiStockMovement,
   ApiUser,
+  CreateDeliveryEvidencePayload,
   CreateInventoryMovementPayload,
   CreateOrderPayload,
   CreateUserPayload,
@@ -214,6 +218,34 @@ export async function toggleProductActive(productId: number, active: boolean): P
   }
 }
 
+export async function fetchOrderEvidence(orderId: number): Promise<DeliveryEvidence | null> {
+  try {
+    const response = await api.get<ApiDeliveryEvidence | null>(`/api/orders/${orderId}/evidence/`)
+    if (!response.data) return null
+    return mapDeliveryEvidence(response.data)
+  } catch (error) {
+    console.error(`Error loading evidence for order ${orderId}`, error)
+    return null
+  }
+}
+
+export async function uploadDeliveryEvidence(
+  orderId: number,
+  payload: CreateDeliveryEvidencePayload,
+): Promise<DeliveryEvidence | null> {
+  try {
+    const response = await api.post<ApiDeliveryEvidence>(`/api/orders/${orderId}/evidence/`, {
+      public_id: payload.publicId,
+      extension: payload.extension,
+      bytes: payload.bytes,
+    })
+    return mapDeliveryEvidence(response.data)
+  } catch (error) {
+    console.error(`Error uploading evidence for order ${orderId}`, error)
+    return null
+  }
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
     const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
@@ -305,5 +337,7 @@ export default {
   updateProductPackagedStock,
   updateProductMinimumStock,
   createOrder,
-  toggleProductActive
+  toggleProductActive,
+  fetchOrderEvidence,
+  uploadDeliveryEvidence,
 }

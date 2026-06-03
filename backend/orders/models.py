@@ -34,3 +34,16 @@ class History(models.Model):
 
     def __str__(self):
         return f"Pedido #{self.order_id} - {self.affected_field}"
+
+
+class DeliveryEvidence(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='evidence')
+    public_id = models.CharField(max_length=500)
+    extension = models.CharField(max_length=10)
+    bytes = models.PositiveIntegerField()
+    uploaded_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='uploaded_evidence')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    is_archived = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Evidencia #{self.order_id} - {self.public_id}"

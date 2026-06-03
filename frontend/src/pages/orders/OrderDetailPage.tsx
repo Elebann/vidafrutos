@@ -3,6 +3,7 @@ import { ClipboardCheck } from "lucide-react"
 
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
+import { DeliveryEvidenceSection } from "@/components/app/DeliveryEvidenceSection"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { getCustomer, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
@@ -97,6 +98,7 @@ export function OrderDetailPage() {
           ))}
         </div>
       </SectionCard>
+      <DeliveryEvidenceSection key={order.id} orderId={order.id} />
     </PageShell>
   )
 }

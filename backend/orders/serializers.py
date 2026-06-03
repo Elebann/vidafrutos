@@ -7,7 +7,10 @@ from clients.serializers import CustomerSerializer
 from products.models import Product
 from products.serializers import ProductSerializer
 
-from .models import History, Order, OrderDetail, OrderState
+from .models import DeliveryEvidence, History, Order, OrderDetail, OrderState
+
+ALLOWED_EVIDENCE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "heic", "pdf"}
+MAX_EVIDENCE_BYTES = 10485760 # 10 MB (10 * 1024 * 1024)
 
 
 class OrderStateSerializer(serializers.ModelSerializer):
@@ -109,3 +112,54 @@ class HistoryWriteSerializer(serializers.ModelSerializer):
         model = History
         fields = ['id', 'order', 'user', 'affected_field', 'prev_value', 'new_value']
         read_only_fields = ['id']
+
+
+class DeliveryEvidenceSerializer(serializers.ModelSerializer):
+    uploaded_by = UserSerializer(read_only=True)
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DeliveryEvidence
+        fields = [
+            'id',
+            'order_id',
+            'public_id',
+            'extension',
+            'bytes',
+            'uploaded_by',
+            'uploaded_at',
+            'is_archived',
+            'url',
+        ]
+        read_only_fields = fields
+
+    def get_url(self, obj: DeliveryEvidence) -> str:
+        request = self.context.get('request')
+        cloud_name = request and getattr(request, 'cloud_name', None)
+        if not cloud_name:
+            from django.conf import settings
+            cloud_name = getattr(settings, 'CLOUDINARY_CLOUD_NAME', '')
+        if not cloud_name:
+            return ''
+        return f"https://res.cloudinary.com/{cloud_name}/image/upload/{obj.public_id}.{obj.extension}"
+
+
+class DeliveryEvidenceWriteSerializer(serializers.Serializer):
+    public_id = serializers.CharField(max_length=500)
+    extension = serializers.CharField(max_length=10)
+    bytes = serializers.IntegerField(min_value=1)
+
+    def validate_extension(self, value: str) -> str:
+        normalized = value.lower().lstrip('.')
+        if normalized not in ALLOWED_EVIDENCE_EXTENSIONS:
+            raise serializers.ValidationError(
+                f"Extensión no permitida. Permitidas: {', '.join(sorted(ALLOWED_EVIDENCE_EXTENSIONS))}."
+            )
+        return normalized
+
+    def validate_bytes(self, value: int) -> int:
+        if value > MAX_EVIDENCE_BYTES:
+            raise serializers.ValidationError(
+                f"El archivo excede el tamaño máximo permitido de {MAX_EVIDENCE_BYTES // (1024 * 1024)} MB."
+            )
+        return value
