@@ -394,6 +394,7 @@ export function NewOrderPage() {
                     { productId: currentProductId, quantity: currentQuantity },
                   ]
                 })
+                setCurrentProductId(null)
               }}
             >
               Agregar producto
