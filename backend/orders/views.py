@@ -84,11 +84,11 @@ class OrderViewSet(viewsets.ModelViewSet):
 		write_serializer = DeliveryEvidenceWriteSerializer(data=request.data)
 		write_serializer.is_valid(raise_exception=True)
 
-		if DeliveryEvidence.objects.filter(order=order).exists():
-			return Response(
-				{'detail': 'Este pedido ya tiene evidencia registrada.'},
-				status=status.HTTP_409_CONFLICT,
-			)
+		# if DeliveryEvidence.objects.filter(order=order).exists():
+		# 	return Response(
+		# 		{'detail': 'Este pedido ya tiene documento cargado.'},
+		# 		status=status.HTTP_409_CONFLICT,
+		# 	)
 
 		evidence = DeliveryEvidence.objects.create(
 			order=order,
@@ -96,6 +96,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 			extension=write_serializer.validated_data['extension'],
 			bytes=write_serializer.validated_data['bytes'],
 			uploaded_by=request.user,
+			evidence_type=write_serializer.validated_data['evidence_type'],
 		)
 		return Response(
 			DeliveryEvidenceSerializer(evidence, context={'request': request}).data,

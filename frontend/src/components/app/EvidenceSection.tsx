@@ -17,7 +17,15 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
+export function EvidenceSection(
+  { orderId,
+    title,
+    evidenceType }:
+  { orderId: number,
+    title: string,
+    evidenceType: number
+  }
+  ) {
   const [evidence, setEvidence] = useState<DeliveryEvidence | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
@@ -41,11 +49,11 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
     return () => {
       active = false
     }
-  }, [orderId])
+  }, [orderId, evidenceType])
 
   if (isLoading) {
     return (
-      <SectionCard title="Evidencia de entrega">
+      <SectionCard title={title}>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Cargando evidencia...
@@ -56,7 +64,7 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
 
   if (!evidence) {
     return (
-      <SectionCard title="Evidencia de entrega">
+      <SectionCard title={title}>
         <p className="text-sm text-muted-foreground">
           Este pedido aún no tiene evidencia de entrega registrada.
         </p>
@@ -73,7 +81,7 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
     : buildEvidencePdfUrl(evidence.publicId, evidence.extension, true)
 
   return (
-    <SectionCard title="Evidencia de entrega">
+    <SectionCard title={title}>
       <div className="grid gap-3 sm:grid-cols-[auto_1fr] sm:items-start">
         {isImage ? (
           <button
@@ -84,7 +92,7 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
           >
             <img
               src={previewUrl}
-              alt="Evidencia de entrega"
+              alt="Evidencia"
               className="h-full w-full object-cover transition group-hover:scale-105"
               loading="lazy"
             />
@@ -97,9 +105,15 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
 
         <div className="grid gap-1 text-sm">
           <div className="flex items-center gap-2 font-medium">
-            {isImage ? <ImageIcon className="size-4" /> : <FileText className="size-4" />}
+            {isImage ? (
+              <ImageIcon className="size-4" />
+            ) : (
+              <FileText className="size-4" />
+            )}
             <span className="uppercase">{evidence.extension}</span>
-            <span className="text-muted-foreground">· {formatBytes(evidence.bytes)}</span>
+            <span className="text-muted-foreground">
+              · {formatBytes(evidence.bytes)}
+            </span>
           </div>
           <p className="text-xs text-muted-foreground">
             Subido por {evidence.uploadedBy.username || "usuario"} el{" "}
@@ -111,7 +125,7 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
             rel="noopener noreferrer"
             className="mt-1 text-sm font-medium text-[#804f17] underline-offset-2 hover:underline"
           >
-            {isImage ? "Abrir imagen en nueva pestaña" : "Descargar PDF"}
+            {isImage ? "Abrir en nueva pestaña" : "Descargar"}
           </a>
         </div>
       </div>
@@ -124,7 +138,7 @@ export function DeliveryEvidenceSection({ orderId }: { orderId: number }) {
         >
           <img
             src={lightboxUrl}
-            alt="Evidencia de entrega ampliada"
+            alt="Evidencia ampliada"
             className="max-h-full max-w-full rounded-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />

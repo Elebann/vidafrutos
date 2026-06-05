@@ -3,7 +3,7 @@ import { ClipboardCheck } from "lucide-react"
 
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
-import { DeliveryEvidenceSection } from "@/components/app/DeliveryEvidenceSection"
+import { EvidenceSection } from "@/components/app/EvidenceSection.tsx"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { getCustomer, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
@@ -38,38 +38,68 @@ export function OrderDetailPage() {
   const customer = getCustomer(order.customerId)
 
   return (
-    <PageShell description={`${customer?.name} - solicitado para ${order.requestedDate}`} icon={ClipboardCheck} title={`Pedido #${order.id}`}>
+    <PageShell
+      description={`${customer?.name} - solicitado para ${order.requestedDate}`}
+      icon={ClipboardCheck}
+      title={`Pedido #${order.id}`}
+    >
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <SectionCard title="Productos solicitados">
-          <div className="grid gap-2">{order.details.map((detail) => <ProductLine key={detail.productId} {...detail} />)}</div>
+          <div className="grid gap-2">
+            {order.details.map((detail) => (
+              <ProductLine key={detail.productId} {...detail} />
+            ))}
+          </div>
           <div className="mt-4 flex items-center justify-between border-t pt-4">
-            <span className="text-sm text-muted-foreground">Total estimado</span>
-            <span className="text-lg font-semibold">{formatCurrency(getOrderTotal(order))}</span>
+            <span className="text-sm text-muted-foreground">
+              Total estimado
+            </span>
+            <span className="text-lg font-semibold">
+              {formatCurrency(getOrderTotal(order))}
+            </span>
           </div>
         </SectionCard>
-        <FormCard submitLabel="Actualizar estado" title="Cambio de estado" onSubmit={async (e) => {
-          e.preventDefault()
-          if (!order) return
-          if (!selectedStateId) return alert('Seleccione un estado')
-          if (isSubmitting) return
-          setIsSubmitting(true)
-          try {
-            await apiClients.updateOrderState(order.id, selectedStateId, observation)
-            // refetch order details
-            const updated = await apiClients.fetchOrderDetails(order.id)
-            setOrder(updated)
-            alert('Estado actualizado')
-          } catch (err) {
-            console.error(err)
-            alert('Error al actualizar estado')
-          } finally {
-            setIsSubmitting(false)
-          }
-        }} submitDisabled={isSubmitting}>
+        <FormCard
+          submitLabel="Actualizar estado"
+          title="Cambio de estado"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (!order) return
+            if (!selectedStateId) return alert("Seleccione un estado")
+            if (isSubmitting) return
+            setIsSubmitting(true)
+            try {
+              await apiClients.updateOrderState(
+                order.id,
+                selectedStateId,
+                observation
+              )
+              // refetch order details
+              const updated = await apiClients.fetchOrderDetails(order.id)
+              setOrder(updated)
+              alert("Estado actualizado")
+            } catch (err) {
+              console.error(err)
+              alert("Error al actualizar estado")
+            } finally {
+              setIsSubmitting(false)
+            }
+          }}
+          submitDisabled={isSubmitting}
+        >
           <FieldGroup>
             <Field>
               <FieldLabel>Estado</FieldLabel>
-              <Select value={selectedStateId ? String(selectedStateId) : String(states.find((s) => s.state === order.state)?.id ?? "") } onValueChange={(v) => setSelectedStateId(v ? Number(v) : null)}>
+              <Select
+                value={
+                  selectedStateId
+                    ? String(selectedStateId)
+                    : String(
+                        states.find((s) => s.state === order.state)?.id ?? ""
+                      )
+                }
+                onValueChange={(v) => setSelectedStateId(v ? Number(v) : null)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -85,20 +115,37 @@ export function OrderDetailPage() {
               </Select>
             </Field>
           </FieldGroup>
-          <TextField label="Observacion" placeholder="Motivo del cambio" value={observation} onChange={setObservation} />
+          <TextField
+            label="Observacion"
+            placeholder="Motivo del cambio"
+            value={observation}
+            onChange={setObservation}
+          />
         </FormCard>
       </div>
       <SectionCard title="Historial de modificaciones">
         <div className="grid gap-2">
           {order.history.map((item) => (
-            <div className="rounded-md border bg-neutral-50 px-3 py-2 text-sm" key={`${item.date}-${item.field}`}>
-              <p className="font-medium">{item.field}: {item.previousValue} {"->"} {item.newValue}</p>
-              <p className="text-xs text-muted-foreground">{item.date} por {item.user}</p>
+            <div
+              className="rounded-md border bg-neutral-50 px-3 py-2 text-sm"
+              key={`${item.date}-${item.field}`}
+            >
+              <p className="font-medium">
+                {item.field}: {item.previousValue} {"->"} {item.newValue}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {item.date} por {item.user}
+              </p>
             </div>
           ))}
         </div>
       </SectionCard>
-      <DeliveryEvidenceSection key={order.id} orderId={order.id} />
+      <EvidenceSection
+        evidenceType={1}
+        key={order.id}
+        orderId={order.id}
+        title="Evidencia de entrega"
+      />
     </PageShell>
   )
 }

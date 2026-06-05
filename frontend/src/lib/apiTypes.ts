@@ -127,10 +127,12 @@ export interface ApiDeliveryEvidence {
   uploaded_at: string
   is_archived: boolean
   url: string
+  evidence_type: number
 }
 
 export interface CreateDeliveryEvidencePayload {
   publicId: string
   extension: string
   bytes: number
+  evidence_type: number
 }

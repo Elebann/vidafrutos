@@ -130,6 +130,7 @@ class DeliveryEvidenceSerializer(serializers.ModelSerializer):
             'uploaded_at',
             'is_archived',
             'url',
+            'evidence_type'
         ]
         read_only_fields = fields
 
@@ -148,6 +149,7 @@ class DeliveryEvidenceWriteSerializer(serializers.Serializer):
     public_id = serializers.CharField(max_length=500)
     extension = serializers.CharField(max_length=10)
     bytes = serializers.IntegerField(min_value=1)
+    evidence_type = serializers.IntegerField()
 
     def validate_extension(self, value: str) -> str:
         normalized = value.lower().lstrip('.')

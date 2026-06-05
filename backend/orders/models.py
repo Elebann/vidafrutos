@@ -44,6 +44,7 @@ class DeliveryEvidence(models.Model):
     uploaded_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='uploaded_evidence')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_archived = models.BooleanField(default=False)
+    evidence_type = models.IntegerField(null=True) # 1: Entrega - 2: Confirmación de pago
 
     def __str__(self):
         return f"Evidencia #{self.order_id} - {self.public_id}"

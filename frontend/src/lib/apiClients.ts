@@ -238,6 +238,7 @@ export async function uploadDeliveryEvidence(
       public_id: payload.publicId,
       extension: payload.extension,
       bytes: payload.bytes,
+      evidence_type: payload.evidence_type
     })
     return mapDeliveryEvidence(response.data)
   } catch (error) {

@@ -136,4 +136,5 @@ export interface DeliveryEvidence {
   uploadedAt: string
   isArchived: boolean
   url: string
+  evidence_type: number
 }

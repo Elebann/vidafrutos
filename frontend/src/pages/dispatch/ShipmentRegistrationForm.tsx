@@ -72,6 +72,7 @@ export function ShipmentRegistrationForm({
         publicId: cloudinaryResult.publicId,
         extension: cloudinaryResult.extension,
         bytes: cloudinaryResult.bytes,
+        evidence_type: 1
       })
 
       if (!evidence) {

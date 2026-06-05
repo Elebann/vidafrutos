@@ -193,5 +193,6 @@ export function mapDeliveryEvidence(evidence: ApiDeliveryEvidence): DeliveryEvid
     uploadedAt: evidence.uploaded_at ?? "",
     isArchived: Boolean(evidence.is_archived),
     url: stringFrom(evidence.url),
+    evidence_type: numberFrom(evidence.evidence_type),
   }
 }
