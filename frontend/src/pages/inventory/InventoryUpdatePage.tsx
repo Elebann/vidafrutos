@@ -58,14 +58,6 @@ export function InventoryUpdatePage() {
 
   const selectedProduct = products.find((p) => String(p.id) === String(selectedProductId)) ?? products[0]
   const packagedSelectedProduct = products.find((p) => String(p.id) === String(packagedProductId)) ?? products[0]
-  const gramsNumber = parseFloat(gramsValue || "0")
-  const productGrams = Number(selectedProduct?.grams ?? 0)
-  const packagedCount = productGrams > 0 ? gramsNumber / productGrams : 0
-  const minimumRequired = Number(selectedProduct?.packaged_stock?.minimum_stock ?? 0)
-  const gramsValidationMessage =
-    movementType === "ENTRADA" && gramsValue && packagedCount < minimumRequired
-      ? `El valor ingresado no cumple el mínimo requerido para producir ${minimumRequired} unidades (${productGrams} gr. por bolsa.).`
-      : null
 
   const getRawTotalGrams = (product?: ApiProduct) => Number(product?.raw_stock?.total_grams ?? product?.raw_stock?.quantity_kilogram ?? 0) || 0
   const getAvailablePackagedStock = (product?: ApiProduct) => Number(product?.packaged_stock?.available_stock ?? 0) || 0
@@ -371,11 +363,6 @@ export function InventoryUpdatePage() {
               value={gramsValue}
               onChange={(v) => setGramsValue(v)}
             />
-            {gramsValidationMessage && (
-              <div className="mt-1 text-sm text-destructive">
-                {gramsValidationMessage}
-              </div>
-            )}
           </div>
           <TextField
             label="Descripcion"
