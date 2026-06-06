@@ -42,19 +42,54 @@ export function InventoryPage() {
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <SectionCard title="Stock envasado">
           <div className="grid gap-3 sm:grid-cols-2">
-            {packagedStock.map((stock) => {
+                        {packagedStock.map((stock) => {
               const product = getProduct(stock.productId)
+
               const critical = stock.availableStock <= stock.minimumStock
+              const warningStock = stock.minimumStock * 1.3
+              const warning = !critical && stock.availableStock <= warningStock
+
               return (
                 <div className="rounded-lg border bg-white p-4" key={stock.productId}>
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <p className="font-semibold">{product?.name}</p>
-                    <StatusBadge tone={critical ? "red" : "green"}>{critical ? "Critico" : "OK"}</StatusBadge>
+
+                    <StatusBadge
+                      tone={
+                        critical
+                          ? "red"
+                          : warning
+                          ? "yellow"
+                          : "green"
+                      }
+                    >
+                      {critical
+                        ? "Crítico"
+                        : warning
+                        ? "Advertencia"
+                        : "OK"}
+                    </StatusBadge>
                   </div>
+
                   <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                    <div><strong>{stock.availableStock}</strong><span className="block text-xs text-muted-foreground">Envasado</span></div>
-                    <div><strong>{stock.allocatedStock}</strong><span className="block text-xs text-muted-foreground">Reserv.</span></div>
-                    <div><strong>{stock.minimumStock}</strong><span className="block text-xs text-muted-foreground">Min.</span></div>
+                    <div>
+                      <strong>{stock.availableStock}</strong>
+                      <span className="block text-xs text-muted-foreground">
+                        Envasado
+                      </span>
+                    </div>
+                    <div>
+                      <strong>{stock.allocatedStock}</strong>
+                      <span className="block text-xs text-muted-foreground">
+                        Reserv.
+                      </span>
+                    </div>
+                    <div>
+                      <strong>{stock.minimumStock}</strong>
+                      <span className="block text-xs text-muted-foreground">
+                        Min.
+                      </span>
+                    </div>
                   </div>
                 </div>
               )
