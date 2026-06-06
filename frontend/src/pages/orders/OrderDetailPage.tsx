@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom"
 import { ClipboardCheck } from "lucide-react"
-
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { EvidenceSection } from "@/components/app/EvidenceSection.tsx"
@@ -12,6 +11,7 @@ import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
+import { formatDate } from "@/lib/format"
 
 export function OrderDetailPage() {
   const { orderId } = useParams()
@@ -36,10 +36,9 @@ export function OrderDetailPage() {
   if (!order) return <div>Loading...</div>
 
   const customer = getCustomer(order.customerId)
-
   return (
     <PageShell
-      description={`${customer?.name} - solicitado para ${order.requestedDate}`}
+      description={`${customer?.name} - solicitado para ${formatDate(order.date)}`}
       icon={ClipboardCheck}
       title={`Pedido #${order.id}`}
     >
