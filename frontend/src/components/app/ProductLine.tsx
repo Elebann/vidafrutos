@@ -8,7 +8,7 @@ interface ProductLineProps {
 
 export function ProductLine({ productId, quantity }: ProductLineProps) {
   const product = getProduct(productId)
-  const missing = getMissingUnits(productId, quantity)
+   const missing = getMissingUnits(productId, quantity)
 
   return (
     <div className="flex items-center justify-between gap-3 rounded-md bg-neutral-50 px-3 py-2 text-sm">
@@ -16,7 +16,7 @@ export function ProductLine({ productId, quantity }: ProductLineProps) {
         <p className="truncate font-medium">{product?.name}</p>
         <p className="text-xs text-muted-foreground">{quantity} unidades solicitadas</p>
       </div>
-      {missing > 0 ? <StatusBadge tone="red">Faltan {missing}</StatusBadge> : <StatusBadge tone="green">Disponible</StatusBadge>}
+       {missing > 0 ? <StatusBadge tone="red">Faltan {missing}</StatusBadge> : <StatusBadge tone="green">Disponible</StatusBadge>}
     </div>
   )
 }

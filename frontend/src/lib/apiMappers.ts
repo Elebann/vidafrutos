@@ -2,6 +2,9 @@ import type {
   Category,
   Customer,
   DeliveryEvidence,
+  Forecast,
+  ForecastDiagnostics,
+  ForecastStatus,
   Invoice,
   Order,
   OrderState,
@@ -18,6 +21,9 @@ import type {
   ApiCategory,
   ApiCustomer,
   ApiDeliveryEvidence,
+  ApiForecast,
+  ApiForecastDiagnostics,
+  ApiForecastStatus,
   ApiId,
   ApiInvoice,
   ApiOrder,
@@ -194,5 +200,74 @@ export function mapDeliveryEvidence(evidence: ApiDeliveryEvidence): DeliveryEvid
     isArchived: Boolean(evidence.is_archived),
     url: stringFrom(evidence.url),
     evidence_type: numberFrom(evidence.evidence_type),
+  }
+}
+
+export function mapForecast(forecast: ApiForecast): Forecast {
+  return {
+    productId: forecast.productId,
+    productName: forecast.productName,
+    expectedSales: forecast.expectedSales,
+    suggestedProduction: forecast.suggestedProduction,
+    confidence: forecast.confidence,
+    risk: forecast.risk,
+    availableStock: forecast.availableStock,
+    allocatedStock: forecast.allocatedStock,
+    minimumStock: forecast.minimumStock,
+    productionPlan: forecast.productionPlan ?? [],
+  }
+}
+
+export function mapForecastStatus(status: ApiForecastStatus): ForecastStatus {
+  return {
+    trained: Boolean(status.trained),
+    lastTrainedAt: status.last_trained_at,
+    lastTrainedIso: status.last_trained_iso,
+    nRows: numberFrom(status.n_rows),
+    nProducts: numberFrom(status.n_products),
+    nEstimators: numberFrom(status.n_estimators),
+    maxDepth: numberFrom(status.max_depth),
+    testMae: numberFrom(status.test_mae),
+    testR2: numberFrom(status.test_r2),
+    testMape: numberFrom(status.test_mape),
+    lookbackDays: numberFrom(status.lookback_days),
+    topFeatures: (status.top_features ?? []).map((f) => ({
+      name: f.name,
+      importance: numberFrom(f.importance),
+    })),
+    classificationMetrics: (status.classification_metrics ?? []).map((metric) => ({
+      className: metric.class_name,
+      accuracy: numberFrom(metric.accuracy),
+      recall: numberFrom(metric.recall),
+      precision: numberFrom(metric.precision),
+      f1Score: numberFrom(metric.f1_score),
+      support: numberFrom(metric.support),
+    })),
+  }
+}
+
+export function mapForecastDiagnostics(diagnostics: ApiForecastDiagnostics): ForecastDiagnostics {
+  return {
+    summary: mapForecastStatus(diagnostics.summary),
+    confusionMatrix: {
+      labels: diagnostics.confusion_matrix.labels,
+      edges: diagnostics.confusion_matrix.edges,
+      matrix: diagnostics.confusion_matrix.matrix,
+    },
+    confidenceTable: (diagnostics.confidence_table ?? []).map((row) => ({
+      date: row.date,
+      productId: row.product_id,
+      productName: row.product_name,
+      actual: row.actual,
+      predicted: row.predicted,
+      lower: row.lower,
+      upper: row.upper,
+      confidence: row.confidence,
+      actualClass: row.actual_class,
+      predictedClass: row.predicted_class,
+      insideInterval: row.inside_interval,
+      confidenceMethod: row.confidence_method,
+    })),
+    message: diagnostics.message,
   }
 }

@@ -6,8 +6,8 @@ import type { AxiosInstance } from "axios"
 // This makes it easy to run the frontend locally against a local Django
 // (`http(s)://<host>:8000`) while allowing production builds to target the
 // deployed backend domain.
-//const DEFAULT_API_BASE = `${location.protocol}//${location.hostname}:8000`
-const DEFAULT_API_BASE = 'https://server-production-36cb.up.railway.app'
+const DEFAULT_API_BASE = `${location.protocol}//${location.hostname}:8000`
+//const DEFAULT_API_BASE = 'https://server-production-36cb.up.railway.app'
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || DEFAULT_API_BASE
 
 // Help debugging at runtime: print the base URL the app is using.

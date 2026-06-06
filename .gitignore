@@ -86,3 +86,6 @@ db.sqlite3
 
 # Django static files
 backend/staticfiles/
+
+# Persisted ML models
+backend/forecast_models/

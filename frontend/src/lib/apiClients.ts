@@ -4,6 +4,9 @@ import {
   mapCategory,
   mapCustomer,
   mapDeliveryEvidence,
+  mapForecast,
+  mapForecastDiagnostics,
+  mapForecastStatus,
   mapInvoice,
   mapOrder,
   mapPackagedStock,
@@ -17,6 +20,9 @@ import type {
   Category,
   Customer,
   DeliveryEvidence,
+  Forecast,
+  ForecastDiagnostics,
+  ForecastStatus,
   Invoice,
   Order,
   PackagedStock,
@@ -30,6 +36,10 @@ import type {
   ApiCategory,
   ApiCustomer,
   ApiDeliveryEvidence,
+  ApiForecast,
+  ApiForecastDiagnostics,
+  ApiForecastStatus,
+  ApiForecastTrainResult,
   ApiInvoice,
   ApiOrder,
   ApiProduct,
@@ -268,6 +278,35 @@ export async function uploadDeliveryEvidence(
   }
 }
 
+export async function fetchForecasts(): Promise<Forecast[]> {
+  try {
+    const response = await api.get<ApiForecast[]>("/api/forecast/")
+    return response.data.map(mapForecast)
+  } catch (error) {
+    console.error("Error loading forecasts", error)
+    return []
+  }
+}
+
+export async function trainForecasts(): Promise<{ suggestions: Forecast[]; status: ForecastStatus; elapsedSeconds: number }> {
+  const response = await api.post<ApiForecastTrainResult>("/api/forecast/train/")
+  return {
+    suggestions: (response.data.suggestions ?? []).map(mapForecast),
+    status: mapForecastStatus(response.data.status),
+    elapsedSeconds: response.data.elapsed_seconds,
+  }
+}
+
+export async function fetchForecastStatus(): Promise<ForecastStatus> {
+  const response = await api.get<ApiForecastStatus>("/api/forecast/status/")
+  return mapForecastStatus(response.data)
+}
+
+export async function fetchForecastDiagnostics(): Promise<ForecastDiagnostics> {
+  const response = await api.get<ApiForecastDiagnostics>("/api/forecast/diagnostics/")
+  return mapForecastDiagnostics(response.data)
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
     const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
@@ -362,4 +401,8 @@ export default {
   toggleProductActive,
   fetchOrderEvidence,
   uploadDeliveryEvidence,
+  fetchForecasts,
+  trainForecasts,
+  fetchForecastStatus,
+  fetchForecastDiagnostics,
 }

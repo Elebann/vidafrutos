@@ -108,10 +108,68 @@ export interface StockMovement {
 
 export interface Forecast {
   productId: number
+  productName?: string
   expectedSales: number
   suggestedProduction: number
   confidence: number
   risk: "Bajo" | "Medio" | "Alto"
+  availableStock?: number
+  allocatedStock?: number
+  minimumStock?: number
+  productionPlan?: {
+    date: string
+    expectedSales: number
+    suggestedProduction: number
+    confidence: number
+    risk: "Bajo" | "Medio" | "Alto"
+  }[]
+}
+
+export interface ForecastStatus {
+  trained: boolean
+  lastTrainedAt: number | null
+  lastTrainedIso: string | null
+  nRows: number
+  nProducts: number
+  nEstimators: number
+  maxDepth: number
+  testMae: number
+  testR2: number
+  testMape: number
+  lookbackDays: number
+  topFeatures: { name: string; importance: number }[]
+  classificationMetrics: {
+    className: string
+    accuracy: number
+    recall: number
+    precision: number
+    f1Score: number
+    support: number
+  }[]
+}
+
+export interface ForecastDiagnostics {
+  summary: ForecastStatus
+  confusionMatrix: {
+    labels: string[]
+    edges?: number[]
+    matrix: number[][]
+  }
+  confidenceTable: {
+    date: string
+    productId: number
+    productName: string
+    actual: number
+    predicted: number
+    lower: number
+    upper: number
+    confidence: number
+    actualClass: string
+    predictedClass: string
+    insideInterval: boolean
+    confidenceMethod?: "calibrated" | "tree_agreement" | "calibrated_error_agreement"
+  }[]
+  message?: string
 }
 
 export interface NavGroup {

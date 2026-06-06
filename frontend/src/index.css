@@ -185,3 +185,33 @@ select[data-slot="select"]:focus {
   /* use native arrow (do not inject custom chevron) */
   padding-right: 0.75rem;
 }
+
+/* Print-friendly styles for the diagnostics modal on the production page. */
+@media print {
+  body {
+    background: #fff !important;
+  }
+  aside,
+  header,
+  [data-slot="sidebar"],
+  [data-slot="sidebar-inset"] > header {
+    display: none !important;
+  }
+  [role="dialog"] {
+    position: static !important;
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  [role="dialog"] > div {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  table {
+    page-break-inside: avoid;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+}

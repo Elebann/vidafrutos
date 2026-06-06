@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/orders/', include('orders.urls')),
     path('api/inventory/', include('inventory.urls')),
     path('api/billing/', include('billing.urls')),
+    path('api/forecast/', include('forecast.urls')),
     # API index - list available endpoints under /api/
     path('api/', api_index, name='api-index'),
 ]

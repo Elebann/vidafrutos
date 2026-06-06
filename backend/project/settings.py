@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'accounts',
     'billing',
     'clients',
+    'forecast',
     'inventory',
     'orders',
     'products',

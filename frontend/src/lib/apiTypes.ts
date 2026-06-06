@@ -136,3 +136,81 @@ export interface CreateDeliveryEvidencePayload {
   bytes: number
   evidence_type: number
 }
+
+export interface ApiForecast {
+  productId: number
+  productName: string
+  expectedSales: number
+  suggestedProduction: number
+  confidence: number
+  risk: "Bajo" | "Medio" | "Alto"
+  availableStock: number
+  allocatedStock: number
+  minimumStock: number
+  productionPlan?: {
+    date: string
+    expectedSales: number
+    suggestedProduction: number
+    confidence: number
+    risk: "Bajo" | "Medio" | "Alto"
+  }[]
+}
+
+export interface ApiForecastMetric {
+  class_name: string
+  accuracy: number
+  recall: number
+  precision: number
+  f1_score: number
+  support: number
+}
+
+export interface ApiForecastStatus {
+  trained: boolean
+  last_trained_at: number | null
+  last_trained_iso: string | null
+  n_rows: number
+  n_products: number
+  n_estimators: number
+  max_depth: number
+  test_mae: number
+  test_r2: number
+  test_mape: number
+  lookback_days: number
+  top_features: { name: string; importance: number }[]
+  classification_metrics?: ApiForecastMetric[]
+}
+
+export interface ApiForecastTrainResult {
+  status: ApiForecastStatus
+  suggestions: ApiForecast[]
+  elapsed_seconds: number
+}
+
+export interface ApiForecastConfusionMatrix {
+  labels: string[]
+  edges?: number[]
+  matrix: number[][]
+}
+
+export interface ApiForecastConfidenceRow {
+  date: string
+  product_id: number
+  product_name: string
+  actual: number
+  predicted: number
+  lower: number
+  upper: number
+  confidence: number
+  actual_class: string
+  predicted_class: string
+  inside_interval: boolean
+  confidence_method?: "calibrated" | "tree_agreement" | "calibrated_error_agreement"
+}
+
+export interface ApiForecastDiagnostics {
+  summary: ApiForecastStatus
+  confusion_matrix: ApiForecastConfusionMatrix
+  confidence_table: ApiForecastConfidenceRow[]
+  message?: string
+}
