@@ -66,7 +66,7 @@ export function EvidenceSection(
     return (
       <SectionCard title={title}>
         <p className="text-sm text-muted-foreground">
-          Este pedido aún no tiene evidencia de entrega registrada.
+          No hay ningún documento adjunto.
         </p>
       </SectionCard>
     )

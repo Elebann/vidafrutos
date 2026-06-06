@@ -13,7 +13,7 @@ class Order(models.Model):
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Pedido #{self.id} - {self.customer}"
+        return f"Pedido #{self.id}"
 
 class OrderDetail(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

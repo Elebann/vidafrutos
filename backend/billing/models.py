@@ -16,3 +16,6 @@ class Invoice(models.Model):
     date = models.DateTimeField(default=timezone.now)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method= models.CharField(choices=PAYMENT_METHOD_CHOICES, max_length=50)
+
+    def __str__(self):
+        return f"{self.order} - {self.total} {self.payment_method}"
