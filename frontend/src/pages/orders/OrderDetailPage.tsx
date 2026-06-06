@@ -140,12 +140,21 @@ export function OrderDetailPage() {
           ))}
         </div>
       </SectionCard>
-      <EvidenceSection
-        evidenceType={1}
-        key={order.id}
-        orderId={order.id}
-        title="Evidencia de entrega"
-      />
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <EvidenceSection
+          evidenceType={1}
+          orderId={order.id}
+          title="Evidencia de entrega"
+        />
+
+        <EvidenceSection
+          evidenceType={2}
+          orderId={order.id}
+          title="Confirmación de pago"
+        />
+      </div>
+
     </PageShell>
   )
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { Receipt } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -10,6 +9,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { getCustomer, ensureCustomers, ensureProducts, getOrderTotal } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
 import type { Order } from "@/types/domain"
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE_BYTES } from "@/lib/format.ts"
+import {
+  getExtensionFromFileName,
+  uploadToCloudinary,
+} from "@/lib/cloudinary"
 
 interface InvoiceFormPageProps {
   isOpen: boolean
@@ -17,7 +21,11 @@ interface InvoiceFormPageProps {
   onSuccess: () => void
 }
 
-export function InvoiceFormPage({ isOpen, onClose, onSuccess }: InvoiceFormPageProps) {
+export function InvoiceFormPage({
+    isOpen,
+    onClose,
+    onSuccess
+  }: InvoiceFormPageProps) {
   const [sentOrders, setSentOrders] = useState<Order[]>([])
   const [selectedOrderId, setSelectedOrderId] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("Transferencia")
@@ -28,29 +36,21 @@ export function InvoiceFormPage({ isOpen, onClose, onSuccess }: InvoiceFormPageP
 
   // Cargar órdenes cuando se abre el sheet
   useEffect(() => {
-    if (!isOpen) return
-
-    // Reset form primero
-    setSelectedOrderId("")
-    setTotal("")
-    setPdfFile(null)
-    setError("")
-    setPaymentMethod("Transferencia")
-
-    // Luego cargar datos
     ;(async () => {
       try {
         await ensureProducts()
         await ensureCustomers()
+
         const orders = await apiClients.fetchOrders()
         setSentOrders(orders.filter((o) => o.state === "Enviado"))
       } catch (err) {
         console.error("Error loading orders:", err)
       }
     })()
-  }, [isOpen])
+  }, [])
 
   // Calcular total cuando cambia la orden seleccionada
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!selectedOrderId) {
@@ -67,17 +67,65 @@ export function InvoiceFormPage({ isOpen, onClose, onSuccess }: InvoiceFormPageP
   }, [selectedOrderId, sentOrders])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const extension = getExtensionFromFileName(file.name)
+
+    if (!ALLOWED_EXTENSIONS.has(extension)) {
+      setError(
+        `Formato no permitido (.${extension}). Usa: ${Array.from(ALLOWED_EXTENSIONS).join(", ")}.`
+      )
+      return
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setError("El archivo excede el tamaño máximo de 10 MB.")
+      return
+    }
+
+    setPdfFile(file)
+    setError("")
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+
     if (!selectedOrderId) {
       setError("Selecciona un pedido")
       return
     }
+
+    if (!pdfFile) {
+      setError("Selecciona una factura")
+      return
+    }
+
     setIsSubmitting(true)
+
     try {
+      const orderId = Number(selectedOrderId)
+
+      const cloudinaryResult = await uploadToCloudinary(pdfFile)
+
+      const evidence = await apiClients.uploadDeliveryEvidence(orderId, {
+        publicId: cloudinaryResult.publicId,
+        extension: cloudinaryResult.extension,
+        bytes: cloudinaryResult.bytes,
+        evidence_type: 2,
+      })
+
+      if (!evidence) {
+        setError(
+          "La evidencia se subió a Cloudinary, pero no se pudo registrar en el sistema."
+        )
+        setIsSubmitting(false)
+        return
+      }
+
       const result = await apiClients.createInvoice({
-        orderId: Number(selectedOrderId),
+        orderId: orderId,
         paymentMethod,
         total: Number(total),
       })
@@ -85,7 +133,7 @@ export function InvoiceFormPage({ isOpen, onClose, onSuccess }: InvoiceFormPageP
         const states = await apiClients.fetchOrderStates()
         const confirmedState = states.find((s) => s.state === "Pago confirmado")
         if (confirmedState) {
-          await apiClients.updateOrderState(Number(selectedOrderId), confirmedState.id)
+          await apiClients.updateOrderState(orderId, confirmedState.id)
         }
         toast.success("El pago se registró correctamente")
         setTimeout(() => {
@@ -169,11 +217,7 @@ export function InvoiceFormPage({ isOpen, onClose, onSuccess }: InvoiceFormPageP
               <FieldLabel>Adjuntar factura (PDF)</FieldLabel>
               <Input
                 type="file"
-                accept=".pdf"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) setPdfFile(file)
-                }}
+                onChange={handlePdfChange}
               />
               {pdfFile && (
                 <p className="mt-1 text-sm text-muted-foreground">{pdfFile.name}</p>

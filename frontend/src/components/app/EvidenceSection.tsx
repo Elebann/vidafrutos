@@ -33,7 +33,7 @@ export function EvidenceSection(
   useEffect(() => {
     let active = true
     apiClients
-      .fetchOrderEvidence(orderId)
+      .fetchOrderEvidence(orderId, evidenceType)
       .then((data) => {
         if (active) {
           setEvidence(data)

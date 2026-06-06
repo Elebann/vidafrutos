@@ -208,9 +208,15 @@ export async function updateProductMinimumStock(productId: number, minimumStock:
   await api.patch(`/api/products/${productId}/`, { packaged_stock_minimum_stock: minimumStock })
 }
 
-export async function toggleProductActive(productId: number, active: boolean): Promise<ApiProduct | null> {
+export async function toggleProductActive(
+  productId: number,
+  active: boolean
+): Promise<ApiProduct | null> {
   try {
-    const response = await api.patch<ApiProduct>(`/api/products/${productId}/`, { active })
+    const response = await api.patch<ApiProduct>(
+      `/api/products/${productId}/`,
+      { active }
+    )
     return response.data
   } catch (error) {
     console.error(`Error toggling product ${productId} active state`, error)
@@ -218,13 +224,28 @@ export async function toggleProductActive(productId: number, active: boolean): P
   }
 }
 
-export async function fetchOrderEvidence(orderId: number): Promise<DeliveryEvidence | null> {
+export async function fetchOrderEvidence(
+  orderId: number,
+  evidence_type: number
+): Promise<DeliveryEvidence | null> {
+  console.log("Buscando evidencia", orderId, evidence_type)
+
   try {
-    const response = await api.get<ApiDeliveryEvidence | null>(`/api/orders/${orderId}/evidence/`)
+    const response = await api.get<ApiDeliveryEvidence | null>(
+      `/api/orders/${orderId}/evidence/`,
+      {
+        params: {
+          evidence_type,
+        },
+      }
+    )
+
+    console.log(response.data)
+
     if (!response.data) return null
     return mapDeliveryEvidence(response.data)
   } catch (error) {
-    console.error(`Error loading evidence for order ${orderId}`, error)
+    console.error(error)
     return null
   }
 }

@@ -76,10 +76,22 @@ class OrderViewSet(viewsets.ModelViewSet):
 		order = self.get_object()
 
 		if request.method == 'GET':
-			evidence = DeliveryEvidence.objects.filter(order=order).first()
+			evidence_type = request.query_params.get('evidence_type')
+
+			evidence = DeliveryEvidence.objects.filter(
+				order=order,
+				evidence_type=evidence_type,
+			).first()
+
 			if evidence is None:
 				return Response(None, status=status.HTTP_200_OK)
-			return Response(DeliveryEvidenceSerializer(evidence, context={'request': request}).data)
+
+			return Response(
+				DeliveryEvidenceSerializer(
+					evidence,
+					context={'request': request}
+				).data
+			)
 
 		write_serializer = DeliveryEvidenceWriteSerializer(data=request.data)
 		write_serializer.is_valid(raise_exception=True)

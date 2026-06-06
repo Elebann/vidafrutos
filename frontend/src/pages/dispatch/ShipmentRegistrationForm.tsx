@@ -5,15 +5,13 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import apiClients from "@/lib/apiClients"
 import { uploadToCloudinary, getExtensionFromFileName } from "@/lib/cloudinary"
 import type { Order } from "@/types/domain"
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE_BYTES } from "@/lib/format"
 
 interface ShipmentRegistrationFormProps {
   order: Order
   onSuccess: () => void
   onClose: () => void
 }
-
-const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic", "pdf"])
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
 export function ShipmentRegistrationForm({
   order,

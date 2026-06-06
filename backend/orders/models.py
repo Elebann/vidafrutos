@@ -37,7 +37,7 @@ class History(models.Model):
 
 
 class DeliveryEvidence(models.Model):
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='evidence')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='evidence')
     public_id = models.CharField(max_length=500)
     extension = models.CharField(max_length=10)
     bytes = models.PositiveIntegerField()

@@ -32,3 +32,6 @@ export function formatDateTime(dateString: string | null | undefined): string {
     return dateString || ""
   }
 }
+
+export const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic", "pdf"])
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
