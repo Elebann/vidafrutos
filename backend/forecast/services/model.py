@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 from django.conf import settings
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, precision_score, r2_score, recall_score
+from sklearn.metrics import f1_score, mean_absolute_error, precision_score, r2_score, recall_score
 
 from .aggregator import AggregatorResult, build_future_features, build_training_frame
 
@@ -392,6 +392,11 @@ def predict_tomorrow() -> tuple[pd.DataFrame, list[Any]]:
     out = model_input.copy()
     out["product_id"] = latest["product_id"].astype(int) if "product_id" in latest.columns else latest.index
     out["date"] = pd.to_datetime(latest["date"]).dt.strftime("%Y-%m-%d") if "date" in latest.columns else ""
+    for stock_col in ("available_stock", "allocated_stock", "minimum_stock"):
+        if stock_col in latest.columns:
+            out[stock_col] = latest[stock_col].fillna(0).astype(int).to_numpy()
+        else:
+            out[stock_col] = 0
     expected = _expected_units(mean, latest)
     out["expected_sales_float"] = expected
     out["expected_sales"] = np.where(_sale_probability(latest) >= 0.65, np.ceil(expected), np.round(expected)).astype(int)
@@ -512,15 +517,6 @@ def _demand_class_definition(values: np.ndarray) -> tuple[np.ndarray, list[str]]
     return edges, ["Sin venta", middle_label, high_label]
 
 
-def _quantile_edges(values: np.ndarray, quantiles=(0.33, 0.66)) -> np.ndarray:
-    if len(values) == 0:
-        return np.array([0.0, 0.0])
-    q1, q2 = np.quantile(values, quantiles)
-    if q1 == q2:
-        q2 = q1 + 1.0
-    return np.array([q1, q2])
-
-
 def _build_confidence_table(
     test: pd.DataFrame,
     y_pred: np.ndarray,
@@ -577,21 +573,28 @@ def _classification_metrics(
     if len(actual_bins) == 0:
         return rows
 
-    overall_accuracy = float(accuracy_score(actual_bins, pred_bins))
+    per_class_accuracy: list[float] = []
     for idx, label in enumerate(labels):
         y_true = (actual_bins == idx).astype(int)
         y_pred = (pred_bins == idx).astype(int)
+        support = int(y_true.sum())
+        class_accuracy = (
+            float(((actual_bins == idx) & (pred_bins == idx)).sum() / support)
+            if support > 0
+            else 0.0
+        )
+        per_class_accuracy.append(class_accuracy)
         rows.append({
             "class": label,
-            "accuracy": overall_accuracy,
+            "accuracy": class_accuracy,
             "recall": float(recall_score(y_true, y_pred, zero_division=0)),
             "precision": float(precision_score(y_true, y_pred, zero_division=0)),
             "f1_score": float(f1_score(y_true, y_pred, zero_division=0)),
-            "support": int(y_true.sum()),
+            "support": support,
         })
     rows.append({
         "class": "Promedio macro",
-        "accuracy": overall_accuracy,
+        "accuracy": float(np.mean(per_class_accuracy)) if per_class_accuracy else 0.0,
         "recall": float(recall_score(actual_bins, pred_bins, average="macro", zero_division=0)),
         "precision": float(precision_score(actual_bins, pred_bins, average="macro", zero_division=0)),
         "f1_score": float(f1_score(actual_bins, pred_bins, average="macro", zero_division=0)),

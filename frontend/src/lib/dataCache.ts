@@ -66,7 +66,7 @@ export function getOrderTotal(order: Order): number {
     return sum + price * detail.quantity
   }, 0)
 
-  console.log("Order total calculated:", total)
+  // console.log("Order total calculated:", total)
   return total
 }
 

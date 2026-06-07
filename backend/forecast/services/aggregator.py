@@ -239,9 +239,9 @@ def _add_lag_roll_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         last_nonzero_idx = -1
         result = []
         for i, value in enumerate(series.tolist()):
+            result.append(i - last_nonzero_idx if last_nonzero_idx >= 0 else i + 1)
             if value and value > 0:
                 last_nonzero_idx = i
-            result.append(i - last_nonzero_idx if last_nonzero_idx >= 0 else i + 1)
         return pd.Series(result, index=series.index)
 
     df["days_since_last_sale"] = (
@@ -264,18 +264,33 @@ def _add_lag_roll_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
 
     df["sale_rate_30"] = (df["active_days_30"] / 30.0).clip(0.0, 1.0)
 
-    # Per-product historical mean (using all training rows). This is a
-    # strong baseline the model can use even when lag/roll features are 0
-    # on a particular day (e.g., a "tomorrow" row that hasn't happened yet).
+    # Per-product historical means using only rows before the target day.
+    # This keeps training aligned with inference: the model never sees the
+    # same day's units when building features for that day.
+    shifted_units = grouped["units"].shift(1)
     df["product_mean"] = (
-        df.groupby("product_id")["units"].transform("mean").fillna(0.0)
+        shifted_units.groupby(df["product_id"])
+        .expanding(min_periods=1)
+        .mean()
+        .reset_index(level=0, drop=True)
+        .fillna(0.0)
     )
     df["product_recent_mean"] = (
-        df.groupby("product_id")["units"].transform(lambda s: s.tail(30).mean()).fillna(0.0)
+        shifted_units.groupby(df["product_id"])
+        .rolling(30, min_periods=1)
+        .mean()
+        .reset_index(level=0, drop=True)
+        .fillna(0.0)
     )
 
-    nonzero_mean = grouped["units"].transform(lambda s: s[s > 0].mean() if (s > 0).any() else 0.0)
-    df["product_nonzero_mean"] = nonzero_mean.fillna(0.0)
+    shifted_nonzero = shifted_units.where(shifted_units > 0)
+    df["product_nonzero_mean"] = (
+        shifted_nonzero.groupby(df["product_id"])
+        .expanding(min_periods=1)
+        .mean()
+        .reset_index(level=0, drop=True)
+        .fillna(0.0)
+    )
     df["target_units"] = df["units"].astype(float)
 
     df[["lag_1", "lag_2", "lag_3", "lag_7", "lag_14", "lag_30"]] = (
