@@ -16,3 +16,26 @@ export function formatDate(date: string | null | undefined): string {
     minute: "2-digit",
   })
 }
+
+export interface UserInfo {
+  name: string
+  username?: string
+  rol?: number
+  rol_name?: string
+  rut: string
+}
+
+export function getCurrentUser(): UserInfo | null {
+  try {
+    const userStr = localStorage.getItem("user")
+    if (!userStr) return null
+
+    const user = JSON.parse(userStr)
+    return {
+      ...user,
+      name: user.name || user.username || "",
+    }
+  } catch {
+    return null
+  }
+}

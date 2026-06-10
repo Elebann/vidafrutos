@@ -26,7 +26,7 @@ export function MovementsSection() {
       <div className="grid gap-2">
         {/*todo Corregir slice más tarde */}
         {movements
-          .slice()
+          // .slice()
           .reverse()
           .map((movement) => (
             <div

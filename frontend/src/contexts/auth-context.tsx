@@ -1,16 +1,16 @@
 import { useState, useCallback, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 import api from "@/lib/api"
-import { AuthContext, type User } from "@/contexts/auth-context-value"
+import { AuthContext, type UserInfo } from "@/contexts/auth-context-value"
 
-function restoreStoredUser(): User | null {
+function restoreStoredUser(): UserInfo | null {
   const token = localStorage.getItem("access_token")
   const storedUser = localStorage.getItem("user")
 
   if (!token || !storedUser) return null
 
   try {
-    return JSON.parse(storedUser) as User
+    return JSON.parse(storedUser) as UserInfo
   } catch (error) {
     console.error("Error al restaurar sesión:", error)
     localStorage.removeItem("access_token")
@@ -21,7 +21,7 @@ function restoreStoredUser(): User | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => restoreStoredUser())
+  const [user, setUser] = useState<UserInfo | null>(() => restoreStoredUser())
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -42,10 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("refresh_token", refresh)
 
       // Guardar datos del usuario
-      const userInfo: User = {
+      const userInfo: UserInfo = {
         username: userData?.username || rut,
-        rut: rut,
-        rol: userData?.rol
+        rut: userData?.rut || rut,
+        rol: userData?.rol,
+        rol_name: userData?.rol_name
       }
       localStorage.setItem("user", JSON.stringify(userInfo))
 

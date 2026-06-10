@@ -130,12 +130,12 @@ export function ProductionPage() {
       action={{ icon: Sparkles, label: "Registrar produccion", to: "/produccion/registrar" }}
       description="Planificacion diaria basada en faltantes y demanda esperada."
       icon={FileBarChart2}
-      title="Produccion"
+      title="Producción"
     >
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
         <SectionCard
           description={`Modelo reentrenado por ultima vez: ${lastTrainedLabel}.`}
-          title="Sugerencias de produccion"
+          title="Sugerencias de producción"
         >
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-muted-foreground">
@@ -173,6 +173,7 @@ export function ProductionPage() {
                 </button>
               )}
             </div>
+            <p className="text-neutral-400 text-xs">Versión del algoritmo: v0.1</p>
           </div>
 
           <div className="grid gap-2">

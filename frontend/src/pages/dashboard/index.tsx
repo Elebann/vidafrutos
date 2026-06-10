@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import {
   AlertTriangle,
   Archive,
-  BarChart3,
+  Home,
   BrainCircuit,
   Factory,
   PackagePlus,
@@ -12,82 +12,50 @@ import {
 import { KpiCard } from "@/components/app/kpi-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
-import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
+import { StatusBadge } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
-import { getProduct, getMissingUnits, getOrderTotal, ensureProducts, ensurePackagedStock, ensureCustomers, getCustomer } from "@/lib/dataCache"
+import { getProduct, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
 import type { Invoice, Order, PackagedStock } from "@/types/domain"
-import { ProductLine } from "@/components/app/ProductLine"
-
-function orderTone(state: string): BadgeTone {
-  if (state === "Despachado" || state === "Facturado") return "green"
-  if (state === "En produccion") return "yellow"
-  if (state === "Listo para despacho") return "blue"
-  return "neutral"
-}
-
-function OrderCard({ order }: { order: Order }) {
-  const customer = getCustomer(order.customerId)
-  const hasMissing = order.details.some((detail) => getMissingUnits(detail.productId, detail.quantity) > 0)
-
-  return (
-    <div className="rounded-lg border bg-white p-4">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
-          <p className="font-semibold">Pedido #{order.id}</p>
-          <p className="text-sm text-muted-foreground">{customer?.name}</p>
-        </div>
-        <StatusBadge tone={orderTone(order.state)}>{order.state}</StatusBadge>
-      </div>
-      <div className="mb-3 grid gap-2">{order.details.slice(0, 2).map((detail) => <ProductLine key={detail.productId} {...detail} />)}</div>
-      <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="font-semibold">{formatCurrency(getOrderTotal(order))}</span>
-        {hasMissing && <StatusBadge tone="red">Con faltantes</StatusBadge>}
-        <Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">
-          Ver detalle
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-function OrderRow({ order }: { order: Order }) {
-  const customer = getCustomer(order.customerId)
-  return (
-    <>
-      <td className="px-4 py-3 font-medium">#{order.id}</td>
-      <td className="px-4 py-3">{customer?.name}</td>
-      <td className="px-4 py-3"><StatusBadge tone={orderTone(order.state)}>{order.state}</StatusBadge></td>
-      <td className="px-4 py-3 font-medium">{formatCurrency(getOrderTotal(order))}</td>
-      <td className="px-4 py-3"><Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">Ver</Button></td>
-    </>
-  )
-}
+import { OrderCard, OrderRow } from "@/components/order-card"
 
 export function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [critical, setCritical] = useState<PackagedStock[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   useEffect(() => {
     ensureProducts().catch(() => {})
     ensurePackagedStock().catch(() => {})
     ensureCustomers().catch(() => {})
-    apiClients.fetchOrders().then(setOrders).catch(() => {})
+    apiClients.fetchOrders()
+      .then(data => {
+        const sorted = [...data].sort((a, b) => b.id - a.id)
+        setOrders(sorted)
+      })
+      .catch(() => {})
     apiClients.fetchInvoices().then(setInvoices).catch(() => {})
     // compute critical stocks from packaged stock
     apiClients.fetchPackagedStock().then((ps) => setCritical(ps.filter((s) => s.availableStock <= s.minimumStock))).catch(() => {})
   }, [])
+
+  const totalPages = Math.ceil(orders.length / itemsPerPage)
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
   const pendingOrders = orders.filter((order) => order.state !== "Enviado" && order.state !== "Pago confirmado")
   const dailySales = invoices.reduce((total, invoice) => total + (invoice.total ?? 0), 0)
 
   return (
     <PageShell
-      description="Resumen operacional para ventas, inventario y produccion diaria."
-      icon={BarChart3}
+      description="Resumen operacional para ventas, inventario y producción diaria."
+      icon={Home}
       title="Inicio"
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -107,7 +75,7 @@ export function DashboardPage() {
         <KpiCard
           detail="Productos bajo o igual al minimo configurado."
           icon={AlertTriangle}
-          label="Stock critico"
+          label="Stock crítico"
           tone="danger"
           value={`${critical.length}`}
         />
@@ -142,7 +110,7 @@ export function DashboardPage() {
               {
                 icon: Receipt,
                 label: "Generar factura",
-                to: "/facturas/generar",
+                to: "/pagos",
               },
             ].map((item) => (
               <Button
@@ -174,9 +142,7 @@ export function DashboardPage() {
                     </p>
                   </div>
 
-                  <StatusBadge tone="red">
-                    {stock.availableStock}
-                  </StatusBadge>
+                  <StatusBadge tone="red">{stock.availableStock}</StatusBadge>
                 </div>
               )
             })}
@@ -184,14 +150,42 @@ export function DashboardPage() {
         </SectionCard>
       </div>
 
-      <SectionCard title="Pedidos para hoy">
+      <SectionCard
+        title="Pedidos registrados"
+      >
         <ResponsiveList
           columns={["Pedido", "Cliente", "Estado", "Total", "Accion"]}
-          items={orders}
+          items={paginatedOrders}
           keyExtractor={(order) => order.id}
           renderCard={(order) => <OrderCard order={order} />}
           renderRow={(order) => <OrderRow order={order} />}
         />
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+            <span className="flex items-center px-4 py-2 text-sm">
+              Página {currentPage} de {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
+        )}
       </SectionCard>
     </PageShell>
   )

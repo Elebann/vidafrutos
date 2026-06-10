@@ -1,13 +1,14 @@
 import { createContext } from "react"
 
-export interface User {
-  username: string
-  rut?: string
+export interface UserInfo {
+  username?: string
   rol?: number
+  rol_name?: string
+  rut: string
 }
 
 export interface AuthContextType {
-  user: User | null
+  user: UserInfo | null
   isLoading: boolean
   isAuthenticated: boolean
   login: (rut: string, password: string) => Promise<void>

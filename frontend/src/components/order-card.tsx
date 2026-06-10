@@ -2,8 +2,9 @@ import { Link } from "react-router-dom"
 import { StatusBadge, type BadgeTone } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
 import { getCustomer, getMissingUnits, getOrderTotal } from "@/lib/dataCache"
+import { formatCurrency } from "@/lib/format"
 import type { Order } from "@/types/domain"
-import { ProductLine } from "@/components/app/ProductLine"
+import { ProductLine } from "./app/ProductLine"
 
 function orderTone(state: string): BadgeTone {
   if (state === "En produccion") return "yellow"
@@ -28,7 +29,7 @@ export function OrderCard({ order }: { order: Order }) {
       </div>
       <div className="mb-3 grid gap-2">{order.details.slice(0, 2).map((detail) => <ProductLine key={detail.productId} {...detail} />)}</div>
       <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="font-semibold">{getOrderTotal(order)}</span>
+        <span className="font-semibold">{formatCurrency(getOrderTotal(order))}</span>
         {hasMissing && <StatusBadge tone="red">Con faltantes</StatusBadge>}
         <Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">
           Ver detalle
@@ -45,6 +46,7 @@ export function OrderRow({ order }: { order: Order }) {
       <td className="px-4 py-3 font-medium">#{order.id}</td>
       <td className="px-4 py-3">{customer?.name}</td>
       <td className="px-4 py-3"><StatusBadge tone={orderTone(order.state)}>{order.state}</StatusBadge></td>
+      <td className="px-4 py-3 font-medium">{formatCurrency(getOrderTotal(order))}</td>
       <td className="px-4 py-3"><Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">Ver</Button></td>
     </>
   )

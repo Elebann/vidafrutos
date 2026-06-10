@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { getCustomer, ensureCustomers } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
 import type { Customer, Order } from "@/types/domain"
-import { OrderCard } from "@/pages/orders/components"
+import { OrderCard } from "@/components/order-card.tsx"
 
 export function CustomerDetailPage() {
   const { customerId } = useParams()

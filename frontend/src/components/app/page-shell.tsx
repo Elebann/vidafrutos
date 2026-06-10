@@ -78,18 +78,56 @@ export function SectionCard({
   className,
   title,
   description,
+  action,
 }: {
   children: React.ReactNode
   className?: string
   description?: string
   title?: string
+  action?: {
+    icon?: LucideIcon
+    label: string
+    to?: string
+    onClick?: () => void
+  }
 }) {
+  const ActionIcon = action?.icon
+
   return (
-    <section className={cn("rounded-lg border border-[#643800]/20 bg-white p-4", className)}>
+    <section
+      className={cn(
+        "rounded-lg border border-[#643800]/20 bg-white p-4",
+        className
+      )}
+    >
       {(title || description) && (
-        <div className="mb-4">
-          {title && <h2 className="text-base font-semibold text-neutral-950">{title}</h2>}
-          {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <div className="flex justify-between mb-4">
+          {title && (
+            <h2 className="text-base font-semibold text-neutral-950">
+              {title}
+            </h2>
+          )}
+          {action && action.to && (
+            <Button
+              className="h-10 w-full sm:w-auto"
+              render={<Link to={action.to} />}
+            >
+              {ActionIcon && <ActionIcon />}
+              {action.label}
+            </Button>
+          )}
+          {action && action.onClick && !action.to && (
+            <Button
+              className="h-10 w-full sm:w-auto"
+              onClick={action.onClick}
+            >
+              {ActionIcon && <ActionIcon />}
+              {action.label}
+            </Button>
+          )}
+          {description && (
+            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          )}
         </div>
       )}
       {children}
