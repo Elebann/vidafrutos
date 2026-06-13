@@ -1,5 +1,5 @@
 import { PackageOpen, PackagePlus, X } from "lucide-react"
-
+import toast from "react-hot-toast"
 import { FormCard } from "@/components/app/form-card"
 import {
   Select,
@@ -72,7 +72,7 @@ function OrderItemRow({
           size="sm"
           onClick={() => onRemove(index)}
           aria-label={`Eliminar ${productName} del pedido`}
-          className="size-7 shrink-0 p-0 text-neutral-400 hover:bg-red-50 hover:text-red-600"
+          className="size-7 shrink-0 p-0 text-neutral-400 hover:bg-red-50 hover:text-red-600 font-[family-name:var(--font-heading)]"
         >
           <X className="size-4" />
         </Button>
@@ -87,7 +87,7 @@ function OrderItemRow({
             onClick={() => onDecrement(index)}
             disabled={item.quantity <= 1}
             aria-label={`Disminuir cantidad de ${productName}`}
-            className="size-7 p-0"
+            className="size-7 p-0 font-[family-name:var(--font-heading)]"
           >
             −
           </Button>
@@ -100,7 +100,7 @@ function OrderItemRow({
             variant="outline"
             onClick={() => onIncrement(index)}
             aria-label={`Aumentar cantidad de ${productName}`}
-            className="size-7 p-0"
+            className="size-7 p-0 font-[family-name:var(--font-heading)]"
           >
             +
           </Button>
@@ -165,6 +165,10 @@ export function NewOrderPage() {
     ensureProducts().catch(() => {})
     apiClients.fetchCustomers().then(setCustomers).catch(() => {})
     apiClients.fetchProducts().then(setProducts).catch(() => {})
+
+    return () => {
+      toast.dismiss()
+    }
   }, [])
 
   async function registerOrder() {
@@ -180,8 +184,8 @@ export function NewOrderPage() {
     }
 
     // Basic validation (do before setting submitting state)
-    if (!payload.customerId) return alert("Seleccione un cliente antes de registrar el pedido")
-    if (payload.items.length === 0) return alert("Agregue al menos un producto con cantidad mayor a 0")
+    if (!payload.customerId) return toast("Seleccione un cliente antes de registrar el pedido", {icon: '⚠️',position:"top-center"})
+    if (payload.items.length === 0) return toast("Agregue al menos un producto a la lista, con cantidad mayor a 0", {icon: '⚠️',position:"top-center"})
 
     // Check for insufficient stock — ask confirmation if any product exceeds availability
     const insufficientItems = payload.items
@@ -209,13 +213,17 @@ export function NewOrderPage() {
     try {
       const res = await apiClients.createOrder(payload)
       console.log('createOrder result', res)
-      alert("Pedido registrado (id: " + (res?.id ?? 'n/a') + ")")
+
+      toast.success("Pedido registrado (id: " + (res?.id ?? 'n/a') + ")", {
+        duration: 5000,
+        position: "top-center",
+      })
       // reset
       setOrderProducts([])
       setSelectedCustomerId(null)
     } catch (e) {
       console.error(e)
-      alert("Error al registrar pedido: " + (e))
+      toast.error("Error al registrar pedido: " + (e))
     } finally {
       setIsSubmitting(false)
     }
@@ -262,14 +270,16 @@ export function NewOrderPage() {
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Cliente</FieldLabel>
+              <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                Cliente
+              </FieldLabel>
               <Select
                 value={selectedCustomerId ? String(selectedCustomerId) : ""}
                 onValueChange={(value) =>
                   setSelectedCustomerId(value ? Number(value) : null)
                 }
               >
-                <SelectTrigger className="w-full whitespace-normal">
+                <SelectTrigger className="w-full whitespace-normal font-[family-name:var(--font-heading)]">
                   <SelectValue placeholder="Seleccione cliente">
                     {selectedCustomerId
                       ? customers.find((c) => c.id === selectedCustomerId)?.name
@@ -291,10 +301,14 @@ export function NewOrderPage() {
 
           <FieldGroup className="sm:col-span-2">
             <Field>
-              <FieldLabel>Fecha solicitada</FieldLabel>
+              <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                Fecha solicitada
+              </FieldLabel>
               <Input
                 type="date"
                 value={date}
+                min={new Date().toISOString().slice(0, 10)}
+                className="font-[family-name:var(--font-heading)]"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setDate(e.target.value)
                 }
@@ -305,14 +319,16 @@ export function NewOrderPage() {
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             <FieldGroup>
               <Field>
-                <FieldLabel>Producto a agregar</FieldLabel>
+                <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                  Producto a agregar
+                </FieldLabel>
                 <Select
                   value={currentProductId ? String(currentProductId) : ""}
                   onValueChange={(v) =>
                     setCurrentProductId(v ? Number(v) : null)
                   }
                 >
-                  <SelectTrigger className="w-full whitespace-normal">
+                  <SelectTrigger className="w-full whitespace-normal font-[family-name:var(--font-heading)]">
                     <SelectValue placeholder="Seleccione producto">
                       {currentProductId
                         ? products.find((p) => p.id === currentProductId)?.name
@@ -357,10 +373,13 @@ export function NewOrderPage() {
 
             <FieldGroup>
               <Field>
-                <FieldLabel>Cantidad a agregar</FieldLabel>
+                <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                  Cantidad a agregar
+                </FieldLabel>
                 <Input
                   type="number"
                   value={String(currentQuantity)}
+                  className="font-[family-name:var(--font-heading)]"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCurrentQuantity(Number(e.target.value || 0))
                   }
@@ -373,10 +392,15 @@ export function NewOrderPage() {
             <Button
               type="button"
               variant="VFBrown"
+              className="font-[family-name:var(--font-heading)]"
               onClick={() => {
-                if (!currentProductId) return alert("Seleccione un producto")
+                if (!currentProductId) return toast.error("Seleccione un producto", {
+                  position:("top-center")
+                })
                 if (currentQuantity <= 0)
-                  return alert("Ingrese una cantidad mayor a 0")
+                  return toast("Ingrese una cantidad mayor a 0", {
+                    icon: '⚠️',
+                    position:"top-center"})
                 setOrderProducts((prev) => {
                   const existing = prev.find(
                     (p) => p.productId === currentProductId
@@ -402,6 +426,7 @@ export function NewOrderPage() {
             <Button
               type="button"
               variant="outline"
+              className="font-[family-name:var(--font-heading)]"
               onClick={() => {
                 setCurrentProductId(null)
                 setCurrentQuantity(1)
@@ -468,6 +493,7 @@ export function NewOrderPage() {
             <Button
               type="button"
               variant="destructive"
+              className="font-[family-name:var(--font-heading)]"
               onClick={() => {
                 if (
                   !confirm("Todos los productos serán eliminados. ¿Continuar?")

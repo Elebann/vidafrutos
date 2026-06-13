@@ -24,10 +24,10 @@ export function FormCard({
       <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
         {children}
         <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} className="font-[family-name:var(--font-heading)]">
             Cancelar
           </Button>
-          <Button type="submit" variant="VFBrown" disabled={submitDisabled}>
+          <Button type="submit" variant="VFBrown" disabled={submitDisabled} className="font-[family-name:var(--font-heading)]">
             {submitLabel}
           </Button>
         </div>
