@@ -53,7 +53,7 @@ class OrderWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'customer', 'state', 'date']
-        read_only_fields = ['id', 'date']
+        read_only_fields = ['id']
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):

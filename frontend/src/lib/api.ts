@@ -1,8 +1,8 @@
 import axios from "axios"
 import type { AxiosInstance } from "axios"
 
-const DEFAULT_API_BASE = `${location.protocol}//${location.hostname}:8000`
-// const DEFAULT_API_BASE = 'https://server-production-36cb.up.railway.app'
+//const DEFAULT_API_BASE = `${location.protocol}//${location.hostname}:8000`
+ const DEFAULT_API_BASE = 'https://server-production-36cb.up.railway.app'
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || DEFAULT_API_BASE
 
 console.info("API base URL:", API_BASE_URL)

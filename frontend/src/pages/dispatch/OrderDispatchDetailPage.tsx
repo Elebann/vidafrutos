@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { PackageOpen } from "lucide-react"
 import { useEffect, useState } from "react"
-
+import toast from "react-hot-toast"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -69,7 +69,7 @@ export function OrderDispatchDetailPage() {
       // Get the state ID for "Listo para despacho"
       const readyForDispatchState = states.find((s) => s.state === "Listo para despacho")
       if (!readyForDispatchState) {
-        alert("No se encontró el estado 'Listo para despacho'")
+        toast.error("No se encontró el estado 'Listo para despacho'",{position:"top-center"})
         setIsSubmitting(false)
         return
       }
@@ -78,13 +78,12 @@ export function OrderDispatchDetailPage() {
       await apiClients.updateOrderState(order.id, readyForDispatchState.id)
 
       // Show success message
-      alert("Pedido armado con éxito")
-
+      toast.success("Pedido armado con éxito",{position: "top-center"})
       // Navigate back to dispatch page
       navigate("/despacho")
     } catch (err) {
       console.error(err)
-      alert("Error al armar el pedido")
+      toast.error("Error al armar el pedido",{position: "top-center"})
       setIsSubmitting(false)
     }
   }
