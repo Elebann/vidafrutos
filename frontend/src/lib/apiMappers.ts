@@ -149,7 +149,7 @@ export function mapOrder(order: ApiOrder): Order {
     id: order.id,
     customerId: idFrom(order.customer),
     state: orderStateFrom(order.state),
-    date: order.date ?? new Date().toISOString().slice(0, 10),
+    date: order.date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
     requestedDate: order.requested_date ?? undefined,
     details: (order.details ?? []).map(mapOrderDetail),
     history: (order.history ?? []).map((history) => ({

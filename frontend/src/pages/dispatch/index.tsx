@@ -1,4 +1,4 @@
-import { PackageOpen, ArrowUp, ArrowDown, FileDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { PackageOpen, ArrowUp, ArrowDown, FileDown, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react"
 
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
@@ -50,6 +50,11 @@ export function DispatchPage() {
       return sortDir === "asc" ? cmp : -cmp
     })
   }, [dispatchOrders, sortDir])
+
+  const overdueOrders = useMemo(
+    () => dispatchOrders.filter((o) => o.date.slice(0, 10) < todayStr),
+    [dispatchOrders, todayStr],
+  )
 
   const totalOtherPages = Math.ceil(otherOrders.length / ITEMS_PER_PAGE)
   const paginatedOtherOrders = otherOrders.slice(
@@ -127,6 +132,51 @@ export function DispatchPage() {
                     </p>
                   </div>
                   <StatusBadge tone="yellow">{order.state}</StatusBadge>
+                </div>
+                <div className="grid gap-2">
+                  {order.details.map((detail) => (
+                    <ProductLine key={detail.productId} {...detail} />
+                  ))}
+                </div>
+                <Button
+                  className="mt-4 w-full sm:w-auto"
+                  onClick={() => navigate(`/despacho/${order.id}`)}
+                >
+                  Armar pedido
+                </Button>
+              </article>
+            ))
+          )}
+        </div>
+      </SectionCard>
+
+      {/* Pedidos atrasados */}
+      <SectionCard title="Pedidos atrasados">
+        <div className="grid gap-3">
+          {overdueOrders.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No hay pedidos atrasados
+            </p>
+          ) : (
+            overdueOrders.map((order) => (
+              <article
+                key={order.id}
+                className="rounded-lg border border-red-200 bg-red-50 p-4 shadow-sm"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">Pedido #{order.id}</h3>
+                      <AlertTriangle className="size-4 text-red-500" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {getCustomer(order.customerId)?.name}
+                    </p>
+                    <p className="text-xs text-red-600">
+                      Fecha: {new Date(order.date).toLocaleDateString("es-CL")}
+                    </p>
+                  </div>
+                  <StatusBadge tone="red">Atrasado</StatusBadge>
                 </div>
                 <div className="grid gap-2">
                   {order.details.map((detail) => (
