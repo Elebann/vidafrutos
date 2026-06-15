@@ -15,18 +15,34 @@ function formatDateEs(date: Date): string {
   })
 }
 
-function formatConfidence(value: number): string {
-  return `${value.toFixed(1)}%`
+function getMondayOfCurrentWeek(date: Date): Date {
+  const dayOfWeek = date.getDay()
+  const monday = new Date(date)
+  monday.setDate(date.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+  return monday
+}
+
+function formatDateToISO(date: Date): string {
+  return date.toLocaleDateString("sv-SE")
+}
+
+function formatDayName(date: Date): string {
+  return date.toLocaleDateString("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })
 }
 
 export function downloadSuggestionsPdf(forecasts: Forecast[], ctx: PdfContext): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" })
   const today = new Date()
   const generatedAt = today.toLocaleString("es-CL")
+  const monday = getMondayOfCurrentWeek(today)
 
   doc.setFont("helvetica", "bold")
   doc.setFontSize(16)
-  doc.text("VidaFrutos — Produccion diaria sugerida", 40, 50)
+  doc.text("VidaFrutos — Producción diaria sugerida", 40, 50)
 
   doc.setFont("helvetica", "normal")
   doc.setFontSize(10)
@@ -42,45 +58,50 @@ export function downloadSuggestionsPdf(forecasts: Forecast[], ctx: PdfContext): 
     100,
   )
 
-  const body = sorted.map((f) => {
-    const name = f.productName || ctx.productsById.get(f.productId) || `Producto #${f.productId}`
-    return [
-      name,
-      String(f.availableStock ?? 0),
-      String(f.expectedSales),
-      String(f.suggestedProduction),
-      f.risk,
-      formatConfidence(f.confidence),
-    ]
-  })
+  for (let dayOffset = 0; dayOffset < 5; dayOffset++) {
+    const currentDay = new Date(monday)
+    currentDay.setDate(monday.getDate() + dayOffset)
+    const targetDate = formatDateToISO(currentDay)
 
-  autoTable(doc, {
-    startY: 120,
-    head: [["Producto", "Stock actual", "Ventas esperadas", "Producir", "Riesgo", "Confianza"]],
-    body: body.length > 0 ? body : [["(sin sugerencias para hoy)", "", "", "", "", ""]],
-    styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
-    headStyles: { fillColor: [128, 79, 23], textColor: 255, fontStyle: "bold" },
-    alternateRowStyles: { fillColor: [250, 245, 240] },
-    columnStyles: {
-      0: { cellWidth: 200 },
-      1: { halign: "right", cellWidth: 70 },
-      2: { halign: "right", cellWidth: 80 },
-      3: { halign: "right", cellWidth: 60, fontStyle: "bold" },
-      4: { halign: "center", cellWidth: 60 },
-      5: { halign: "right", cellWidth: 60 },
-    },
-    didDrawPage: (data) => {
-      const pageCount = (doc as jsPDF & { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages()
-      doc.setFontSize(8)
-      doc.setTextColor(120, 120, 120)
-      doc.text(
-        `VidaFrutos - Pagina ${data.pageNumber} de ${pageCount}`,
-        doc.internal.pageSize.getWidth() - 40,
-        doc.internal.pageSize.getHeight() - 20,
-        { align: "right" },
-      )
-    },
-  })
+    if (dayOffset > 0) {
+      doc.addPage()
+    }
+
+    const startY = dayOffset === 0 ? 120 : 40
+
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(14)
+    doc.text(`Plan del ${formatDayName(currentDay)}`, 40, startY + 15)
+
+    const body = sorted
+      .filter((f) => f.productionPlan && f.productionPlan.some((p) => p.date === targetDate))
+      .map((f) => {
+        const productionPlanItem = f.productionPlan?.find((p) => p.date === targetDate)
+        const name = f.productName || ctx.productsById.get(f.productId) || `Producto #${f.productId}`
+        return [
+          name,
+          String(f.availableStock ?? 0),
+          String(productionPlanItem?.expectedSales ?? 0),
+          String(productionPlanItem?.suggestedProduction ?? 0),
+        ]
+      })
+
+    autoTable(doc, {
+      startY: startY + 20,
+      head: [["Productos", "Stock Actual", "Venta esperadas", "Producir"]],
+      body: body.length > 0 ? body : [["(sin sugerencias para hoy)", "", "", ""]],
+      styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
+      headStyles: { fillColor: [128, 79, 23], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250, 245, 240] },
+      columnStyles: {
+        0: { cellWidth: 200 },
+        1: { halign: "right", cellWidth: 100 },
+        2: { halign: "right", cellWidth: 100 },
+        3: { halign: "right", cellWidth: 100 },
+      },
+
+    })
+  }
 
   const filename = `produccion-sugerida-${formatDateEs(today).replace(/\//g, "-")}.pdf`
   doc.save(filename)

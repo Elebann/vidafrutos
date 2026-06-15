@@ -296,13 +296,13 @@ export function AdminUsersPage() {
         </FormCard>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        <FormCard submitLabel="Guardar rol" title="Rol">
-          <TextField label="Nombre rol" />
-          <TextField label="Permisos" placeholder="Pedidos, Inventario" />
-        </FormCard>
-        <FormCard submitLabel="Guardar estado" title="Estado de pedido">
-          <TextField label="Nombre estado" />
-        </FormCard>
+        {/*<FormCard submitLabel="Guardar rol" title="Rol">*/}
+        {/*  <TextField label="Nombre rol" />*/}
+        {/*  <TextField label="Permisos" placeholder="Pedidos, Inventario" />*/}
+        {/*</FormCard>*/}
+        {/*<FormCard submitLabel="Guardar estado" title="Estado de pedido">*/}
+        {/*  <TextField label="Nombre estado" />*/}
+        {/*</FormCard>*/}
         <FormCard
           submitLabel="Guardar alerta"
           title="Alerta de stock"

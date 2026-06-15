@@ -8,7 +8,6 @@ import { ensureProducts } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
 import type { PackagedStock, RawStock } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
-import { MovementsSection } from "./MovementsSection"
 
 export function InventoryPage() {
   const [packagedStock, setPackagedStock] = useState<PackagedStock[]>([])

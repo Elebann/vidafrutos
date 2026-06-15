@@ -10,8 +10,6 @@ import { downloadSuggestionsPdf } from "@/lib/pdf/suggestionsPdf"
 import type { Forecast, ForecastDiagnostics } from "@/types/domain"
 import { useAuth } from "@/hooks/use-auth"
 
-import { MovementsSection } from "@/pages/inventory/MovementsSection"
-
 function riskTone(risk: Forecast["risk"]): BadgeTone {
   if (risk === "Alto") return "red"
   if (risk === "Medio") return "yellow"
@@ -132,12 +130,12 @@ export function ProductionPage() {
       icon={FileBarChart2}
       title="Producción"
     >
-      <div className="grid gap-2 lg:grid-cols-2">
+      <div className="grid gap-2">
         <SectionCard
           title="Sugerencias de producción"
           description={`Modelo reentrenado por ultima vez: ${lastTrainedLabel}`}
         >
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="mb-3 flex flex-col flex-wrap gap-2">
             <div className="text-sm text-muted-foreground">
               {isLoading
                 ? "Calculando.."
@@ -205,7 +203,7 @@ export function ProductionPage() {
                       Stock actual: {forecast.availableStock ?? 0} · Ventas esperadas: {forecast.expectedSales}
                     </p>
                     {forecast.productionPlan && forecast.productionPlan.length > 0 && (
-                      <div className="mt-2 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="mt-2 grid gap-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {forecast.productionPlan.map((day) => (
                           <div
                             key={`${forecast.productId}-${day.date}`}
@@ -213,7 +211,7 @@ export function ProductionPage() {
                           >
                             <span className="font-medium text-neutral-700">
                               {new Date(`${day.date}T00:00:00`).toLocaleDateString("es-CL", {
-                                weekday: "short",
+                                weekday: "long",
                                 day: "2-digit",
                                 month: "2-digit",
                               })}
@@ -243,8 +241,6 @@ export function ProductionPage() {
             })}
           </div>
         </SectionCard>
-
-        <MovementsSection />
       </div>
 
       {isDiagnosticsOpen && isAdmin && (

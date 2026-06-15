@@ -1,6 +1,4 @@
 import { PackagePlus, PackageX, Search } from "lucide-react"
-
-import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { StatusBadge } from "@/components/app/status-badge"
 import { formatCurrency } from "@/lib/format"
@@ -154,7 +152,7 @@ export function ProductsPage() {
       icon={PackagePlus}
       title="Productos"
     >
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-4">
         <div>
           {/* Search and filter controls */}
           <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto]">
@@ -215,12 +213,6 @@ export function ProductsPage() {
             </div>
           </SectionCard>
         </div>
-        <FormCard submitLabel="Guardar categoria" title="Nueva categoria">
-          <TextField
-            label="Nombre categoria"
-            placeholder="Ej: Snacks premium"
-          />
-        </FormCard>
       </div>
     </PageShell>
   )

@@ -3,7 +3,6 @@ import {
   Archive,
   BarChart3,
   Boxes,
-  BrainCircuit,
   ClipboardList,
   Factory,
   FileClock,
@@ -29,13 +28,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/hooks/use-auth"
 
 const data = {
-  user: {
-    name: "Vida Frutos",
-    avatar: "",
-  },
   teams: [
     {
       name: "Vida Frutos",
@@ -72,11 +66,6 @@ const data = {
           url: "/clientes",
           icon: <Users />,
         },
-        {
-          title: "Nuevo cliente",
-          url: "/clientes/nuevo",
-          icon: <UserPlus />,
-        },
       ],
     },
     {
@@ -91,11 +80,6 @@ const data = {
           title: "Actualizar Inventario",
           url: "/inventario/actualizar",
           icon: <Archive />,
-        },
-        {
-          title: "Productos",
-          url: "/productos",
-          icon: <Package />,
         },
       ],
     },
@@ -117,11 +101,6 @@ const data = {
           icon: <Truck />,
           url: "/enviados",
         },
-        {
-          title: "Predicción IA",
-          url: "/prediccion",
-          icon: <BrainCircuit />,
-        },
       ],
     },
     {
@@ -135,22 +114,32 @@ const data = {
       ],
     },
     {
-      label: "Gestion",
+      label: "Administración",
       items: [
         {
-          title: "Reportes",
+          title: "Reportes (WIP)",
           url: "/reportes",
           icon: <BarChart3 />,
         },
         {
-          title: "Administracion",
+          title: "Administración",
           url: "/admin/usuarios",
           icon: <ShieldCheck />,
         },
         {
-          title: "Auditoria",
+          title: "Auditoría",
           url: "/auditoria",
           icon: <FileClock />,
+        },
+        {
+          title: "Nuevo cliente",
+          url: "/clientes/nuevo",
+          icon: <UserPlus />,
+        },
+        {
+          title: "Productos",
+          url: "/productos",
+          icon: <Package />,
         },
       ],
     },
@@ -158,15 +147,6 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuth()
-
-  const userData = user
-    ? {
-        name: user.username || "Usuario",
-        avatar: "",
-      }
-    : data.user
-
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
@@ -188,7 +168,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain groups={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
