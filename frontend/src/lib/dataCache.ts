@@ -34,6 +34,10 @@ export function getCustomer(customerId: number): Customer | undefined {
   return customerCache.get(customerId)
 }
 
+export function getAllCustomers(): Customer[] {
+  return Array.from(customerCache.values())
+}
+
 export function getPackagedStock(productId: number): PackagedStock | undefined {
   return packagedStockCache?.find((s) => s.productId === productId)
 }

@@ -98,7 +98,7 @@ export function DispatchPage() {
       {/* Listado de despachos del día */}
       <SectionCard title="Listado de despachos del día">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground pr-3">
             {todayOrders.length === 0
               ? "No hay despachos agendados para hoy"
               : `${todayOrders.length} pedido(s) programado(s)`}

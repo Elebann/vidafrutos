@@ -4,7 +4,6 @@ import { Receipt } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { getCustomer, ensureCustomers, ensureProducts, getOrderTotal } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
@@ -33,6 +32,14 @@ export function InvoiceFormPage({
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+
+  function resetForm() {
+    setSelectedOrderId("")
+    setPaymentMethod("Transferencia")
+    setTotal("")
+    setPdfFile(null)
+    setError("")
+  }
 
   // Cargar órdenes cuando se abre el sheet
   useEffect(() => {
@@ -98,7 +105,7 @@ export function InvoiceFormPage({
     }
 
     if (!pdfFile) {
-      setError("Selecciona una factura")
+      setError("Selecciona un archivo como evidencia de pago")
       return
     }
 
@@ -136,6 +143,7 @@ export function InvoiceFormPage({
           await apiClients.updateOrderState(orderId, confirmedState.id)
         }
         toast.success("El pago se registró correctamente")
+        resetForm()
         setTimeout(() => {
           onSuccess()
           onClose()
@@ -151,8 +159,13 @@ export function InvoiceFormPage({
     }
   }
 
+  function handleClose() {
+    resetForm()
+    onClose()
+  }
+
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
+    <Sheet open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
@@ -165,43 +178,36 @@ export function InvoiceFormPage({
           <FieldGroup>
             <Field>
               <FieldLabel>Pedido</FieldLabel>
-              <Select value={selectedOrderId} onValueChange={(value) => setSelectedOrderId(value ?? "")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar pedido" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {sentOrders.length === 0 && (
-                      <SelectItem value="__none" disabled>
-                        No hay pedidos enviados
-                      </SelectItem>
-                    )}
-                    {sentOrders.map((order) => (
-                      <SelectItem key={order.id} value={String(order.id)}>
-                        Pedido #{order.id} - {getCustomer(order.customerId)?.name ?? `Cliente #${order.customerId}`}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <select
+                className="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm whitespace-nowrap outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                value={selectedOrderId}
+                onChange={(e) => setSelectedOrderId(e.target.value)}
+              >
+                <option value="">Seleccionar pedido</option>
+                {sentOrders.length === 0 && (
+                  <option value="" disabled>No hay pedidos enviados</option>
+                )}
+                {sentOrders.map((order) => (
+                  <option key={order.id} value={String(order.id)}>
+                    Pedido #{order.id} - {getCustomer(order.customerId)?.name ?? `Cliente #${order.customerId}`}
+                  </option>
+                ))}
+              </select>
             </Field>
           </FieldGroup>
 
           <FieldGroup>
             <Field>
               <FieldLabel>Método de pago</FieldLabel>
-              <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value ?? "")}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {["Transferencia", "Efectivo", "Debito", "Credito"].map((m) => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <select
+                className="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm whitespace-nowrap outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                {["Transferencia", "Efectivo", "Debito", "Credito"].map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
             </Field>
           </FieldGroup>
 
@@ -214,7 +220,7 @@ export function InvoiceFormPage({
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Adjuntar factura (PDF)</FieldLabel>
+              <FieldLabel>Adjuntar evidencia de pago</FieldLabel>
               <Input
                 type="file"
                 onChange={handlePdfChange}
@@ -228,7 +234,7 @@ export function InvoiceFormPage({
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1">
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting} className="flex-1">
               Cancelar
             </Button>
             <Button type="submit" variant="VFBrown" disabled={isSubmitting || !selectedOrderId} className="flex-1">
