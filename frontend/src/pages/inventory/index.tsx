@@ -98,7 +98,7 @@ export function InventoryPage() {
         </SectionCard>
         <SectionCard title="Materia prima">
           <div className="grid gap-2">
-            {rawStock.map((stock) => <ProductLine key={stock.productId} productId={stock.productId} quantity={Math.round(stock.totalGrams)} />)}
+            {rawStock.map((stock) => <ProductLine key={stock.productId} productId={stock.productId} quantity={Math.round(stock.totalGrams)} variant="inventory" />)}
           </div>
         </SectionCard>
       </div>

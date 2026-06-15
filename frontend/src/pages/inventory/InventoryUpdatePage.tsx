@@ -8,6 +8,7 @@ import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectVa
 import { useEffect, useState, type FormEvent } from "react"
 import apiClients from "@/lib/apiClients"
 import type { ApiProduct } from "@/lib/apiTypes"
+import toast from "react-hot-toast"
 
 type PackagedEntry = {
   id: string
@@ -67,19 +68,19 @@ export function InventoryUpdatePage() {
 
     const quantity = Number(packagedQuantity || "0")
     if (!Number.isFinite(quantity) || quantity <= 0) {
-      alert("Ingresa una cantidad válida para envasar.")
+      toast.error("Ingresa una cantidad válida para envasar.",{position: "top-center"})
       return
     }
 
     const gramsPerUnit = Number(packagedSelectedProduct.grams ?? 0)
     if (!Number.isFinite(gramsPerUnit) || gramsPerUnit <= 0) {
-      alert("El producto seleccionado no tiene gramos por unidad configurados.")
+      toast.error("El producto seleccionado no tiene gramos por unidad configurados.", {position: "top-center"})
       return
     }
 
     const mermaGrams = packagedMermaEnabled ? Number(packagedMermaGrams || "0") : 0
     if (packagedMermaEnabled && (!Number.isFinite(mermaGrams) || mermaGrams <= 0)) {
-      alert("Ingresa una cantidad de merma válida.")
+      toast.error("Ingresa una cantidad de merma válida.",{position: "top-center"})
       return
     }
 
@@ -92,7 +93,7 @@ export function InventoryUpdatePage() {
     const availableRaw = getRawTotalGrams(packagedSelectedProduct) - alreadyUsed
 
     if (requiredRaw > availableRaw) {
-      alert("No hay suficiente stock de materia prima para este envasado.")
+      toast("No hay suficiente stock de materia prima para este envasado.",{position: "top-center", icon:"⚠️"})
       return
     }
 
@@ -123,7 +124,7 @@ export function InventoryUpdatePage() {
     event?.preventDefault()
 
     if (packagedEntries.length === 0) {
-      alert("Agrega al menos un producto a la lista.")
+      toast("Agrega al menos un producto a la lista.",{position: "top-center", icon:"⚠️"})
       return
     }
 
@@ -145,13 +146,14 @@ export function InventoryUpdatePage() {
 
       const rawTotal = getRawTotalGrams(product)
       if (aggregate.totalRaw > rawTotal) {
-        alert(`El producto ${product.name} no tiene stock suficiente en crudo.`)
+        toast(`El producto ${product.name} no tiene stock suficiente en crudo.`, {position: "top-center", icon:"⚠️"})
         return
       }
 
       const newAvailable = getAvailablePackagedStock(product) + aggregate.totalUnits
       const newRaw = rawTotal - aggregate.totalRaw
       updates.push({ productId, newAvailable, newRaw })
+      toast.success("Stock actualizado con éxito", {position: "top-center"})
     }
 
     setIsSavingPackaged(true)
@@ -180,7 +182,7 @@ export function InventoryUpdatePage() {
       setPackagedComment("")
     } catch (error) {
       console.error("Error updating packaged stock", error)
-      alert("No se pudo guardar el envasado. Intenta nuevamente.")
+      toast.error("No se pudo guardar el envasado. Intenta nuevamente.",{position: "top-center"})
     } finally {
       setIsSavingPackaged(false)
     }
@@ -217,7 +219,7 @@ export function InventoryUpdatePage() {
       setDescription("")
     } catch (err) {
       console.error("Failed ENTRADA movement", err)
-      alert("No se pudo registrar el movimiento de entrada.")
+      toast.error("No se pudo registrar el movimiento de entrada.", {position: "top-center"})
     } finally {
       setIsSubmitting(false)
     }
@@ -257,7 +259,7 @@ export function InventoryUpdatePage() {
       setDescription("")
     } catch (err) {
       console.error("Failed MERMA movement", err)
-      alert("No se pudo registrar el movimiento de merma.")
+      toast.error("No se pudo registrar el movimiento de merma.",{position: "top-center"})
     } finally {
       setIsSubmitting(false)
     }
@@ -269,15 +271,17 @@ export function InventoryUpdatePage() {
     if (!selectedProduct) return
 
     const q = parseFloat(gramsValue || "0")
-    if (isNaN(q) || q <= 0) return
+    if (isNaN(q) || q <= 0) return toast("Ingrese una cantidad válida.",{position: "top-center", icon:"⚠️"})
 
     if (movementType === "ENTRADA") {
       await handleEntrada(selectedProduct, q, description)
+      toast.success("Se ingresaron correctamente los kilos",{position: "top-center"})
       return
     }
 
     if (movementType === "SALIDA") {
       // TODO: lógica de SALIDA pendiente
+
       return
     }
 
@@ -288,8 +292,10 @@ export function InventoryUpdatePage() {
 
     if (movementType === "MERMA") {
       await handleMerma(selectedProduct, q, description)
+      toast.success("Merma ingresada correctamente",{position: "top-center"})
       return
     }
+
   }
 
   return (
