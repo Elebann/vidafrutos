@@ -28,10 +28,10 @@ export function PageShell({
   return (
     <main className="min-h-[calc(100svh-3.5rem)] bg-[#fff8f3] px-3 py-4 sm:px-5 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-left">
           <div className="flex min-w-0 items-start gap-3">
             {Icon && (
-              <Icon className="m-auto size-10 justify-center items-center text-[#804f17]" />
+              <Icon className="hidden sm:block size-13 justify-center items-center text-[#804f17]" />
             )}
             <div className="min-w-0">
               <h1 className="text-[#804f17] text-2xl leading-tight font-bold">
@@ -47,7 +47,7 @@ export function PageShell({
 
           {action && action.to && (
             <Button
-              className="h-10 w-full sm:w-auto"
+              className="ml-auto h-10 w-full sm:w-auto"
               variant="VFBrown"
               render={<Link to={action.to} />}
             >
@@ -57,7 +57,7 @@ export function PageShell({
           )}
           {action && action.onClick && !action.to && (
             <Button
-              className="h-10 w-full sm:w-auto"
+              className="ml-auto h-10 w-full sm:w-auto"
               variant="VFBrown"
               onClick={action.onClick}
             >
