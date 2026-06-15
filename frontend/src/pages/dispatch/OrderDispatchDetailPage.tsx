@@ -102,22 +102,21 @@ export function OrderDispatchDetailPage() {
               const isSelected = selectedProducts.has(detail.productId)
 
               return (
-                <div
-                  key={detail.productId}
-                  className="flex items-center gap-3 rounded-md border border-neutral-200 px-4 py-3"
-                >
+                <label className="flex cursor-pointer items-center gap-3 rounded-md border border-neutral-200 px-4 py-3">
                   <Checkbox
                     checked={isSelected}
-                    onCheckedChange={() => handleToggleProduct(detail.productId)}
+                    onCheckedChange={() =>
+                      handleToggleProduct(detail.productId)
+                    }
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{product?.name}</p>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{product?.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {detail.quantity} unidades solicitadas
                     </p>
                   </div>
-
-                </div>
+                </label>
               )
             })}
           </div>

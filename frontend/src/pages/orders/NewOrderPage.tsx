@@ -59,7 +59,7 @@ function OrderItemRow({
     <article className="group relative overflow-hidden rounded-xl border border-[#643800]/15 bg-white p-4 shadow-[0_1px_0_rgba(128,79,23,0.04),0_2px_6px_-2px_rgba(128,79,23,0.06)] transition-all duration-300 ease-out hover:border-[#804f17]/30">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h4 className="font-[family-name:var(--font-heading)] text-[1.2rem] leading-[1.1] tracking-tight text-neutral-900">
+          <h4 className="font-heading text-[1.2rem] leading-[1.1] tracking-tight text-neutral-900">
             {productName}
           </h4>
           {gramsLabel && (
@@ -72,7 +72,7 @@ function OrderItemRow({
           size="sm"
           onClick={() => onRemove(index)}
           aria-label={`Eliminar ${productName} del pedido`}
-          className="size-7 shrink-0 p-0 text-neutral-400 hover:bg-red-50 hover:text-red-600 font-[family-name:var(--font-heading)]"
+          className="size-7 shrink-0 p-0 text-neutral-400 hover:bg-red-50 hover:text-red-600 font-heading"
         >
           <X className="size-4" />
         </Button>
@@ -87,11 +87,11 @@ function OrderItemRow({
             onClick={() => onDecrement(index)}
             disabled={item.quantity <= 1}
             aria-label={`Disminuir cantidad de ${productName}`}
-            className="size-7 p-0 font-[family-name:var(--font-heading)]"
+            className="size-7 p-0 font-heading"
           >
             −
           </Button>
-          <div className="flex h-7 min-w-10 items-center justify-center font-[family-name:var(--font-heading)] text-lg leading-none text-neutral-900 tabular-nums">
+          <div className="flex h-7 min-w-10 items-center justify-center font-heading text-lg leading-none text-neutral-900 tabular-nums">
             {item.quantity}
           </div>
           <Button
@@ -100,7 +100,7 @@ function OrderItemRow({
             variant="outline"
             onClick={() => onIncrement(index)}
             aria-label={`Aumentar cantidad de ${productName}`}
-            className="size-7 p-0 font-[family-name:var(--font-heading)]"
+            className="size-7 p-0 font-heading"
           >
             +
           </Button>
@@ -267,59 +267,58 @@ export function NewOrderPage() {
         onCancel={handleCancel}
         submitDisabled={isSubmitting}
       >
+        <FieldGroup className={"sm:col-span-2"}>
+          <Field>
+            <FieldLabel className="mt-1 font-heading leading-tight text-neutral-900">
+              Cliente
+            </FieldLabel>
+            <Select
+              value={selectedCustomerId ? String(selectedCustomerId) : ""}
+              onValueChange={(value) =>
+                setSelectedCustomerId(value ? Number(value) : null)
+              }
+            >
+              <SelectTrigger className="w-full font-heading whitespace-normal">
+                <SelectValue placeholder="Seleccione cliente">
+                  {selectedCustomerId
+                    ? customers.find((c) => c.id === selectedCustomerId)?.name
+                    : undefined}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {customers.map((customer) => (
+                    <SelectItem key={customer.id} value={String(customer.id)}>
+                      {customer.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+        </FieldGroup>
 
-          <FieldGroup>
-            <Field>
-              <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
-                Cliente
-              </FieldLabel>
-              <Select
-                value={selectedCustomerId ? String(selectedCustomerId) : ""}
-                onValueChange={(value) =>
-                  setSelectedCustomerId(value ? Number(value) : null)
-                }
-              >
-                <SelectTrigger className="w-full whitespace-normal font-[family-name:var(--font-heading)]">
-                  <SelectValue placeholder="Seleccione cliente">
-                    {selectedCustomerId
-                      ? customers.find((c) => c.id === selectedCustomerId)?.name
-                      : undefined}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={String(customer.id)}>
-                        {customer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-          </FieldGroup>
+        <FieldGroup className="sm:col-span-2">
+          <Field>
+            <FieldLabel className="mt-1 font-heading leading-tight text-neutral-900">
+              Fecha solicitada
+            </FieldLabel>
+            <Input
+              type="date"
+              value={date}
+              min={new Date().toISOString().slice(0, 10)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setDate(e.target.value)
+              }
+            />
+          </Field>
+        </FieldGroup>
 
-          <FieldGroup className="sm:col-span-2">
-            <Field>
-              <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
-                Fecha solicitada
-              </FieldLabel>
-              <Input
-                type="date"
-                value={date}
-                min={new Date().toISOString().slice(0, 10)}
-                className="font-[family-name:var(--font-heading)]"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setDate(e.target.value)
-                }
-              />
-            </Field>
-          </FieldGroup>
-
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <div className="sm:col-span-2 border-b pb-6">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 mb-3">
             <FieldGroup>
               <Field>
-                <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                <FieldLabel className="mt-1 leading-tight text-neutral-900">
                   Producto a agregar
                 </FieldLabel>
                 <Select
@@ -328,7 +327,7 @@ export function NewOrderPage() {
                     setCurrentProductId(v ? Number(v) : null)
                   }
                 >
-                  <SelectTrigger className="w-full whitespace-normal font-[family-name:var(--font-heading)]">
+                  <SelectTrigger className="w-full] whitespace-normal">
                     <SelectValue placeholder="Seleccione producto">
                       {currentProductId
                         ? products.find((p) => p.id === currentProductId)?.name
@@ -352,14 +351,15 @@ export function NewOrderPage() {
                             >
                               <span>{product.name} </span>
 
-                              <span className={
-                                isBelowMinimum
-                                  ? "text-red-600"
-                                  :
-                                availableStock <= warningStock
-                                  ? "text-yellow-600"
-                                  : ""
-                              }>
+                              <span
+                                className={
+                                  isBelowMinimum
+                                    ? "text-red-600"
+                                    : availableStock <= warningStock
+                                      ? "text-yellow-600"
+                                      : ""
+                                }
+                              >
                                 ({availableStock})
                               </span>
                             </SelectItem>
@@ -373,13 +373,13 @@ export function NewOrderPage() {
 
             <FieldGroup>
               <Field>
-                <FieldLabel className="mt-1 font-[family-name:var(--font-heading)] leading-tight text-neutral-900">
+                <FieldLabel className="mt-1 font-heading leading-tight text-neutral-900">
                   Cantidad a agregar
                 </FieldLabel>
                 <Input
                   type="number"
                   value={String(currentQuantity)}
-                  className="font-[family-name:var(--font-heading)]"
+                  className="font-heading"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCurrentQuantity(Number(e.target.value || 0))
                   }
@@ -388,19 +388,21 @@ export function NewOrderPage() {
             </FieldGroup>
           </div>
 
-          <div className="flex gap-2 items-end">
+          <div className="flex md:items-end gap-3">
             <Button
               type="button"
-              variant="VFBrown"
-              className="font-[family-name:var(--font-heading)]"
+              variant="secondary"
+              className="font-heading"
               onClick={() => {
-                if (!currentProductId) return toast.error("Seleccione un producto", {
-                  position:("top-center")
-                })
+                if (!currentProductId)
+                  return toast.error("Seleccione un producto", {
+                    position: "top-center",
+                  })
                 if (currentQuantity <= 0)
                   return toast("Ingrese una cantidad mayor a 0", {
-                    icon: '⚠️',
-                    position:"top-center"})
+                    icon: "⚠️",
+                    position: "top-center",
+                  })
                 setOrderProducts((prev) => {
                   const existing = prev.find(
                     (p) => p.productId === currentProductId
@@ -419,41 +421,32 @@ export function NewOrderPage() {
                   ]
                 })
                 setCurrentProductId(null)
+                setCurrentQuantity(1)
               }}
             >
               Agregar producto
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="font-[family-name:var(--font-heading)]"
-              onClick={() => {
-                setCurrentProductId(null)
-                setCurrentQuantity(1)
-              }}
-            >
-              Limpiar selección
-            </Button>
           </div>
+        </div>
       </FormCard>
 
       <SectionCard title="Resumen y cantidad a producir">
         <div className="grid gap-4 border-b border-[#643800]/10 pb-5 sm:grid-cols-2">
           <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#804f17]/75">
+            <p className="text-[0.65rem] font-semibold tracking-[0.18em] text-[#804f17]/75 uppercase">
               Cliente
             </p>
-            <p className="mt-1 font-[family-name:var(--font-heading)] text-lg leading-tight text-neutral-900">
+            <p className="mt-1 font-heading text-lg leading-tight text-neutral-900">
               {selectedCustomerId
                 ? customers.find((c) => c.id === selectedCustomerId)?.name
                 : "Selecciona un cliente"}
             </p>
           </div>
           <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#804f17]/75">
+            <p className="text-[0.65rem] font-semibold tracking-[0.18em] text-[#804f17]/75 uppercase">
               Fecha solicitada
             </p>
-            <p className="mt-1 font-[family-name:var(--font-heading)] text-lg leading-tight text-neutral-900">
+            <p className="mt-1 font-heading text-lg leading-tight text-neutral-900">
               {formatSpanishDate(date)}
             </p>
           </div>
@@ -479,7 +472,7 @@ export function NewOrderPage() {
                   onDecrement={handleDecrement}
                   onRemove={(idx) =>
                     setOrderProducts((prev) =>
-                      prev.filter((_, idx2) => idx2 !== idx),
+                      prev.filter((_, idx2) => idx2 !== idx)
                     )
                   }
                 />
@@ -487,25 +480,6 @@ export function NewOrderPage() {
             })
           )}
         </div>
-
-        {orderProducts.length > 0 && (
-          <div className="mt-5 flex justify-end border-t border-[#643800]/10 pt-4">
-            <Button
-              type="button"
-              variant="destructive"
-              className="font-[family-name:var(--font-heading)]"
-              onClick={() => {
-                if (
-                  !confirm("Todos los productos serán eliminados. ¿Continuar?")
-                )
-                  return
-                setOrderProducts([])
-              }}
-            >
-              Vaciar pedido
-            </Button>
-          </div>
-        )}
       </SectionCard>
     </PageShell>
   )
