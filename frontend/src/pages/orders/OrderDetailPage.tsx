@@ -58,7 +58,23 @@ export function OrderDetailPage() {
             </span>
           </div>
         </SectionCard>
-        <FormCard
+
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <EvidenceSection
+          evidenceType={1}
+          orderId={order.id}
+          title="Evidencia de entrega"
+        />
+
+        <EvidenceSection
+          evidenceType={2}
+          orderId={order.id}
+          title="Confirmación de pago"
+        />
+      </div>
+      <FormCard
           submitLabel="Actualizar estado"
           title="Cambio de estado"
           onSubmit={async (e) => {
@@ -121,7 +137,6 @@ export function OrderDetailPage() {
             onChange={setObservation}
           />
         </FormCard>
-      </div>
       <SectionCard title="Historial de modificaciones">
         <div className="grid gap-2">
           {order.history.map((item) => (
@@ -139,20 +154,6 @@ export function OrderDetailPage() {
           ))}
         </div>
       </SectionCard>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <EvidenceSection
-          evidenceType={1}
-          orderId={order.id}
-          title="Evidencia de entrega"
-        />
-
-        <EvidenceSection
-          evidenceType={2}
-          orderId={order.id}
-          title="Confirmación de pago"
-        />
-      </div>
 
     </PageShell>
   )

@@ -201,7 +201,7 @@ export function DispatchPage() {
             onClick={handleToggleSort}
           >
             {sortDir === "desc" ? <ArrowDown className="size-3.5" /> : <ArrowUp className="size-3.5" />}
-            {sortDir === "desc" ? "Mayor a menor" : "Menor a mayor"}
+            {sortDir === "desc" ? "Más nuevo a antiguo" : "Antiguo a nuevo"}
           </Button>
         </div>
         <div className="grid gap-3">

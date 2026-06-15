@@ -4,21 +4,19 @@ import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { SearchBar } from "@/components/app/SearchBar"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import { OrderCard, OrderRow } from "@/components/order-card.tsx"
-import { ensureProducts, ensureCustomers, ensurePackagedStock } from "@/lib/dataCache"
+import { ensureProducts, ensureCustomers, ensurePackagedStock, getCustomer } from "@/lib/dataCache"
 import type { Order } from "@/types/domain"
 
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("")
   const itemsPerPage = 15
 
   useEffect(() => {
-    // Prefetch related caches and ensure they are loaded before fetching orders so
-    // order totals (which depend on product prices) can be calculated synchronously
-    // during render. We intentionally await caches here and then fetch orders.
     ;(async () => {
       try {
         await ensureProducts()
@@ -46,11 +44,28 @@ export function OrdersPage() {
     })()
   }, [])
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage)
-  const paginatedOrders = orders.slice(
+  const filteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) return orders
+    const q = searchQuery.toLowerCase()
+    return orders.filter((order) => {
+      if (String(order.id).includes(q)) return true
+      const customer = getCustomer(order.customerId)
+      if (customer?.name.toLowerCase().includes(q)) return true
+      if (order.state.toLowerCase().includes(q)) return true
+      return false
+    })
+  }, [orders, searchQuery])
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage)
+  const paginatedOrders = filteredOrders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
+
+  function handleSearchChange(value: string) {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
 
   return (
     <PageShell
@@ -63,7 +78,11 @@ export function OrdersPage() {
       icon={PackagePlus}
       title="Pedidos"
     >
-      <SearchBar placeholder="Buscar por cliente, estado o numero de pedido" />
+      <SearchBar
+        placeholder="Buscar por cliente, estado o numero de pedido"
+        value={searchQuery}
+        onChange={handleSearchChange}
+      />
 
       <ResponsiveList
         columns={["Pedido", "Cliente", "Estado", "Acción"]}
