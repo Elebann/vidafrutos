@@ -324,11 +324,13 @@ export function InventoryUpdatePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={String(product.id)}>
-                        {product.name}
-                      </SelectItem>
-                    ))}
+                    {products
+                      .filter((p) => p.active)
+                      .map((product) => (
+                        <SelectItem key={product.id} value={String(product.id)}>
+                          {product.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -392,11 +394,13 @@ export function InventoryUpdatePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={String(product.id)}>
-                        {product.name}
-                      </SelectItem>
-                    ))}
+                    {products
+                      .filter((p) => p.active)
+                      .map((product) => (
+                        <SelectItem key={product.id} value={String(product.id)}>
+                          {product.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

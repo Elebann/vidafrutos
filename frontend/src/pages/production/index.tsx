@@ -123,24 +123,24 @@ export function ProductionPage() {
 
   const lastTrainedLabel = lastTrainedIso
     ? new Date(lastTrainedIso).toLocaleString("es-CL")
-    : "aun no entrenado"
+    : "Aún no entrenado"
 
   return (
     <PageShell
-      action={{ icon: Sparkles, label: "Registrar produccion", to: "/produccion/registrar" }}
+      action={{ icon: Sparkles, label: "Registrar produccion", to: "/inventario/actualizar" }}
       description="Planificacion diaria basada en faltantes y demanda esperada."
       icon={FileBarChart2}
       title="Producción"
     >
-      <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
+      <div className="grid gap-2 lg:grid-cols-2">
         <SectionCard
-          description={`Modelo reentrenado por ultima vez: ${lastTrainedLabel}.`}
           title="Sugerencias de producción"
+          description={`Modelo reentrenado por ultima vez: ${lastTrainedLabel}`}
         >
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-muted-foreground">
               {isLoading
-                ? "Calculando sugerencias..."
+                ? "Calculando.."
                 : `${suggestions.length} productos a producir (${totalUnits} unidades)`}
             </div>
             <div className="flex flex-wrap gap-2 print:hidden">
@@ -195,7 +195,7 @@ export function ProductionPage() {
               return (
                 <div
                   key={forecast.productId}
-                  className="grid gap-2 rounded-md bg-neutral-50 px-3 py-2 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"
+                  className="grid gap-2 rounded-md bg-neutral-50 px-3 py-2 text-sm sm:grid-cols-1 sm:items-center"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">
@@ -226,13 +226,13 @@ export function ProductionPage() {
                       </div>
                     )}
                   </div>
-                  <div className="rounded bg-white px-2 py-1 text-right">
+                  <div className="rounded bg-white px-2 py-1">
                     <strong className="block text-base leading-none text-[#804f17]">
                       {forecast.suggestedProduction}
                     </strong>
-                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">producir</span>
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Producir</span>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-end gap-1">
                     <StatusBadge tone={riskTone(forecast.risk)}>Riesgo {forecast.risk}</StatusBadge>
                     <StatusBadge tone={confidenceTone(forecast.confidence)}>
                       Confianza {forecast.confidence.toFixed(1)}%
@@ -243,6 +243,7 @@ export function ProductionPage() {
             })}
           </div>
         </SectionCard>
+
         <MovementsSection />
       </div>
 

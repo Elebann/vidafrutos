@@ -101,7 +101,7 @@ export function SectionCard({
       )}
     >
       {(title || description) && (
-        <div className="flex justify-between mb-4">
+        <div className="flex flex-col justify-between mb-4">
           {title && (
             <h2 className="text-base font-semibold text-neutral-950">
               {title}

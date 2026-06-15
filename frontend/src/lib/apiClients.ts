@@ -90,7 +90,8 @@ export async function createCustomer(payload: { rut: string; name: string; addre
 
 export async function fetchBackendProducts(): Promise<ApiProduct[]> {
   try {
-    const response = await api.get<ApiProduct[]>("/api/products/")
+    const response = await api.get<ApiProduct[]>(
+      "/api/products/")
     return response.data
   } catch (error) {
     console.error("Error loading backend products", error)

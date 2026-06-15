@@ -92,6 +92,7 @@ export interface PackagedStock {
   availableStock: number
   allocatedStock: number
   minimumStock: number
+  product: Product
 }
 
 export type StockMovementType = "ENTRADA" | "SALIDA" | "AJUSTE" | "MERMA"

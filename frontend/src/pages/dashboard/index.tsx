@@ -4,7 +4,6 @@ import {
   Archive,
   Home,
   BrainCircuit,
-  Factory,
   PackagePlus,
   Receipt,
 } from "lucide-react"
@@ -99,13 +98,13 @@ export function DashboardPage() {
               },
               {
                 icon: Archive,
-                label: "Actualizar stock",
-                to: "/inventario/actualizar",
+                label: "Ver inventario",
+                to: "/inventario",
               },
               {
-                icon: Factory,
+                icon: Archive,
                 label: "Registrar produccion",
-                to: "/produccion/registrar",
+                to: "/inventario/actualizar",
               },
               {
                 icon: Receipt,

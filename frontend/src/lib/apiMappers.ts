@@ -103,6 +103,7 @@ export function mapPackagedStock(product: ApiProduct): PackagedStock {
     availableStock: numberFrom(product.packaged_stock?.available_stock),
     allocatedStock: numberFrom(product.packaged_stock?.allocated_stock),
     minimumStock: numberFrom(product.packaged_stock?.minimum_stock),
+    product: mapProduct(product),
   }
 }
 
