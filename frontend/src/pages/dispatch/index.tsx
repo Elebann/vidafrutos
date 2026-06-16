@@ -154,7 +154,10 @@ export function DispatchPage() {
               No hay pedidos atrasados
             </p>
           ) : (
-            overdueOrders.map((order) => (
+            overdueOrders
+              //todo corregir luego
+              .slice(0,2)
+              .map((order) => (
               <article
                 key={order.id}
                 className="rounded-lg border border-red-200 bg-red-50 p-4 shadow-sm"

@@ -393,7 +393,7 @@ export function NewOrderPage() {
             <Button
               type="button"
               variant="secondary"
-              className="font-heading"
+              className="font-heading ml-auto"
               onClick={() => {
                 if (!currentProductId)
                   return toast.error("Seleccione un producto", {
