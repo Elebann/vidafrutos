@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { Receipt } from "lucide-react"
+import { Receipt, ChevronDown, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -32,6 +32,9 @@ export function InvoiceFormPage({
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isOpenCombo, setIsOpenCombo] = useState(false)
+  const comboRef = useRef<HTMLDivElement>(null)
 
   function resetForm() {
     setSelectedOrderId("")
@@ -39,7 +42,21 @@ export function InvoiceFormPage({
     setTotal("")
     setPdfFile(null)
     setError("")
+    setSearchQuery("")
+    setIsOpenCombo(false)
   }
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!isOpenCombo) return
+    function handleClickOutside(e: MouseEvent) {
+      if (comboRef.current && !comboRef.current.contains(e.target as Node)) {
+        setIsOpenCombo(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isOpenCombo])
 
   // Cargar órdenes cuando se abre el sheet
   useEffect(() => {
@@ -73,6 +90,28 @@ export function InvoiceFormPage({
     setTotal(String(calculated))
   }, [selectedOrderId, sentOrders])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const filteredOrders = sentOrders.filter((order) => {
+    if (!searchQuery) return true
+    return String(order.id).includes(searchQuery.trim())
+  })
+
+  const selectedOrder = sentOrders.find((o) => o.id === Number(selectedOrderId))
+
+  const displayValue = selectedOrder
+    ? `Pedido #${selectedOrder.id} - ${getCustomer(selectedOrder.customerId)?.name ?? `Cliente #${selectedOrder.customerId}`}`
+    : searchQuery
+
+  const handleSelectOrder = useCallback((order: Order) => {
+    setSelectedOrderId(String(order.id))
+    setSearchQuery("")
+    setIsOpenCombo(false)
+  }, [])
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedOrderId("")
+    setSearchQuery("")
+  }, [])
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -142,7 +181,8 @@ export function InvoiceFormPage({
         if (confirmedState) {
           await apiClients.updateOrderState(orderId, confirmedState.id)
         }
-        toast.success("El pago se registró correctamente")
+        setSentOrders((prev) => prev.filter((o) => o.id !== orderId))
+        toast.success("El pago se registró correctamente",{position:"top-center"})
         resetForm()
         setTimeout(() => {
           onSuccess()
@@ -178,21 +218,54 @@ export function InvoiceFormPage({
           <FieldGroup>
             <Field>
               <FieldLabel>Pedido</FieldLabel>
-              <select
-                className="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm whitespace-nowrap outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                value={selectedOrderId}
-                onChange={(e) => setSelectedOrderId(e.target.value)}
-              >
-                <option value="">Seleccionar pedido</option>
-                {sentOrders.length === 0 && (
-                  <option value="" disabled>No hay pedidos enviados</option>
+              <div ref={comboRef} className="relative">
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Buscar por número de pedido..."
+                    value={displayValue}
+                    onChange={(e) => {
+                      setSelectedOrderId("")
+                      setSearchQuery(e.target.value)
+                      setIsOpenCombo(true)
+                    }}
+                    onFocus={() => setIsOpenCombo(true)}
+                    className="pr-8"
+                  />
+                  {selectedOrder && (
+                    <button
+                      type="button"
+                      onClick={handleClearSelection}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                  {!selectedOrder && (
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  )}
+                </div>
+                {isOpenCombo && (
+                  <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border bg-white shadow-md">
+                    {filteredOrders.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">
+                        No hay pedidos enviados
+                      </div>
+                    ) : (
+                      filteredOrders.map((order) => (
+                        <button
+                          key={order.id}
+                          type="button"
+                          className={`flex w-full items-center px-3 py-2 text-left text-sm hover:bg-accent ${selectedOrderId === String(order.id) ? "bg-accent" : ""}`}
+                          onClick={() => handleSelectOrder(order)}
+                        >
+                          Pedido #{order.id} - {getCustomer(order.customerId)?.name ?? `Cliente #${order.customerId}`}
+                        </button>
+                      ))
+                    )}
+                  </div>
                 )}
-                {sentOrders.map((order) => (
-                  <option key={order.id} value={String(order.id)}>
-                    Pedido #{order.id} - {getCustomer(order.customerId)?.name ?? `Cliente #${order.customerId}`}
-                  </option>
-                ))}
-              </select>
+              </div>
             </Field>
           </FieldGroup>
 

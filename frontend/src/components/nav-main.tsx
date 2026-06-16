@@ -2,6 +2,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
@@ -9,6 +10,7 @@ import { NavLink } from "react-router-dom"
 
 export function NavMain({
   groups,
+  alertUrls = [],
 }: {
   groups: {
     label: string
@@ -18,6 +20,7 @@ export function NavMain({
       icon?: React.ReactNode
     }[]
   }[]
+  alertUrls?: string[]
 }) {
   return (
     <>
@@ -34,6 +37,11 @@ export function NavMain({
                   {item.icon}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
+                {alertUrls.includes(item.url) && (
+                  <SidebarMenuBadge>
+                    <span className="h-2 w-2 rounded-full bg-red-500" />
+                  </SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>

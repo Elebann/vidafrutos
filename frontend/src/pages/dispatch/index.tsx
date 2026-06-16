@@ -99,6 +99,7 @@ export function DispatchPage() {
       <SectionCard title="Listado de despachos del día">
         <div className="flex items-center justify-between mb-3">
           <Button
+            className={"ml-auto"}
             variant="VFBrown"
             size="sm"
             onClick={handlePrintPdf}

@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   Archive,
   Home,
-  BrainCircuit,
   PackagePlus,
   Receipt,
 } from "lucide-react"
@@ -13,7 +12,7 @@ import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { StatusBadge } from "@/components/app/status-badge"
 import { Button } from "@/components/ui/button"
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, filterByMonth } from "@/lib/format"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import { getProduct, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
@@ -49,20 +48,20 @@ export function DashboardPage() {
   )
 
   const pendingOrders = orders.filter((order) => order.state !== "Enviado" && order.state !== "Pago confirmado")
-  const dailySales = invoices.reduce((total, invoice) => total + (invoice.total ?? 0), 0)
+  const monthlySales = filterByMonth(invoices, "date").reduce((total, invoice) => total + (invoice.total ?? 0), 0)
 
   return (
     <PageShell
       description="Resumen operacional para ventas, inventario y producción diaria."
       icon={Home}
-      title="Inicio"
+      title="Inicio administrador"
     >
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
-          detail="Facturas emitidas hoy y ayer operacional."
+          detail="Total facturado en el mes actual."
           icon={Receipt}
-          label="Ventas recientes"
-          value={formatCurrency(dailySales)}
+          label="Ventas del mes"
+          value={formatCurrency(monthlySales)}
         />
         <KpiCard
           detail="Pedidos que aun requieren validacion, produccion o despacho."
@@ -77,13 +76,6 @@ export function DashboardPage() {
           label="Stock crítico"
           tone="danger"
           value={`${critical.length}`}
-        />
-        <KpiCard
-          detail="Promedio estimado del modulo predictivo."
-          icon={BrainCircuit}
-          label="Confianza IA"
-          tone="success"
-          value="82%"
         />
       </div>
 

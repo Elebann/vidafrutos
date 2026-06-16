@@ -28,6 +28,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useInventoryAlerts } from "@/contexts/inventory-alert-context"
 
 const data = {
   teams: [
@@ -147,6 +148,9 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { lowStockProducts } = useInventoryAlerts()
+  const alertUrls = lowStockProducts.length > 0 ? ["/inventario"] : []
+
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
@@ -165,7 +169,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain groups={data.navMain} />
+        <NavMain groups={data.navMain} alertUrls={alertUrls} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
