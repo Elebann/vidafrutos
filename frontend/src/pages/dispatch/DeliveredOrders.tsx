@@ -164,7 +164,10 @@ export function DeliveredOrders() {
     )
   }
 
-  function renderOrderCard(order: Order, variant: "default" | "overdue" = "default") {
+  function renderOrderCard(
+    order: Order,
+    variant: "default" | "overdue" = "default"
+  ) {
     const customer = getCustomer(order.customerId)
     return (
       <article
@@ -179,7 +182,9 @@ export function DeliveredOrders() {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold">Pedido #{order.id}</h3>
-              {variant === "overdue" && <AlertTriangle className="size-4 text-red-500" />}
+              {variant === "overdue" && (
+                <AlertTriangle className="size-4 text-red-500" />
+              )}
             </div>
             <p className="text-sm text-muted-foreground">{customer?.name}</p>
             <p className="text-xs text-muted-foreground">
@@ -197,12 +202,26 @@ export function DeliveredOrders() {
             <ProductLine key={detail.productId} {...detail} />
           ))}
         </div>
-        <Button
-          className="mt-4 w-full sm:w-auto"
-          onClick={() => handleOpenSheet(order)}
-        >
-          Registrar envío
-        </Button>
+        <div className="flex gap-2 pt-4 mt-4 border-t">
+          <Button
+            onClick={() => handleOpenSheet(order)}
+          >
+            Registrar envío
+          </Button>
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              if (customer?.address) {
+                window.open(
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`,
+                  "_blank"
+                )
+              }
+            }}
+          >
+            Cómo llegar
+          </Button>
+        </div>
       </article>
     )
   }
@@ -216,42 +235,42 @@ export function DeliveredOrders() {
       {/* Barra de búsqueda */}
       <div ref={searchRef} className="relative mb-4">
         <div className="relative">
-  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 
-  <Input
-    ref={inputRef}
-    className="h-10 bg-white pl-9 pr-9"
-    placeholder="Buscar por nombre del negocio..."
-    value={searchQuery}
-    onChange={(e) => {
-      setSearchQuery(e.target.value)
-      setIsSearchOpen(true)
-      setCurrentPageToday(1)
-      setCurrentPageOverdue(1)
-      setCurrentPageOther(1)
-    }}
-    onFocus={() => {
-      if (searchQuery.trim().length >= 1) setIsSearchOpen(true)
-    }}
-  />
+          <Input
+            ref={inputRef}
+            className="h-10 bg-white pr-9 pl-9"
+            placeholder="Buscar por nombre del negocio..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setIsSearchOpen(true)
+              setCurrentPageToday(1)
+              setCurrentPageOverdue(1)
+              setCurrentPageOther(1)
+            }}
+            onFocus={() => {
+              if (searchQuery.trim().length >= 1) setIsSearchOpen(true)
+            }}
+          />
 
-  {searchQuery && (
-    <button
-      type="button"
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-      onClick={() => {
-        setSearchQuery("")
-        setIsSearchOpen(false)
-        setCurrentPageToday(1)
-        setCurrentPageOverdue(1)
-        setCurrentPageOther(1)
-        inputRef.current?.focus()
-      }}
-    >
-      <X className="size-4" />
-    </button>
-  )}
-</div>
+          {searchQuery && (
+            <button
+              type="button"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setSearchQuery("")
+                setIsSearchOpen(false)
+                setCurrentPageToday(1)
+                setCurrentPageOverdue(1)
+                setCurrentPageOther(1)
+                inputRef.current?.focus()
+              }}
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
         {isSearchOpen && customerSuggestions.length > 0 && (
           <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-[#643800]/15 bg-white shadow-lg">
             {customerSuggestions.map((customer) => (
@@ -285,7 +304,11 @@ export function DeliveredOrders() {
             paginatedTodayOrders.map((order) => renderOrderCard(order))
           )}
         </div>
-        {renderPagination(currentPageToday, totalTodayPages, setCurrentPageToday)}
+        {renderPagination(
+          currentPageToday,
+          totalTodayPages,
+          setCurrentPageToday
+        )}
       </SectionCard>
 
       {/* Envíos atrasados */}
@@ -296,10 +319,16 @@ export function DeliveredOrders() {
               No hay envíos atrasados
             </p>
           ) : (
-            paginatedOverdueOrders.map((order) => renderOrderCard(order, "overdue"))
+            paginatedOverdueOrders.map((order) =>
+              renderOrderCard(order, "overdue")
+            )
           )}
         </div>
-        {renderPagination(currentPageOverdue, totalOverduePages, setCurrentPageOverdue)}
+        {renderPagination(
+          currentPageOverdue,
+          totalOverduePages,
+          setCurrentPageOverdue
+        )}
       </SectionCard>
 
       {/* Otros envíos listos */}
@@ -313,7 +342,11 @@ export function DeliveredOrders() {
             paginatedOtherOrders.map((order) => renderOrderCard(order))
           )}
         </div>
-        {renderPagination(currentPageOther, totalOtherPages, setCurrentPageOther)}
+        {renderPagination(
+          currentPageOther,
+          totalOtherPages,
+          setCurrentPageOther
+        )}
       </SectionCard>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>

@@ -1,1 +1,1 @@
-web: python -m pip install -r requirements.txt && python manage.py migrate && python manage.py loaddata fixtures/new_orders_data.json && python manage.py collectstatic --noinput && gunicorn project.wsgi --bind 0.0.0.0:$PORT
+web: python -m pip install -r requirements.txt && python manage.py migrate && python manage.py loaddata fixtures/initial_data.json && python manage.py loaddata fixtures/6months_data.json && python manage.py collectstatic --noinput && gunicorn project.wsgi --bind 0.0.0.0:$PORT

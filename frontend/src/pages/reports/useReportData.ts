@@ -1,25 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { fetchOrders, fetchInvoices, fetchCategories } from "@/lib/apiClients"
 import { ensureProducts, getProduct } from "@/lib/dataCache"
-import type { Order, Invoice, Product, Category } from "@/types/domain"
+import type { Order, Invoice, Category, ReportData } from "@/types/domain"
+import { getMonthKey } from "@/lib/format.ts"
 
 export type PeriodMonths = 1 | 3 | 6
-
-export interface ReportData {
-  loading: boolean
-  kpis: {
-    totalRevenue: number
-    totalOrders: number
-    avgTicket: number
-    topProductName: string
-  }
-  salesByMonth: { month: string; quantity: number; revenue: number }[]
-  topProducts: { name: string; quantity: number; revenue: number }[]
-  bottomProducts: { name: string; quantity: number; revenue: number }[]
-  categoryDistribution: { name: string; value: number; revenue: number }[]
-  monthlyRanking: { month: string; revenue: number }[]
-  paymentBreakdown: { method: string; count: number; total: number }[]
-}
 
 const EMPTY_DATA: ReportData = {
   loading: true,
@@ -30,11 +15,6 @@ const EMPTY_DATA: ReportData = {
   categoryDistribution: [],
   monthlyRanking: [],
   paymentBreakdown: [],
-}
-
-function getMonthKey(dateStr: string): string {
-  const d = new Date(dateStr)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
 }
 
 function getMonthLabel(key: string): string {
@@ -77,7 +57,7 @@ export function useReportData(period: PeriodMonths) {
     if (loading) return EMPTY_DATA
 
     const now = new Date()
-    const cutoff = new Date(now.getFullYear(), now.getMonth() - period, 1)
+    const cutoff = new Date(now.getFullYear(), now.getMonth() - (period - 1), 1)
 
     const filtered = orders.filter((o) => {
       const d = new Date(o.date)
@@ -89,7 +69,7 @@ export function useReportData(period: PeriodMonths) {
       return d >= cutoff && d <= now
     })
 
-    let totalRevenue = 0
+    let totalRevenue = filteredInvoices.reduce((sum, inv) => sum + inv.total, 0)
     let totalQuantity = 0
     const productAgg = new Map<number, { name: string; quantity: number; revenue: number }>()
     const categoryAgg = new Map<number, { name: string; value: number; revenue: number }>()
@@ -107,7 +87,6 @@ export function useReportData(period: PeriodMonths) {
         const lineRevenue = detail.price ?? unitPrice * detail.quantity
         const lineQty = detail.quantity
 
-        totalRevenue += lineRevenue
         totalQuantity += lineQty
 
         monthData.quantity += lineQty

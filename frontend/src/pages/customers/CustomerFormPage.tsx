@@ -34,7 +34,7 @@ export function CustomerFormPage() {
   }
 
   return (
-    <PageShell description="Mantencion de clientes mayoristas." icon={UserPlus} title="Nuevo cliente">
+    <PageShell description="Creación de nuevos clientes." icon={UserPlus} title="Nuevo cliente">
       <FormCard onSubmit={onSubmit} submitLabel="Guardar cliente" title="Datos del cliente" submitDisabled={isSubmitting}>
         <TextField label="RUT" placeholder="76222333-0" value={rut} onChange={setRut} />
         <TextField label="Nombre" placeholder="Nombre del negocio" value={name} onChange={setName} />

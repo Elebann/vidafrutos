@@ -198,3 +198,19 @@ export interface DeliveryEvidence {
   url: string
   evidence_type: number
 }
+
+export interface ReportData {
+  loading: boolean
+  kpis: {
+    totalRevenue: number
+    totalOrders: number
+    avgTicket: number
+    topProductName: string
+  }
+  salesByMonth: { month: string; quantity: number; revenue: number }[]
+  topProducts: { name: string; quantity: number; revenue: number }[]
+  bottomProducts: { name: string; quantity: number; revenue: number }[]
+  categoryDistribution: { name: string; value: number; revenue: number }[]
+  monthlyRanking: { month: string; revenue: number }[]
+  paymentBreakdown: { method: string; count: number; total: number }[]
+}

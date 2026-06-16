@@ -1,22 +1,21 @@
 import * as React from "react"
 import {
   Archive,
-  BarChart3,
   Boxes,
-  ClipboardList,
-  Factory,
-  FileClock,
+  CalendarDays,
+  History,
   GalleryVerticalEndIcon,
   House,
   Package,
   PackagePlus,
-  Receipt,
-  ShieldCheck,
   Truck,
   UserPlus,
   Users,
   Bean,
   PackageOpen,
+  ChartBar,
+  Settings,
+  DollarSign,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -55,7 +54,7 @@ const data = {
         {
           title: "Pedidos",
           url: "/pedidos",
-          icon: <ClipboardList />,
+          icon: <Package />,
         },
         {
           title: "Nuevo pedido",
@@ -90,7 +89,7 @@ const data = {
         {
           title: "Producción diaria",
           url: "/produccion",
-          icon: <Factory />,
+          icon: <CalendarDays />,
         },
         {
           title: "Armado de caja",
@@ -110,7 +109,7 @@ const data = {
         {
           title: "Pagos",
           url: "/pagos",
-          icon: <Receipt />,
+          icon: <DollarSign />,
         },
       ],
     },
@@ -120,17 +119,17 @@ const data = {
         {
           title: "Reportes",
           url: "/reportes",
-          icon: <BarChart3 />,
+          icon: <ChartBar />,
         },
         {
           title: "Administración",
           url: "/admin/usuarios",
-          icon: <ShieldCheck />,
+          icon: <Settings />,
         },
         {
           title: "Auditoría",
           url: "/auditoria",
-          icon: <FileClock />,
+          icon: <History />,
         },
         {
           title: "Nuevo cliente",
@@ -140,7 +139,7 @@ const data = {
         {
           title: "Productos",
           url: "/productos",
-          icon: <Package />,
+          icon: <Bean />,
         },
       ],
     },

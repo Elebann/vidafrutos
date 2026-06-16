@@ -1,5 +1,10 @@
 import { useParams } from "react-router-dom"
-import { ClipboardCheck } from "lucide-react"
+import {
+  Archive,
+  ClipboardCheck,
+  DollarSign,
+  Truck,
+} from "lucide-react"
 import { FormCard, TextField } from "@/components/app/form-card"
 import { PageShell, SectionCard } from "@/components/app/page-shell"
 import { EvidenceSection } from "@/components/app/EvidenceSection.tsx"
@@ -53,11 +58,41 @@ export function OrderDetailPage() {
   if (!order) return <div>Loading...</div>
 
   const customer = getCustomer(order.customerId)
+
+  const action = (() => {
+    switch (order.state) {
+      case "En produccion":
+        return {
+          icon: Archive,
+          label: "Armar Pedido",
+          to: `/despacho/${order.id}`,
+        }
+
+      case "Listo para despacho":
+        return {
+          icon: Truck,
+          label: "Ir a Envíos",
+          to: `/enviados`,
+        }
+
+      case "Enviado":
+        return {
+          icon: DollarSign,
+          label: "ir a Pagos",
+          to: `/pagos`,
+        }
+
+      default:
+        return undefined
+    }
+  })()
+
   return (
     <PageShell
       description={`${customer?.name} - solicitado para ${formatDate(order.date)}`}
       icon={ClipboardCheck}
       title={`Pedido #${order.id}`}
+      action={action}
     >
       <div className="grid gap-4">
         <SectionCard title="Productos solicitados">
@@ -96,6 +131,7 @@ export function OrderDetailPage() {
           <FormCard
             submitLabel="Actualizar estado"
             title="Cambio de estado"
+            description={"Solo Administrador"}
             onSubmit={async (e) => {
               e.preventDefault()
               if (!order) return
