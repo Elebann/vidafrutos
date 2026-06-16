@@ -380,6 +380,7 @@ export function NewOrderPage() {
                   type="number"
                   value={String(currentQuantity)}
                   className="font-heading"
+                  inputMode="numeric"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCurrentQuantity(Number(e.target.value || 0))
                   }

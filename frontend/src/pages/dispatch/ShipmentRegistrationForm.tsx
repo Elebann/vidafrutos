@@ -113,6 +113,7 @@ export function ShipmentRegistrationForm({
             type="number"
             placeholder={`Confirma el número de pedido`}
             value={orderNumber}
+            inputMode="numeric"
             onChange={(e) => {
               setOrderNumber(e.target.value)
               setError("")

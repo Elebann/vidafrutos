@@ -7,14 +7,6 @@ interface PdfContext {
   productsById: Map<number, string>
 }
 
-function formatDateEs(date: Date): string {
-  return date.toLocaleDateString("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-}
-
 function getMondayOfCurrentWeek(date: Date): Date {
   const dayOfWeek = date.getDay()
   const monday = new Date(date)
@@ -103,6 +95,7 @@ export function downloadSuggestionsPdf(forecasts: Forecast[], ctx: PdfContext): 
     })
   }
 
-  const filename = `produccion-sugerida-${formatDateEs(today).replace(/\//g, "-")}.pdf`
-  doc.save(filename)
+  const blob = doc.output("blob")
+  const url = URL.createObjectURL(blob)
+  window.open(url, "_blank")
 }

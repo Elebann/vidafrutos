@@ -19,9 +19,7 @@ export function downloadDispatchPdf(orders: Order[], ctx: PdfContext): void {
   if (orders.length === 0) return
 
   const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" })
-  const today = new Date()
   const pageWidth = doc.internal.pageSize.getWidth()
-  const pageHeight = doc.internal.pageSize.getHeight()
 
   orders.forEach((order, index) => {
     if (index > 0) {
@@ -63,19 +61,9 @@ export function downloadDispatchPdf(orders: Order[], ctx: PdfContext): void {
         1: { halign: "right", cellWidth: 100, fontStyle: "bold" },
       },
     })
-
-    // Footer
-    const pageCount = (doc as jsPDF & { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages()
-    doc.setFontSize(8)
-    doc.setTextColor(120, 120, 120)
-    doc.text(
-      `VidaFrutos - Página ${index + 1} de ${orders.length}`,
-      pageWidth - 40,
-      pageHeight - 20,
-      { align: "right" },
-    )
   })
 
-  const filename = `despacho-${formatDateEs(today).replace(/\//g, "-")}.pdf`
-  doc.save(filename)
+  const blob = doc.output("blob")
+  const url = URL.createObjectURL(blob)
+  window.open(url, "_blank")
 }
