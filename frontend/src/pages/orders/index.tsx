@@ -85,7 +85,7 @@ export function OrdersPage() {
       />
 
       <ResponsiveList
-        columns={["Pedido", "Cliente", "Estado", "Acción"]}
+        columns={["Pedido", "Cliente", "Estado", "Monto", "Acción"]}
         items={paginatedOrders}
         keyExtractor={(order) => order.id}
         renderCard={(order) => <OrderCard order={order} />}

@@ -7,6 +7,7 @@ import type {
   ForecastStatus,
   Invoice,
   Order,
+  OrderHistory,
   OrderState,
   PackagedStock,
   Product,
@@ -28,6 +29,7 @@ import type {
   ApiInvoice,
   ApiOrder,
   ApiOrderDetail,
+  ApiOrderHistory,
   ApiProduct,
   ApiRole,
   ApiStockMovement,
@@ -43,9 +45,17 @@ const ORDER_STATES: readonly OrderState[] = [
   "Pago confirmado",
 ]
 
-const STOCK_MOVEMENT_TYPES: readonly StockMovementType[] = ["ENTRADA", "SALIDA", "AJUSTE", "MERMA"]
+const STOCK_MOVEMENT_TYPES: readonly StockMovementType[] = [
+  "ENTRADA",
+  "SALIDA",
+  "AJUSTE",
+  "MERMA",
+]
 
-function numberFrom(value: number | string | null | undefined, fallback = 0): number {
+function numberFrom(
+  value: number | string | null | undefined,
+  fallback = 0
+): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : fallback
 }
@@ -54,18 +64,24 @@ function stringFrom(value: string | null | undefined, fallback = ""): string {
   return value ?? fallback
 }
 
-function idFrom(value: ApiId | { id: number }, fallback = 0): number {
-  if (typeof value === "object" && value !== null) return value.id
+function idFrom(value: ApiId | { id: number } | null | undefined, fallback = 0): number {
+  if (value === null || value === undefined) return fallback
+  if (typeof value === "object") return value.id ?? fallback
   return numberFrom(value, fallback)
 }
 
 function orderStateFrom(value: ApiOrder["state"]): OrderState {
-  const state = typeof value === "object" && value !== null ? value.state : value
-  return ORDER_STATES.includes(state as OrderState) ? (state as OrderState) : "Registrado"
+  const state =
+    typeof value === "object" && value !== null ? value.state : value
+  return ORDER_STATES.includes(state as OrderState)
+    ? (state as OrderState)
+    : "Registrado"
 }
 
 function movementTypeFrom(value: string | null | undefined): StockMovementType {
-  return STOCK_MOVEMENT_TYPES.includes(value as StockMovementType) ? (value as StockMovementType) : "AJUSTE"
+  return STOCK_MOVEMENT_TYPES.includes(value as StockMovementType)
+    ? (value as StockMovementType)
+    : "AJUSTE"
 }
 
 export function mapProduct(product: ApiProduct): Product {
@@ -111,7 +127,9 @@ export function mapRawStock(product: ApiProduct): RawStock {
   return {
     productId: product.id,
     totalGrams: numberFrom(
-      product.raw_stock?.total_grams ?? product.raw_stock?.quantity_kilogram ?? product.raw_stock?.quantity
+      product.raw_stock?.total_grams ??
+        product.raw_stock?.quantity_kilogram ??
+        product.raw_stock?.quantity
     ),
   }
 }
@@ -141,7 +159,23 @@ function mapOrderDetail(detail: ApiOrderDetail) {
   return {
     productId: idFrom(detail.product),
     quantity: numberFrom(detail.quantity),
-    ...(price === null || price === undefined ? {} : { price: numberFrom(price) }),
+    ...(price === null || price === undefined
+      ? {}
+      : { price: numberFrom(price) }),
+  }
+}
+
+export function mapOrderHistory(history: ApiOrderHistory): OrderHistory {
+  return {
+    orderId: idFrom(history.order),
+    date: history.change_date ?? history.date ?? "",
+    user:
+      typeof history.user === "object" && history.user !== null
+        ? (history.user.username ?? "")
+        : (history.user ?? ""),
+    field: history.affected_field ?? history.field ?? "",
+    previousValue: history.prev_value ?? history.previousValue ?? "",
+    newValue: history.new_value ?? history.newValue ?? "",
   }
 }
 
@@ -153,13 +187,7 @@ export function mapOrder(order: ApiOrder): Order {
     date: order.date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
     requestedDate: order.requested_date ?? undefined,
     details: (order.details ?? []).map(mapOrderDetail),
-    history: (order.history ?? []).map((history) => ({
-      date: history.change_date ?? history.date ?? "",
-      user: typeof history.user === "object" && history.user !== null ? history.user.username ?? "" : history.user ?? "",
-      field: history.affected_field ?? history.field ?? "",
-      previousValue: history.prev_value ?? history.previousValue ?? "",
-      newValue: history.new_value ?? history.newValue ?? "",
-    })),
+    history: (order.history ?? []).map(mapOrderHistory),
   }
 }
 
@@ -186,7 +214,9 @@ export function mapStockMovement(movement: ApiStockMovement): StockMovement {
   }
 }
 
-export function mapDeliveryEvidence(evidence: ApiDeliveryEvidence): DeliveryEvidence {
+export function mapDeliveryEvidence(
+  evidence: ApiDeliveryEvidence
+): DeliveryEvidence {
   return {
     id: evidence.id,
     orderId: numberFrom(evidence.order_id),
@@ -236,18 +266,22 @@ export function mapForecastStatus(status: ApiForecastStatus): ForecastStatus {
       name: f.name,
       importance: numberFrom(f.importance),
     })),
-    classificationMetrics: (status.classification_metrics ?? []).map((metric) => ({
-      className: metric.class_name,
-      accuracy: numberFrom(metric.accuracy),
-      recall: numberFrom(metric.recall),
-      precision: numberFrom(metric.precision),
-      f1Score: numberFrom(metric.f1_score),
-      support: numberFrom(metric.support),
-    })),
+    classificationMetrics: (status.classification_metrics ?? []).map(
+      (metric) => ({
+        className: metric.class_name,
+        accuracy: numberFrom(metric.accuracy),
+        recall: numberFrom(metric.recall),
+        precision: numberFrom(metric.precision),
+        f1Score: numberFrom(metric.f1_score),
+        support: numberFrom(metric.support),
+      })
+    ),
   }
 }
 
-export function mapForecastDiagnostics(diagnostics: ApiForecastDiagnostics): ForecastDiagnostics {
+export function mapForecastDiagnostics(
+  diagnostics: ApiForecastDiagnostics
+): ForecastDiagnostics {
   return {
     summary: mapForecastStatus(diagnostics.summary),
     confusionMatrix: {

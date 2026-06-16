@@ -29,7 +29,7 @@ export function OrderCard({ order }: { order: Order }) {
       </div>
       <div className="mb-3 grid gap-2">{order.details.slice(0, 2).map((detail) => <ProductLine key={detail.productId} {...detail} />)}</div>
       <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="font-semibold">{formatCurrency(getOrderTotal(order))}</span>
+        <span className="font-semibold mr-auto">{formatCurrency(getOrderTotal(order))}</span>
         {hasMissing && <StatusBadge tone="red">Con faltantes</StatusBadge>}
         <Button size="sm" render={<Link to={`/pedidos/${order.id}`} />} variant="outline">
           Ver detalle

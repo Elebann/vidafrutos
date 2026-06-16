@@ -117,7 +117,7 @@ const data = {
       label: "Administración",
       items: [
         {
-          title: "Reportes (WIP)",
+          title: "Reportes",
           url: "/reportes",
           icon: <BarChart3 />,
         },

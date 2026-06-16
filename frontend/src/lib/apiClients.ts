@@ -9,6 +9,7 @@ import {
   mapForecastStatus,
   mapInvoice,
   mapOrder,
+  mapOrderHistory,
   mapPackagedStock,
   mapProduct,
   mapRawStock,
@@ -25,6 +26,7 @@ import type {
   ForecastStatus,
   Invoice,
   Order,
+  OrderHistory,
   PackagedStock,
   Product,
   RawStock,
@@ -42,6 +44,7 @@ import type {
   ApiForecastTrainResult,
   ApiInvoice,
   ApiOrder,
+  ApiOrderHistory,
   ApiProduct,
   ApiRole,
   ApiStockMovement,
@@ -163,6 +166,41 @@ export async function updateOrderState(orderId: number, stateId: number, observa
   const body = observation ? { state: stateId, observation } : { state: stateId }
   const response = await api.patch(`/api/orders/${orderId}/`, body)
   return response.data
+}
+
+export async function fetchOrderHistory(orderId: number): Promise<OrderHistory[]> {
+  try {
+    const response = await api.get<ApiOrderHistory[]>(`/api/orders/${orderId}/history/`)
+    return response.data.map(mapOrderHistory)
+  } catch (error) {
+    console.error(`Error loading order ${orderId} history`, error)
+    return []
+  }
+}
+
+export interface PaginatedHistory {
+  count: number
+  next: string | null
+  previous: string | null
+  results: OrderHistory[]
+}
+
+export async function fetchAllHistory(page = 1, pageSize = 20): Promise<PaginatedHistory> {
+  try {
+    const response = await api.get<{ count: number; next: string | null; previous: string | null; results: ApiOrderHistory[] }>(
+      "/api/orders/history/",
+      { params: { page, page_size: pageSize } }
+    )
+    return {
+      count: response.data.count,
+      next: response.data.next,
+      previous: response.data.previous,
+      results: response.data.results.map(mapOrderHistory),
+    }
+  } catch (error) {
+    console.error("Error loading history", error)
+    return { count: 0, next: null, previous: null, results: [] }
+  }
 }
 
 export function fetchInvoices(): Promise<Invoice[]> {
@@ -391,6 +429,8 @@ export default {
   fetchOrderStates,
   updateOrderState,
   fetchOrderDetails,
+  fetchOrderHistory,
+  fetchAllHistory,
   fetchInvoices,
   createInvoice,
   fetchMovements,
