@@ -157,6 +157,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://192.168.56.1:5173',
     'http://192.168.100.29:5173',
     'http://192.168.1.152:5173',
+    'http://172.20.10.2:5173',
     'https://server-production-36cb.up.railway.app',
     'https://elebann.github.io'
 ]
@@ -170,6 +171,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://192.168.56.1:5173',
     'http://192.168.100.29:5173',
     'http://192.168.1.152:5173',
+    'http://172.20.10.2:5173',
     'https://server-production-36cb.up.railway.app',
     'https://elebann.github.io'
 ]
