@@ -61,7 +61,7 @@ export function HorizontalBarChart({ data }: { data: { name: string; quantity: n
 
   return (
     <ResponsiveContainer width="100%" height={Math.max(200, data.length * 48)}>
-      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, left: 80, bottom: 5 }}>
+      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#ece6e0" />
         <XAxis type="number" tick={{ fontSize: 12 }} stroke="#6b6b6b" />
         <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} stroke="#6b6b6b" width={75} />
@@ -89,7 +89,7 @@ export function CategoryPieChart({ data }: { data: { name: string; value: number
           dataKey="value"
           nameKey="name"
           paddingAngle={2}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
         >
           {data.map((_, i) => (
             <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -119,7 +119,7 @@ export function MonthlyRankingChart({ data }: { data: { month: string; revenue: 
 
   return (
     <ResponsiveContainer width="100%" height={Math.max(200, data.length * 48)}>
-      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, left: 80, bottom: 5 }}>
+      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#ece6e0" />
         <XAxis type="number" tick={{ fontSize: 12 }} stroke="#6b6b6b" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
         <YAxis dataKey="month" type="category" tick={{ fontSize: 11 }} stroke="#6b6b6b" width={75} />
@@ -147,7 +147,7 @@ export function PaymentPieChart({ data }: { data: { method: string; count: numbe
           dataKey="total"
           nameKey="method"
           paddingAngle={2}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
         >
           {data.map((_, i) => (
             <Cell key={i} fill={COLORS[i % COLORS.length]} />

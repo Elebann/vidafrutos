@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { UserPlus } from "lucide-react"
+import { User, UserPlus } from "lucide-react"
 import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
 import { Button } from "@/components/ui/button"
@@ -57,7 +57,7 @@ export function CustomersPage() {
     <PageShell
       action={{ icon: UserPlus, label: "Nuevo cliente", to: "/clientes/nuevo" }}
       description={"Listado total de clientes"}
-      icon={UserPlus}
+      icon={User}
       title="Clientes"
     >
       <SearchBar placeholder="Buscar cliente por nombre o RUT" />

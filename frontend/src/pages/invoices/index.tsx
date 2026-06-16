@@ -162,7 +162,7 @@ export function InvoicesPage() {
         </span>
         <Select
           value={MONTHS[selectedMonth]}
-          onValueChange={(v) => setSelectedMonth(MONTHS.indexOf(v))}
+          onValueChange={(v) => setSelectedMonth(MONTHS.indexOf(v ?? MONTHS[0]))}
         >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Selecciona un mes" />

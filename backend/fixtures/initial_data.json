@@ -22,10 +22,10 @@
   {"model": "products.product", "pk": 10, "fields": {"category": 2, "name": "Banana Chip", "price": 900, "grams": 45, "active": true}},
   {"model": "products.product", "pk": 11, "fields": {"category": 2, "name": "Mango", "price": 1200, "grams": 45, "active": true}},
 
-  {"model": "products.product", "pk": 12, "fields": {"category": 3, "name": "Mix Tropical", "price": 1400, "grams": 75, "active": true}},
-  {"model": "products.product", "pk": 13, "fields": {"category": 3, "name": "Mix Semillas", "price": 1200, "grams": 75, "active": true}},
-  {"model": "products.product", "pk": 14, "fields": {"category": 3, "name": "Mix Tradición", "price": 1000, "grams": 80, "active": true}},
-  {"model": "products.product", "pk": 15, "fields": {"category": 3, "name": "Mix Energético", "price": 1400, "grams": 75, "active": true}},
+  {"model": "products.product", "pk": 12, "fields": {"category": 3, "name": "Mix Tropical", "price": 1400, "grams": 75, "active": false}},
+  {"model": "products.product", "pk": 13, "fields": {"category": 3, "name": "Mix Semillas", "price": 1200, "grams": 75, "active": false}},
+  {"model": "products.product", "pk": 14, "fields": {"category": 3, "name": "Mix Tradición", "price": 1000, "grams": 80, "active": false}},
+  {"model": "products.product", "pk": 15, "fields": {"category": 3, "name": "Mix Energético", "price": 1400, "grams": 75, "active": false}},
 
   {"model": "products.product", "pk": 16, "fields": {"category": 4, "name": "Mani Japonés Natural", "price": 1000, "grams": 80, "active": true}},
   {"model": "products.product", "pk": 17, "fields": {"category": 4, "name": "Mani Japonés Merken", "price": 1000, "grams": 80, "active": true}},
@@ -70,47 +70,17 @@
   {"model": "products.packagedstock", "pk": 17, "fields": {"product": 17, "available_stock": 156, "allocated_stock": 0, "minimum_stock": 100}},
   {"model": "products.packagedstock", "pk": 18, "fields": {"product": 18, "available_stock": 112, "allocated_stock": 0, "minimum_stock": 80}},
 
-  {"model": "clients.customer", "pk": 1, "fields": {"rut": "76543210-8", "name": "Minimarket Los Aromos", "address": "Av. Los Aromos 1240, Maipu"}},
-  {"model": "clients.customer", "pk": 2, "fields": {"rut": "77111222-3", "name": "Botilleria Don Pedro", "address": "Camino Melipilla 8890, Cerrillos"}},
-  {"model": "clients.customer", "pk": 3, "fields": {"rut": "78555100-1", "name": "Almacen Santa Marta", "address": "Santa Marta 440, Santiago"}},
-  {"model": "clients.customer", "pk": 4, "fields": {"rut": "75439233-3", "name": "Piñén", "address": "Calle Alegría, Macul"}},
-  {"model": "clients.customer", "pk": 5, "fields": {"rut": "70322156-8", "name": "Universidad de Santiago", "address": "Calle meada 67"}},
-  {"model": "clients.customer", "pk": 6, "fields": {"rut": "71223462-5", "name": "Minimarket Karl Marx", "address": "Santa Marta 440, Santiago"}},
+  {"model": "clients.customer", "pk": 1, "fields": {"rut": "76543210-8", "name": "Global Market", "address": "Av. Vicuña Mackenna 1215, 7780006 Santiago, Región Metropolitana"}},
+  {"model": "clients.customer", "pk": 2, "fields": {"rut": "77111222-3", "name": "Minimarket Hi Market", "address": "Av. Beauchef 1317, 8370612 Santiago, Región Metropolitana"}},
+  {"model": "clients.customer", "pk": 3, "fields": {"rut": "78555100-1", "name": "Minimarket Osorno", "address": "Lord Cochrane 277, 8320000 Santiago, Región Metropolitana"}},
+  {"model": "clients.customer", "pk": 4, "fields": {"rut": "75439233-3", "name": "Botillería El Oasis", "address": "San Diego 658, Santiago, Región Metropolitana"}},
+  {"model": "clients.customer", "pk": 5, "fields": {"rut": "70322156-8", "name": "Botilleria Olimpia", "address": "Francisco Pizarro 1685, 8370744 Santiago, Región Metropolitana"}},
+  {"model": "clients.customer", "pk": 6, "fields": {"rut": "71223462-5", "name": "Botillería Gato Emilio", "address": "La Comuna 5563, 8990467 Lo Prado, Región Metropolitana"}},
 
   {"model": "orders.orderstate", "pk": 1, "fields": {"state": "Registrado"}},
   {"model": "orders.orderstate", "pk": 2, "fields": {"state": "Validado"}},
   {"model": "orders.orderstate", "pk": 3, "fields": {"state": "En produccion"}},
   {"model": "orders.orderstate", "pk": 4, "fields": {"state": "Listo para despacho"}},
   {"model": "orders.orderstate", "pk": 5, "fields": {"state": "Enviado"}},
-  {"model": "orders.orderstate", "pk": 6, "fields": {"state": "Pago confirmado"}},
-
-  {"model": "orders.order", "pk": 1, "fields": {"customer": 1, "state": 6, "date": "2026-05-13T00:00:00Z"}},
-  {"model": "orders.order", "pk": 2, "fields": {"customer": 2, "state": 6, "date": "2026-05-13T00:00:00Z"}},
-  {"model": "orders.order", "pk": 3, "fields": {"customer": 5, "state": 3, "date": "2026-05-14T00:00:00Z"}},
-  {"model": "orders.order", "pk": 4, "fields": {"customer": 3, "state": 3, "date": "2026-05-14T00:00:00Z"}},
-  {"model": "orders.order", "pk": 5, "fields": {"customer": 4, "state": 6, "date": "2026-05-13T00:00:00Z"}},
-
-  {"model": "orders.orderdetail", "pk": 1, "fields": {"order": 1, "product": 6, "quantity": 20}},
-  {"model": "orders.orderdetail", "pk": 2, "fields": {"order": 1, "product": 5, "quantity": 20}},
-  {"model": "orders.orderdetail", "pk": 3, "fields": {"order": 2, "product": 3, "quantity": 80}},
-  {"model": "orders.orderdetail", "pk": 4, "fields": {"order": 2, "product": 4, "quantity": 30}},
-  {"model": "orders.orderdetail", "pk": 5, "fields": {"order": 3, "product": 8, "quantity": 40}},
-  {"model": "orders.orderdetail", "pk": 6, "fields": {"order": 3, "product": 10, "quantity": 20}},
-  {"model": "orders.orderdetail", "pk": 7, "fields": {"order": 4, "product": 14, "quantity": 60}},
-  {"model": "orders.orderdetail", "pk": 8, "fields": {"order": 4, "product": 13, "quantity": 40}},
-  {"model": "orders.orderdetail", "pk": 9, "fields": {"order": 5, "product": 2, "quantity": 20}},
-  {"model": "orders.orderdetail", "pk": 10, "fields": {"order": 5, "product": 4, "quantity": 10}},
-
-  {"model": "orders.history", "pk": 1, "fields": {"order": 3, "user": 1, "change_date": "2026-05-14T10:20:00Z", "affected_field": "estado", "prev_value": "Registrado", "new_value": "Validado"}},
-  {"model": "orders.history", "pk": 2, "fields": {"order": 4, "user": 1, "change_date": "2026-05-14T12:05:00Z", "affected_field": "estado", "prev_value": "Validado", "new_value": "En produccion"}},
-  {"model": "orders.history", "pk": 3, "fields": {"order": 5, "user": 1, "change_date": "2026-05-14T08:40:00Z", "affected_field": "estado", "prev_value": "En produccion", "new_value": "Listo para despacho"}},
-
-  {"model": "inventory.rawstockmovement", "pk": 1, "fields": {"product": 1, "user": 1, "movement_type": "ENTRADA", "quantity": "5000", "date": "2026-05-14T09:10:00Z", "description": "Produccion diaria"}},
-  {"model": "inventory.rawstockmovement", "pk": 2, "fields": {"product": 2, "user": 1, "movement_type": "ENTRADA", "quantity": "6000", "date": "2026-05-14T12:00:00Z", "description": "Reserva pedido #1025"}},
-  {"model": "inventory.rawstockmovement", "pk": 3, "fields": {"product": 4, "user": 1, "movement_type": "MERMA", "quantity": "3000", "date": "2026-05-13T17:35:00Z", "description": "Envases dañados"}},
-  {"model": "inventory.rawstockmovement", "pk": 4, "fields": {"product": 3, "user": 1, "movement_type": "MERMA", "quantity": "2000", "date": "2026-05-12T16:15:00Z", "description": "Pérdida"}},
-
-  {"model": "billing.invoice", "pk": 1, "fields": {"order": 1, "user": 1, "date": "2026-05-13T00:00:00Z", "total": "48000", "payment_method": "TRANSFER"}},
-  {"model": "billing.invoice", "pk": 2, "fields": {"order": 2, "user": 1, "date": "2026-05-13T00:00:00Z", "total": "77000", "payment_method": "CASH"}},
-  {"model": "billing.invoice", "pk": 3, "fields": {"order": 5, "user": 1, "date": "2026-05-14T00:00:00Z", "total": "19000", "payment_method": "TRANSFER"}}
+  {"model": "orders.orderstate", "pk": 6, "fields": {"state": "Pago confirmado"}}
 ]

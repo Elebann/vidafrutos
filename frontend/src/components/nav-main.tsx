@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { NavLink } from "react-router-dom"
+import { TriangleAlert } from "lucide-react"
 
 export function NavMain({
   groups,
@@ -39,7 +40,7 @@ export function NavMain({
                 </SidebarMenuButton>
                 {alertUrls.includes(item.url) && (
                   <SidebarMenuBadge>
-                    <span className="h-2 w-2 rounded-full bg-red-500" />
+                    <TriangleAlert size={16} className={'text-red-500/90'}/>
                   </SidebarMenuBadge>
                 )}
               </SidebarMenuItem>

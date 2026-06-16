@@ -1,4 +1,4 @@
-import { PackagePlus } from "lucide-react"
+import { PackagePlus, Package } from "lucide-react"
 
 import { PageShell } from "@/components/app/page-shell"
 import { ResponsiveList } from "@/components/app/responsive-list"
@@ -75,7 +75,7 @@ export function OrdersPage() {
         to: "/pedidos/nuevo",
       }}
       description="Registro, validacion de stock y seguimiento de pedidos."
-      icon={PackagePlus}
+      icon={Package}
       title="Pedidos"
     >
       <SearchBar

@@ -167,7 +167,7 @@ function mapOrderDetail(detail: ApiOrderDetail) {
 
 export function mapOrderHistory(history: ApiOrderHistory): OrderHistory {
   return {
-    orderId: idFrom(history.order),
+    orderId: history.order?.id ?? 0,
     date: history.change_date ?? history.date ?? "",
     user:
       typeof history.user === "object" && history.user !== null
