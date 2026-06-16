@@ -1,13 +1,16 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from .models import DeliveryEvidence, History, Order, OrderDetail, OrderState
+from .request_user import HistoryTrackingMixin
 from .serializers import (
 	DeliveryEvidenceSerializer,
 	DeliveryEvidenceWriteSerializer,
+	HistoryListSerializer,
 	HistorySerializer,
-	HistoryWriteSerializer,
 	OrderDetailSerializer,
 	OrderDetailWriteSerializer,
 	OrderSerializer,
@@ -27,7 +30,7 @@ class OrderStateViewSet(viewsets.ModelViewSet):
 		return OrderStateSerializer
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(HistoryTrackingMixin, viewsets.ModelViewSet):
 	queryset = Order.objects.select_related('customer', 'state').prefetch_related('orderdetail_set__product').all()
 
 	def get_queryset(self):
@@ -115,8 +118,14 @@ class OrderViewSet(viewsets.ModelViewSet):
 			status=status.HTTP_201_CREATED,
 		)
 
+	@action(detail=True, methods=['get'], url_path='history')
+	def history(self, request, pk=None):
+		order = self.get_object()
+		history = History.objects.filter(order=order).select_related('user').order_by('-change_date')
+		return Response(HistoryListSerializer(history, many=True).data)
 
-class OrderDetailViewSet(viewsets.ModelViewSet):
+
+class OrderDetailViewSet(HistoryTrackingMixin, viewsets.ModelViewSet):
 	queryset = OrderDetail.objects.select_related('order', 'product').all()
 
 	def get_serializer_class(self):
@@ -125,10 +134,39 @@ class OrderDetailViewSet(viewsets.ModelViewSet):
 		return OrderDetailSerializer
 
 
-class HistoryViewSet(viewsets.ModelViewSet):
+class HistoryPagination(PageNumberPagination):
+	page_size = 20
+	page_size_query_param = 'page_size'
+	max_page_size = 100
+
+
+class HistoryViewSet(ReadOnlyModelViewSet):
+	pagination_class = HistoryPagination
 	queryset = History.objects.select_related('order', 'user').all()
 
 	def get_serializer_class(self):
-		if self.action in ['create', 'update', 'partial_update']:
-			return HistoryWriteSerializer
+		if self.action == 'list':
+			return HistoryListSerializer
 		return HistorySerializer
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		params = self.request.query_params
+
+		order_id = params.get('order')
+		if order_id:
+			queryset = queryset.filter(order_id=order_id)
+
+		user_id = params.get('user')
+		if user_id:
+			queryset = queryset.filter(user_id=user_id)
+
+		field = params.get('field')
+		if field:
+			queryset = queryset.filter(affected_field=field)
+
+		since = params.get('since')
+		if since:
+			queryset = queryset.filter(change_date__gte=since)
+
+		return queryset.order_by('-change_date')

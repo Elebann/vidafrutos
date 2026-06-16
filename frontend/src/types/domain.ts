@@ -41,6 +41,7 @@ export type OrderState =
   | "Pago confirmado"
 
 export interface OrderHistory {
+  orderId: number
   date: string
   user: string
   field: string

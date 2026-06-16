@@ -102,11 +102,26 @@ class HistorySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'change_date']
 
 
+class HistoryOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'date']
+        read_only_fields = fields
+
+
+class HistoryListSerializer(serializers.ModelSerializer):
+    order = HistoryOrderSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = History
+        fields = ['id', 'order', 'user', 'change_date', 'affected_field', 'prev_value', 'new_value']
+        read_only_fields = fields
+
+
 class HistoryWriteSerializer(serializers.ModelSerializer):
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    # todo: Esto debería ir registrandose solo, así que quizá haya que expandir este endpoint.
 
     class Meta:
         model = History

@@ -27,10 +27,15 @@ class OrderDetail(models.Model):
 class History(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='history')
     user = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='history')
-    change_date = models.DateTimeField(auto_now_add=True)
+    change_date = models.DateTimeField(auto_now_add=True, db_index=True)
     affected_field = models.CharField(max_length=100)
     prev_value = models.TextField()
     new_value = models.TextField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['order', 'change_date']),
+        ]
 
     def __str__(self):
         return f"Pedido #{self.order_id} - {self.affected_field}"

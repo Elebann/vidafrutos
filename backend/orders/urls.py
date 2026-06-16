@@ -5,9 +5,9 @@ from .views import HistoryViewSet, OrderDetailViewSet, OrderStateViewSet, OrderV
 
 router = DefaultRouter()
 router.register(r'states', OrderStateViewSet, basename='order-state')
-router.register(r'', OrderViewSet, basename='order')
-router.register(r'details', OrderDetailViewSet, basename='order-detail')
 router.register(r'history', HistoryViewSet, basename='order-history')
+router.register(r'details', OrderDetailViewSet, basename='order-detail')
+router.register(r'', OrderViewSet, basename='order')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -56,6 +56,7 @@ export interface ApiOrderDetail {
 }
 
 export interface ApiOrderHistory {
+  order?: { id?: number | null } | null
   change_date?: string | null
   date?: string | null
   user?: string | { username?: string | null } | null
