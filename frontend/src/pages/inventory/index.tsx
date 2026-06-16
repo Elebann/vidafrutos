@@ -8,11 +8,13 @@ import { ensureProducts } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
 import type { PackagedStock, RawStock } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
+import { useInventoryAlerts } from "@/contexts/inventory-alert-context"
 
 
 export function InventoryPage() {
   const [packagedStock, setPackagedStock] = useState<PackagedStock[]>([])
   const [rawStock, setRawStock] = useState<RawStock[]>([])
+  const { setLowStockProducts } = useInventoryAlerts()
 
   useEffect(() => {
     let cancelled = false
@@ -27,6 +29,26 @@ export function InventoryPage() {
 
         setPackagedStock(packaged)
         setRawStock(raw)
+
+        const lowStock = raw
+          .filter((s) => {
+            const product = getProduct(s.productId)
+            return product?.active !== false
+          })
+          .map((s) => {
+            const product = getProduct(s.productId)
+            if (!product) return null
+            const paquetesPosibles = Math.floor(s.totalGrams / product.grams)
+            return {
+              productName: product.name,
+              kgDisponible: s.totalGrams / 1000,
+              gramsRequeridos: product.grams,
+              paquetesPosibles,
+            }
+          })
+          .filter((item): item is NonNullable<typeof item> => item !== null && item.paquetesPosibles < 100)
+
+        setLowStockProducts(lowStock)
       } catch {
         // keep page usable even if one request fails
       }
@@ -35,7 +57,7 @@ export function InventoryPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [setLowStockProducts])
 
   return (
     <PageShell action={{ icon: Archive, label: "Actualizar inventario", to: "/inventario/actualizar" }} description="Stock envasado, materia prima y trazabilidad de movimientos." icon={Boxes} title="Inventario">
@@ -93,14 +115,27 @@ export function InventoryPage() {
         </SectionCard>
         <SectionCard title="Materia prima">
           <div className="grid gap-2">
-            {rawStock.map((stock) => (
-              <ProductLine
-                key={stock.productId}
-                productId={stock.productId}
-                quantity={Math.round(stock.totalGrams)}
-                variant="inventory"
-              />
-            ))}
+            {rawStock
+              .filter((stock) => {
+                const product = getProduct(stock.productId)
+                return product?.active !== false
+              })
+              .map((stock) => {
+                const product = getProduct(stock.productId)
+                const paquetesPosibles = product ? Math.floor(stock.totalGrams / product.grams) : 0
+                const lowStock = paquetesPosibles < 100
+
+                return (
+                  <ProductLine
+                    key={stock.productId}
+                    productId={stock.productId}
+                    quantity={Math.round(stock.totalGrams)}
+                    variant="inventory"
+                    lowStock={lowStock}
+                    paquetesPosibles={paquetesPosibles}
+                  />
+                )
+              })}
           </div>
         </SectionCard>
       </div>
