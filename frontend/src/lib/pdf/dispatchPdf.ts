@@ -1,14 +1,17 @@
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import type { Order } from "@/types/domain"
+import { parseIsoDateOnly } from "@/lib/format"
 
 interface PdfContext {
   customersById: Map<number, string>
   productsById: Map<number, string>
 }
 
-function formatDateEs(date: Date): string {
-  return date.toLocaleDateString("es-CL", {
+function formatDateEs(dateOnly: string): string {
+  const d = parseIsoDateOnly(dateOnly)
+  if (!d) return dateOnly
+  return d.toLocaleDateString("es-CL", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -35,7 +38,7 @@ export function downloadDispatchPdf(orders: Order[], ctx: PdfContext): void {
 
     doc.setFont("helvetica", "normal")
     doc.setFontSize(11)
-    doc.text(`Fecha: ${formatDateEs(new Date(order.date))}`, 40, 72)
+    doc.text(`Fecha: ${formatDateEs(order.date)}`, 40, 72)
     doc.text(`Cliente: ${customerName}`, 40, 90)
 
     // Separator line

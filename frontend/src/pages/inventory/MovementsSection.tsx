@@ -4,7 +4,7 @@ import { ensureProducts, getProduct } from "@/lib/dataCache"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { StockMovement } from "@/types/domain"
-import { formatDate } from "@/lib/utils.ts"
+import { formatDateTime } from "@/lib/format"
 
 export function MovementsSection() {
   const [movements, setMovements] = useState<StockMovement[]>([])
@@ -46,7 +46,7 @@ export function MovementsSection() {
                   )}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatDate(movement.date)}
+                  {formatDateTime(movement.date)}
                 </p>
               </div>
               <StatusBadge

@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import apiClients from "@/lib/apiClients"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { formatCurrency, formatDateTime } from "@/lib/format"
 import type { Invoice } from "@/types/domain"
 
 import { InvoiceFormPage } from "./InvoiceFormPage"
@@ -56,7 +56,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
     <>
       <td className="px-4 py-3 font-medium">#{invoice.id}</td>
       <td className="px-4 py-3">#{invoice.orderId}</td>
-      <td className="px-4 py-3">{formatDate(invoice.date)}</td>
+      <td className="px-4 py-3">{formatDateTime(invoice.date)}</td>
       <td className="px-4 py-3">{PAYMENT_METHOD_LABEL[invoice.paymentMethod] ?? invoice.paymentMethod}</td>
       <td className="px-4 py-3 font-medium">{formatCurrency(invoice.total)}</td>
     </>
@@ -85,8 +85,10 @@ export function InvoicesPage() {
   const monthFiltered = useMemo(
     () =>
       invoices.filter((inv) => {
-        const invDate = new Date(inv.date)
-        return invDate.getMonth() === selectedMonth
+        const d = new Date(inv.date)
+        if (Number.isNaN(d.getTime())) return false
+        const selectedDate = new Date(d.getFullYear(), selectedMonth, 1)
+        return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
       }),
     [invoices, selectedMonth],
   )

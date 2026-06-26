@@ -9,6 +9,11 @@ import { ensureProducts, getProduct } from "@/lib/dataCache"
 import { downloadSuggestionsPdf } from "@/lib/pdf/suggestionsPdf"
 import type { Forecast, ForecastDiagnostics } from "@/types/domain"
 import { useAuth } from "@/hooks/use-auth"
+import {
+  formatDateLong,
+  formatDateTime,
+  formatDateTimeFromEpoch,
+} from "@/lib/format"
 
 function riskTone(risk: Forecast["risk"]): BadgeTone {
   if (risk === "Alto") return "red"
@@ -29,6 +34,7 @@ export function ProductionPage() {
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false)
   const [diagnostics, setDiagnostics] = useState<ForecastDiagnostics | null>(null)
   const [isDiagnosticsLoading, setIsDiagnosticsLoading] = useState(false)
+  const [lastTrainedAt, setLastTrainedAt] = useState<number | null>(null)
   const [lastTrainedIso, setLastTrainedIso] = useState<string | null>(null)
   const { user } = useAuth()
 
@@ -42,6 +48,7 @@ export function ProductionPage() {
         apiClients.fetchForecastStatus(),
       ])
       setForecasts(list)
+      setLastTrainedAt(status.lastTrainedAt)
       setLastTrainedIso(status.lastTrainedIso)
     } catch (error) {
       console.error("Error cargando sugerencias", error)
@@ -91,6 +98,7 @@ export function ProductionPage() {
     try {
       const result = await apiClients.trainForecasts()
       setForecasts(result.suggestions)
+      setLastTrainedAt(result.status.lastTrainedAt)
       setLastTrainedIso(result.status.lastTrainedIso)
       toast.success(`Modelo reentrenado en ${result.elapsedSeconds.toFixed(1)} s`)
     } catch (error) {
@@ -119,9 +127,11 @@ export function ProductionPage() {
     window.print()
   }
 
-  const lastTrainedLabel = lastTrainedIso
-    ? new Date(lastTrainedIso).toLocaleString("es-CL")
-    : "Aún no entrenado"
+  const lastTrainedLabel = (() => {
+    if (lastTrainedAt) return formatDateTimeFromEpoch(lastTrainedAt)
+    if (lastTrainedIso) return formatDateTime(lastTrainedIso)
+    return "Aún no entrenado"
+  })()
 
   return (
     <PageShell
@@ -210,11 +220,7 @@ export function ProductionPage() {
                             className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 text-[11px]"
                           >
                             <span className="font-medium text-neutral-700">
-                              {new Date(`${day.date}T00:00:00`).toLocaleDateString("es-CL", {
-                                weekday: "long",
-                                day: "2-digit",
-                                month: "2-digit",
-                              })}
+                              {formatDateLong(day.date)}
                             </span>
                             <span className="text-muted-foreground">
                               V {day.expectedSales} / P {day.suggestedProduction}
@@ -323,9 +329,11 @@ function DiagnosticsModal({ diagnostics, isLoading, onClose, onPrint }: Diagnost
                   <SummaryRow
                     label="Ultimo entrenamiento"
                     value={
-                      diagnostics.summary.lastTrainedIso
-                        ? new Date(diagnostics.summary.lastTrainedIso).toLocaleString("es-CL")
-                        : "-"
+                      diagnostics.summary.lastTrainedAt
+                        ? formatDateTimeFromEpoch(diagnostics.summary.lastTrainedAt)
+                        : diagnostics.summary.lastTrainedIso
+                          ? formatDateTime(diagnostics.summary.lastTrainedIso)
+                          : "-"
                     }
                   />
                   <SummaryRow label="Filas de entrenamiento" value={String(diagnostics.summary.nRows)} />

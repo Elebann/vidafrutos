@@ -10,6 +10,7 @@ import {
   isImageExtension,
 } from "@/lib/evidenceUrl"
 import type { DeliveryEvidence } from "@/types/domain"
+import { formatDateTime } from "@/lib/format"
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -117,7 +118,7 @@ export function EvidenceSection(
           </div>
           <p className="text-xs text-muted-foreground">
             Subido por {evidence.uploadedBy.username || "usuario"} el{" "}
-            {new Date(evidence.uploadedAt).toLocaleString()}
+            {formatDateTime(evidence.uploadedAt)}
           </p>
           <a
             href={fullUrl}

@@ -16,12 +16,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { ShipmentRegistrationForm } from "./ShipmentRegistrationForm"
+import { formatDate, getTodayLocalIsoDate } from "@/lib/format"
 
 const ITEMS_PER_PAGE = 10
-
-function getTodayString(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 export function DeliveredOrders() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -52,7 +49,7 @@ export function DeliveredOrders() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const todayStr = getTodayString()
+  const todayStr = getTodayLocalIsoDate()
 
   const readyOrders = useMemo(
     () => orders.filter((o) => o.state === "Listo para despacho"),
@@ -69,17 +66,17 @@ export function DeliveredOrders() {
   }, [readyOrders, searchQuery])
 
   const todayOrders = useMemo(
-    () => filteredOrders.filter((o) => o.date.slice(0, 10) === todayStr),
+    () => filteredOrders.filter((o) => o.date === todayStr),
     [filteredOrders, todayStr],
   )
 
   const overdueOrders = useMemo(
-    () => filteredOrders.filter((o) => o.date.slice(0, 10) < todayStr),
+    () => filteredOrders.filter((o) => o.date < todayStr),
     [filteredOrders, todayStr],
   )
 
   const otherOrders = useMemo(
-    () => filteredOrders.filter((o) => o.date.slice(0, 10) > todayStr),
+    () => filteredOrders.filter((o) => o.date > todayStr),
     [filteredOrders, todayStr],
   )
 
@@ -188,7 +185,7 @@ export function DeliveredOrders() {
             </div>
             <p className="text-sm text-muted-foreground">{customer?.name}</p>
             <p className="text-xs text-muted-foreground">
-              Fecha: {new Date(order.date).toLocaleDateString("es-CL")}
+              Fecha: {formatDate(order.date)}
             </p>
           </div>
           {variant === "overdue" ? (

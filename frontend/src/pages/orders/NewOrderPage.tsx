@@ -18,6 +18,7 @@ import apiClients from "@/lib/apiClients"
 import { ensurePackagedStock, ensureProducts, getPackagedStock } from "@/lib/dataCache"
 import type { Product, Customer } from "@/types/domain"
 import { cn } from "@/lib/utils"
+import { getTodayLocalIsoDate } from "@/lib/format"
 
 type OrderProduct = { productId: number | null; quantity: number }
 
@@ -157,7 +158,7 @@ export function NewOrderPage() {
   // single static selector state
   const [currentProductId, setCurrentProductId] = useState<number | null>(null)
   const [currentQuantity, setCurrentQuantity] = useState<number>(1)
-  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState<string>(() => getTodayLocalIsoDate())
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -306,7 +307,7 @@ export function NewOrderPage() {
             <Input
               type="date"
               value={date}
-              min={new Date().toISOString().slice(0, 10)}
+              min={getTodayLocalIsoDate()}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setDate(e.target.value)
               }

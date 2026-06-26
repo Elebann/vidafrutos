@@ -10,7 +10,7 @@ class OrderState(models.Model):
 class Order(models.Model):
     customer = models.ForeignKey('clients.Customer', on_delete=models.PROTECT)
     state = models.ForeignKey(OrderState, on_delete=models.PROTECT)
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return f"Pedido #{self.id}"

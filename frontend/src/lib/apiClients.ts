@@ -1,5 +1,6 @@
 import api from "@/lib/api"
 import { getProduct, getPackagedStock, updatePackagedStockInCache } from "@/lib/dataCache"
+import { ensureIsoDateOnly, getTodayLocalIsoDate } from "@/lib/format"
 import {
   mapCategory,
   mapCustomer,
@@ -144,7 +145,7 @@ export async function fetchOrderDetails(orderId: number): Promise<Order> {
       id: orderId,
       customerId: 0,
       state: "Registrado",
-      date: new Date().toISOString().slice(0, 10),
+      date: getTodayLocalIsoDate(),
       requestedDate: undefined,
       details: [],
       history: [],
@@ -348,7 +349,7 @@ export async function fetchForecastDiagnostics(): Promise<ForecastDiagnostics> {
 
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   try {
-    const orderDate = payload.date ? `${payload.date}T00:00:00Z` : undefined
+    const orderDate = payload.date ? ensureIsoDateOnly(payload.date) : undefined
     const orderResponse = await api.post<ApiOrder>("/api/orders/", {
       customer: payload.customerId,
       date: orderDate,
@@ -403,8 +404,8 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
       id: Date.now(),
       customerId: payload.customerId ?? 0,
       state: "Registrado",
-      date: new Date().toISOString().slice(0, 10),
-      requestedDate: payload.date,
+      date: payload.date ? ensureIsoDateOnly(payload.date) : getTodayLocalIsoDate(),
+      requestedDate: payload.date ? ensureIsoDateOnly(payload.date) : undefined,
       details: (payload.items ?? []).map((item) => ({
         productId: item.productId ?? 0,
         quantity: item.quantity,

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { getCustomer, getProduct, ensureCustomers, ensureProducts, ensurePackagedStock } from "@/lib/dataCache"
 import { useEffect, useMemo, useState } from "react"
 import apiClients from "@/lib/apiClients"
+import { formatDate, getTodayLocalIsoDate } from "@/lib/format"
 import type { Order } from "@/types/domain"
 import { ProductLine } from "@/components/app/ProductLine"
 import { useNavigate } from "react-router-dom"
@@ -13,10 +14,6 @@ import { downloadDispatchPdf } from "@/lib/pdf/dispatchPdf"
 import toast from "react-hot-toast"
 
 const ITEMS_PER_PAGE = 7
-
-function getTodayString(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 export function DispatchPage() {
   const navigate = useNavigate()
@@ -31,7 +28,7 @@ export function DispatchPage() {
     apiClients.fetchOrders().then(setOrders).catch(() => {})
   }, [])
 
-  const todayStr = getTodayString()
+  const todayStr = getTodayLocalIsoDate()
 
   const dispatchOrders = useMemo(
     () => orders.filter((o) => o.state === "En produccion"),
@@ -39,20 +36,20 @@ export function DispatchPage() {
   )
 
   const todayOrders = useMemo(
-    () => dispatchOrders.filter((o) => o.date.slice(0, 10) === todayStr),
+    () => dispatchOrders.filter((o) => o.date === todayStr),
     [dispatchOrders, todayStr],
   )
 
   const otherOrders = useMemo(() => {
-    const list = dispatchOrders.filter((o) => o.date.slice(0, 10) !== todayStr)
+    const list = dispatchOrders.filter((o) => o.date !== todayStr)
     return list.sort((a, b) => {
-      const cmp = new Date(a.date).getTime() - new Date(b.date).getTime()
+      const cmp = a.date.localeCompare(b.date)
       return sortDir === "asc" ? cmp : -cmp
     })
-  }, [dispatchOrders, sortDir])
+  }, [dispatchOrders, sortDir, todayStr])
 
   const overdueOrders = useMemo(
-    () => dispatchOrders.filter((o) => o.date.slice(0, 10) < todayStr),
+    () => dispatchOrders.filter((o) => o.date < todayStr),
     [dispatchOrders, todayStr],
   )
 
@@ -172,7 +169,7 @@ export function DispatchPage() {
                       {getCustomer(order.customerId)?.name}
                     </p>
                     <p className="text-xs text-red-600">
-                      Fecha: {new Date(order.date).toLocaleDateString("es-CL")}
+                      Fecha: {formatDate(order.date)}
                     </p>
                   </div>
                   <StatusBadge tone="red">Atrasado</StatusBadge>
@@ -226,7 +223,7 @@ export function DispatchPage() {
                       {getCustomer(order.customerId)?.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Fecha: {new Date(order.date).toLocaleDateString("es-CL")}
+                      Fecha: {formatDate(order.date)}
                     </p>
                   </div>
                   <StatusBadge tone="yellow">{order.state}</StatusBadge>

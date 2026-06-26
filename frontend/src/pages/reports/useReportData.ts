@@ -61,6 +61,7 @@ export function useReportData(period: PeriodMonths) {
 
     const filtered = orders.filter((o) => {
       const d = new Date(o.date)
+      if (Number.isNaN(d.getTime())) return false
       return d >= cutoff && d <= now
     })
 
