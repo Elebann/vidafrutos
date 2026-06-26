@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import apiClients from "@/lib/apiClients"
-import { ensurePackagedStock, ensureProducts, getPackagedStock } from "@/lib/dataCache"
-import type { Product, Customer } from "@/types/domain"
+import { ensurePackagedStock, ensureProducts, refreshPackagedStock } from "@/lib/dataCache"
+import type { Product, Customer, PackagedStock } from "@/types/domain"
 import { cn } from "@/lib/utils"
 import { getTodayLocalIsoDate } from "@/lib/format"
 
@@ -153,6 +153,7 @@ function EmptyOrderState() {
 export function NewOrderPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [products, setProducts] = useState<Product[]>([])
+  const [packagedStock, setPackagedStock] = useState<PackagedStock[]>([])
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null)
   const [orderProducts, setOrderProducts] = useState<OrderProduct[]>([])
   // single static selector state
@@ -164,6 +165,7 @@ export function NewOrderPage() {
   useEffect(() => {
     ensurePackagedStock().catch(() => {})
     ensureProducts().catch(() => {})
+    refreshPackagedStock().then(setPackagedStock).catch(() => {})
     apiClients.fetchCustomers().then(setCustomers).catch(() => {})
     apiClients.fetchProducts().then(setProducts).catch(() => {})
 
@@ -192,7 +194,7 @@ export function NewOrderPage() {
     const insufficientItems = payload.items
       .map((item) => {
         if (!item.productId) return null
-        const available = getPackagedStock(item.productId)?.availableStock ?? 0
+        const available = packagedStock.find((s) => s.productId === item.productId)?.availableStock ?? 0
         if (item.quantity > available) {
           const product = products.find((p) => p.id === item.productId)
           return product?.name ?? `Producto ${item.productId}`
@@ -340,7 +342,7 @@ export function NewOrderPage() {
                       {products
                         .filter((p) => p.active)
                         .map((product) => {
-                          const stock = getPackagedStock(product.id)
+                          const stock = packagedStock.find((s) => s.productId === product.id)
                           const availableStock = stock?.availableStock ?? 0
                           const minimumStock = stock?.minimumStock ?? 0
                           const warningStock = minimumStock * 1.5
@@ -462,7 +464,7 @@ export function NewOrderPage() {
               if (!op.productId) return null
               const product = products.find((p) => p.id === op.productId)
               const availableStock =
-                getPackagedStock(op.productId)?.availableStock ?? 0
+                packagedStock.find((s) => s.productId === op.productId)?.availableStock ?? 0
               return (
                 <OrderItemRow
                   key={op.productId ?? i}

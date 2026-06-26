@@ -26,6 +26,11 @@ export async function ensurePackagedStock(): Promise<void> {
   packagedStockCache = await apiClients.fetchPackagedStock()
 }
 
+export async function refreshPackagedStock(): Promise<PackagedStock[]> {
+  packagedStockCache = await apiClients.fetchPackagedStock()
+  return packagedStockCache
+}
+
 export function getProduct(productId: number): Product | undefined {
   return productCache.get(productId)
 }

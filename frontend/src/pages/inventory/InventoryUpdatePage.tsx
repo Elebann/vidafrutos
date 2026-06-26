@@ -7,6 +7,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select"
 import { useEffect, useState, type FormEvent } from "react"
 import apiClients from "@/lib/apiClients"
+import { refreshPackagedStock } from "@/lib/dataCache"
 import type { ApiProduct } from "@/lib/apiTypes"
 import toast from "react-hot-toast"
 
@@ -180,6 +181,8 @@ export function InventoryUpdatePage() {
       setPackagedMermaEnabled(false)
       setPackagedMermaGrams("")
       setPackagedComment("")
+
+      await refreshPackagedStock().catch(() => {})
     } catch (error) {
       console.error("Error updating packaged stock", error)
       toast.error("No se pudo guardar el envasado. Intenta nuevamente.",{position: "top-center"})
