@@ -80,7 +80,7 @@ export function downloadSuggestionsPdf(forecasts: Forecast[], ctx: PdfContext): 
 
     autoTable(doc, {
       startY: startY + 20,
-      head: [["Productos", "Stock Actual", "Venta esperadas", "Producir"]],
+      head: [["Productos", "Stock Actual", "Ventas esperadas", "Producir"]],
       body: body.length > 0 ? body : [["(sin sugerencias para hoy)", "", "", ""]],
       styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
       headStyles: { fillColor: [128, 79, 23], textColor: 255, fontStyle: "bold" },

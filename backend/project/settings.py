@@ -10,9 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
 from datetime import timedelta
-import os
 import os
 import dj_database_url
 from pathlib import Path
@@ -91,9 +89,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-import os
-import dj_database_url
 
 if os.environ.get("DATABASE_URL"):
     DATABASES = {

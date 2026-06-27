@@ -45,6 +45,8 @@ class ForecastStatusSerializer(serializers.Serializer):
     lookback_days = serializers.IntegerField()
     top_features = serializers.ListField(child=serializers.DictField())
     classification_metrics = serializers.ListField(child=ForecastMetricSerializer(), required=False)
+    raw_classification_metrics = serializers.ListField(child=ForecastMetricSerializer(), required=False)
+    final_classification_metrics = serializers.ListField(child=ForecastMetricSerializer(), required=False)
 
 
 class ConfusionMatrixSerializer(serializers.Serializer):
@@ -70,5 +72,7 @@ class ConfidenceRowSerializer(serializers.Serializer):
 class ForecastDiagnosticsSerializer(serializers.Serializer):
     summary = ForecastStatusSerializer()
     confusion_matrix = ConfusionMatrixSerializer()
+    raw_confusion_matrix = ConfusionMatrixSerializer(required=False)
+    final_confusion_matrix = ConfusionMatrixSerializer(required=False)
     confidence_table = serializers.ListField(child=ConfidenceRowSerializer())
     message = serializers.CharField(required=False, allow_blank=True)

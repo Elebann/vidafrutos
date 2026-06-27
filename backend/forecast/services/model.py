@@ -7,10 +7,9 @@ The model is persisted to disk with joblib and reloaded on demand.
 
 from __future__ import annotations
 
-import math
 import os
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +32,8 @@ SALES_LOOKBACK_DAYS = int(os.environ.get("FORECAST_LOOKBACK_DAYS", "90"))
 MIN_TRAINING_ROWS = 30
 TRAIN_TEST_SPLIT = 0.2
 RANDOM_STATE = 42
+SALE_PROBABILITY_THRESHOLD = float(os.environ.get("FORECAST_SALE_PROBABILITY_THRESHOLD", "0.35"))
+HIGH_DEMAND_CLASS_THRESHOLD = int(os.environ.get("FORECAST_HIGH_DEMAND_CLASS_THRESHOLD", "200"))
 
 
 @dataclass
@@ -343,19 +344,18 @@ def _sale_probability(frame: pd.DataFrame) -> np.ndarray:
     sale_rate = frame.get("sale_rate_30", pd.Series([0.0] * len(frame))).astype(float).to_numpy()
     weekday_score = frame.get("weekday_sales_score", pd.Series([0.0] * len(frame))).astype(float).to_numpy()
     dispatch = frame.get("is_dispatch_day", pd.Series([0] * len(frame))).astype(float).to_numpy()
-    dispatch_floor = np.where(dispatch > 0, np.maximum(sale_rate, 0.35), 0.0)
-    return np.clip(np.maximum.reduce([sale_rate, weekday_score * 0.75, dispatch_floor]), 0.0, 1.0)
+    probability = (0.72 * sale_rate) + (0.18 * weekday_score) + (0.10 * dispatch)
+    return np.clip(probability, 0.0, 1.0)
 
 
 def _expected_units(mean: np.ndarray, frame: pd.DataFrame) -> np.ndarray:
     probability = _sale_probability(frame)
     conditional_mean = frame.get("product_nonzero_mean", pd.Series([0.0] * len(frame))).astype(float).to_numpy()
     recent_mean = frame.get("product_recent_mean", pd.Series([0.0] * len(frame))).astype(float).to_numpy()
-    baseline = np.maximum(conditional_mean * probability, recent_mean)
+    baseline = (0.70 * conditional_mean * probability) + (0.30 * recent_mean)
     blended = (0.65 * mean) + (0.35 * baseline)
-    dispatch = frame.get("is_dispatch_day", pd.Series([0] * len(frame))).astype(float).to_numpy()
-    dispatch_floor = np.where(dispatch > 0, baseline * 0.45, 0.0)
-    return np.maximum(0.0, np.maximum(blended, dispatch_floor))
+    expected = np.maximum(0.0, blended)
+    return np.where(probability >= SALE_PROBABILITY_THRESHOLD, expected, 0.0)
 
 
 def _confidence_score(
@@ -433,12 +433,15 @@ def diagnostics() -> dict[str, Any]:
     train, test = _split_train_test(frame)
     if test.empty:
         _, labels = _demand_class_definition(np.array([]))
+        empty_matrix = {
+            "labels": labels,
+            "matrix": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        }
         return {
             "summary": _summary_dict(state),
-            "confusion_matrix": {
-                "labels": labels,
-                "matrix": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            },
+            "confusion_matrix": empty_matrix,
+            "raw_confusion_matrix": empty_matrix,
+            "final_confusion_matrix": empty_matrix,
             "confidence_table": [],
             "message": "Datos insuficientes para calcular diagnóstico.",
         }
@@ -452,28 +455,49 @@ def diagnostics() -> dict[str, Any]:
 
     edges, labels = _demand_class_definition(train[target_col].astype(float).to_numpy())
     actual_bins = np.digitize(y_test, edges)
-    pred_bins = np.digitize(np.maximum(0, y_pred), edges)
-    matrix = np.zeros((3, 3), dtype=int)
-    for a, p in zip(actual_bins, pred_bins):
-        if 0 <= a <= 2 and 0 <= p <= 2:
-            matrix[a, p] += 1
+    raw_pred_bins = np.digitize(np.maximum(0, y_pred_raw), edges)
+    final_pred_bins = np.digitize(np.maximum(0, y_pred), edges)
+    raw_matrix = _confusion_matrix(actual_bins, raw_pred_bins, len(labels))
+    final_matrix = _confusion_matrix(actual_bins, final_pred_bins, len(labels))
 
     confidence_table = _build_confidence_table(test, y_pred, y_std, edges, labels, calibration)
 
     summary = _summary_dict(state)
     summary["confidence_method"] = CONFIDENCE_METHOD
     summary["calibration_global_coverage"] = calibration.global_coverage
-    summary["classification_metrics"] = _classification_metrics(actual_bins, pred_bins, labels)
+    summary["classification_metrics"] = _classification_metrics(actual_bins, final_pred_bins, labels)
+    summary["raw_classification_metrics"] = _classification_metrics(actual_bins, raw_pred_bins, labels)
+    summary["final_classification_metrics"] = summary["classification_metrics"]
 
+    raw_confusion_matrix = {
+        "labels": labels,
+        "edges": [float(e) for e in edges],
+        "matrix": raw_matrix.tolist(),
+    }
+    final_confusion_matrix = {
+        "labels": labels,
+        "edges": [float(e) for e in edges],
+        "matrix": final_matrix.tolist(),
+    }
     return {
         "summary": summary,
-        "confusion_matrix": {
-            "labels": labels,
-            "edges": [float(e) for e in edges],
-            "matrix": matrix.tolist(),
-        },
+        "confusion_matrix": final_confusion_matrix,
+        "raw_confusion_matrix": raw_confusion_matrix,
+        "final_confusion_matrix": final_confusion_matrix,
         "confidence_table": confidence_table,
     }
+
+
+def _confusion_matrix(
+    actual_bins: np.ndarray,
+    pred_bins: np.ndarray,
+    n_labels: int,
+) -> np.ndarray:
+    matrix = np.zeros((n_labels, n_labels), dtype=int)
+    for actual, predicted in zip(actual_bins, pred_bins):
+        if 0 <= actual < n_labels and 0 <= predicted < n_labels:
+            matrix[actual, predicted] += 1
+    return matrix
 
 
 def _summary_dict(state: ModelState) -> dict[str, Any]:
@@ -499,18 +523,10 @@ def _summary_dict(state: ModelState) -> dict[str, Any]:
 def _demand_class_definition(values: np.ndarray) -> tuple[np.ndarray, list[str]]:
     """Return practical classes for intermittent demand.
 
-    The previous percentile split often produced classes like ``<=0``,
-    ``0-1`` and ``>1``. For an operation team, it is clearer to separate
-    no-sale days from ordinary non-zero sales and true high-demand days.
+    Keep stable business classes so the confusion matrix does not change
+    meaning every time the lookback window changes.
     """
-    if len(values) == 0:
-        return np.array([0.5, 1.5]), ["Sin venta", "1 unidad", "2+ unidades"]
-
-    nonzero = values[values > 0]
-    if len(nonzero) == 0:
-        return np.array([0.5, 1.5]), ["Sin venta", "1 unidad", "2+ unidades"]
-
-    high_threshold = max(1, int(math.ceil(float(np.quantile(nonzero, 0.75)))))
+    high_threshold = max(1, HIGH_DEMAND_CLASS_THRESHOLD)
     edges = np.array([0.5, high_threshold + 0.5], dtype=float)
     middle_label = f"1-{high_threshold} unidades" if high_threshold > 1 else "1 unidad"
     high_label = f"{high_threshold + 1}+ unidades"
@@ -574,13 +590,16 @@ def _classification_metrics(
         return rows
 
     per_class_accuracy: list[float] = []
+    total = len(actual_bins)
     for idx, label in enumerate(labels):
         y_true = (actual_bins == idx).astype(int)
         y_pred = (pred_bins == idx).astype(int)
         support = int(y_true.sum())
+        true_positive = int(((actual_bins == idx) & (pred_bins == idx)).sum())
+        true_negative = int(((actual_bins != idx) & (pred_bins != idx)).sum())
         class_accuracy = (
-            float(((actual_bins == idx) & (pred_bins == idx)).sum() / support)
-            if support > 0
+            float((true_positive + true_negative) / total)
+            if total > 0
             else 0.0
         )
         per_class_accuracy.append(class_accuracy)

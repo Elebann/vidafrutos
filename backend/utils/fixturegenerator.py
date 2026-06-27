@@ -39,6 +39,18 @@ NORMAL_DEMAND = [1, 2, 3, 5, 6, 10, 12, 13, 14, 15, 18]
 OPTIONAL_DEMAND = [4]  # Nueces: producto inactivo en mock_data.json.
 ACTIVE_PRODUCTS = HIGH_DEMAND + LOW_DEMAND + NORMAL_DEMAND
 
+SALE_PROBABILITY = {
+    "high": 0.90,
+    "normal": 0.66,
+    "low": 0.30,
+}
+
+WEEKLY_SKIP_PROBABILITY = {
+    "high": 0.03,
+    "normal": 0.12,
+    "low": 0.34,
+}
+
 PRODUCT_PRICES = {
     1: 600,
     2: 600,
@@ -162,6 +174,29 @@ def product_day_factor(product_id, day):
     return 0.50 + random.uniform(-0.06, 0.06)
 
 
+def demand_group(product_id):
+    if product_id in HIGH_DEMAND:
+        return "high"
+    if product_id in LOW_DEMAND:
+        return "low"
+    return "normal"
+
+
+def sale_occurs(product_id, day, factor):
+    group = demand_group(product_id)
+    probability = SALE_PROBABILITY[group]
+
+    # Baja suavemente la presencia en semanas flojas y la sube en semanas altas,
+    # sin convertir martes/jueves en una venta garantizada para todos los SKU.
+    probability *= min(1.12, max(0.72, factor))
+
+    # Algunos productos tienen afinidad real por martes o jueves, pero esa senal
+    # no debe borrar la intermitencia por producto.
+    day_bias = abs(product_day_factor(product_id, day) - 0.5)
+    probability += min(0.05, day_bias)
+    return random.random() < max(0.02, min(0.98, probability))
+
+
 def planned_units(product_id, day, factor):
     weekly_target = WEEKLY_TARGET_UNITS[product_id]
     day_units = weekly_target * product_day_factor(product_id, day) * factor
@@ -193,9 +228,13 @@ def split_units_into_lines(total_units):
     return lines
 
 
-def build_day_plan(day, factor):
+def build_day_plan(day, factor, skipped_products):
     plan = []
     for product_id in ACTIVE_PRODUCTS:
+        if product_id in skipped_products:
+            continue
+        if not sale_occurs(product_id, day, factor):
+            continue
         units = planned_units(product_id, day, factor)
         for quantity in split_units_into_lines(units):
             plan.append((product_id, quantity))
@@ -243,11 +282,16 @@ invoice_pk = 1
 
 for week in sorted({week_start(day) for day in dispatch_dates(START_DATE, END_DATE)}):
     factor = week_factor(week)
+    skipped_products = {
+        product_id
+        for product_id in ACTIVE_PRODUCTS
+        if random.random() < WEEKLY_SKIP_PROBABILITY[demand_group(product_id)]
+    }
     for day in dispatch_dates(week, week + timedelta(days=6)):
         if day < START_DATE or day > END_DATE:
             continue
 
-        day_plan = build_day_plan(day, factor)
+        day_plan = build_day_plan(day, factor, skipped_products)
         for chunk in chunk_day_plan(day_plan):
             customer = random.choice(CUSTOMERS)
             order_date = random_delivery_datetime(day)
