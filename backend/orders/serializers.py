@@ -39,6 +39,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
     state = OrderStateSerializer(read_only=True)
     details = OrderDetailNestedSerializer(source='orderdetail_set', many=True, read_only=True)
+    date = serializers.DateField(read_only=True)
 
     class Meta:
         model = Order
@@ -49,6 +50,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderWriteSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
     state = serializers.PrimaryKeyRelatedField(queryset=OrderState.objects.all())
+    date = serializers.DateField(required=False)
 
     class Meta:
         model = Order
@@ -70,6 +72,7 @@ class OrderWithDetailsSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
     state = OrderStateSerializer(read_only=True)
     details = OrderDetailNestedSerializer(source='orderdetail_set', many=True, read_only=True)
+    date = serializers.DateField(read_only=True)
 
     class Meta:
         model = Order
@@ -103,6 +106,8 @@ class HistorySerializer(serializers.ModelSerializer):
 
 
 class HistoryOrderSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(read_only=True)
+
     class Meta:
         model = Order
         fields = ['id', 'date']
