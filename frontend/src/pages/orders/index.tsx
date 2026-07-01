@@ -11,12 +11,14 @@ import { ensureProducts, ensureCustomers, ensurePackagedStock, getCustomer } fro
 import type { Order } from "@/types/domain"
 import { useAuth } from "@/hooks/use-auth"
 import { canAccessPath } from "@/lib/permissions"
+import { getValidationMessage, lettersNumbersSpaces20Schema } from "@/schemas/validationSchemas"
 
 export function OrdersPage() {
   const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchError, setSearchError] = useState("")
   const itemsPerPage = 15
 
   useEffect(() => {
@@ -66,6 +68,7 @@ export function OrdersPage() {
   )
 
   function handleSearchChange(value: string) {
+    setSearchError(getValidationMessage(lettersNumbersSpaces20Schema, value))
     setSearchQuery(value)
     setCurrentPage(1)
   }
@@ -85,6 +88,7 @@ export function OrdersPage() {
         placeholder="Buscar por cliente, estado o numero de pedido"
         value={searchQuery}
         onChange={handleSearchChange}
+        error={searchError}
       />
 
       <ResponsiveList

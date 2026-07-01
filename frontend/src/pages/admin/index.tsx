@@ -225,7 +225,8 @@ export function AdminUsersPage() {
               <Input
                 id="username"
                 type="text"
-                placeholder="Nombre sin espacios"
+                placeholder="Solo letras y espacios"
+                maxLength={50}
                 {...register("username")}
                 aria-invalid={errors.username ? "true" : "false"}
                 className={cn(errors.username && "border-red-500")}

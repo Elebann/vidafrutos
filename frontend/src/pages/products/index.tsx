@@ -7,6 +7,9 @@ import apiClients from "@/lib/apiClients"
 import type { Product, Category } from "@/types/domain"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { FieldError } from "@/components/ui/field"
+import { cn } from "@/lib/utils"
+import { getValidationMessage, lettersSpaces20Schema } from "@/schemas/validationSchemas"
 
 type FilterStatus = "all" | "active" | "inactive"
 
@@ -89,6 +92,7 @@ export function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [searchTerm, setSearchTerm] = useState<string>("")
+  const [searchError, setSearchError] = useState("")
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all")
   const [togglingId, setTogglingId] = useState<number | null>(null)
 
@@ -131,6 +135,11 @@ export function ProductsPage() {
     }
   }
 
+  function handleSearchChange(value: string) {
+    setSearchError(getValidationMessage(lettersSpaces20Schema, value))
+    setSearchTerm(value)
+  }
+
   // Filter products based on search and status
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -159,11 +168,13 @@ export function ProductsPage() {
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
+                aria-invalid={searchError ? "true" : "false"}
                 placeholder="Buscar..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className={cn("pl-8", searchError && "border-red-500")}
               />
+              {searchError && <FieldError className="mt-1" errors={[{ message: searchError }]} />}
             </div>
             <div className="flex gap-2">
               <Button

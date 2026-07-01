@@ -1,8 +1,9 @@
 import type React from "react"
 import { Button } from "@/components/ui/button"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { SectionCard } from "@/components/app/page-shell"
+import { cn } from "@/lib/utils"
 
 export function FormCard({
   children,
@@ -44,18 +45,31 @@ export function TextField({
   type = "text",
   value,
   onChange,
+  error,
+  maxLength,
 }: {
   label: string
   placeholder?: string
   type?: string
   value?: string
   onChange?: (value: string) => void
+  error?: string
+  maxLength?: number
 }) {
   return (
     <FieldGroup>
-      <Field>
+      <Field data-invalid={!!error}>
         <FieldLabel>{label}</FieldLabel>
-        <Input value={value} placeholder={placeholder} type={type} onChange={onChange ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value) : undefined} />
+        <Input
+          aria-invalid={error ? "true" : "false"}
+          className={cn(error && "border-red-500")}
+          maxLength={maxLength}
+          value={value}
+          placeholder={placeholder}
+          type={type}
+          onChange={onChange ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value) : undefined}
+        />
+        {error && <FieldError errors={[{ message: error }]} />}
       </Field>
     </FieldGroup>
   )

@@ -314,16 +314,16 @@ function DiagnosticsModal({ diagnostics, isLoading, onClose, onPrint }: Diagnost
 
           {diagnostics && !isLoading && (
             <>
-              <section className="rounded-md border border-[#643800]/15 bg-[#fff8f3] px-3 py-2">
-                <p className="text-xs leading-relaxed text-[#5b4a3b]">
-                  <strong className="font-semibold text-[#643800]">¿Qué es la confianza?</strong> Porcentaje
-                  de veces que un intervalo de prediccion del mismo ancho relativo (incertidumbre entre
-                  los 300 arboles) contuvo el valor real durante el entrenamiento.
-                  <span className="ml-1 font-medium text-[#643800]">≥70% Alta</span> ·
-                  <span className="ml-1 font-medium text-[#a87a3a]">50-69% Media</span> ·
-                  <span className="ml-1 font-medium text-[#9a4a2a]">&lt;50% Baja</span>.
-                </p>
-              </section>
+              {/*<section className="rounded-md border border-[#643800]/15 bg-[#fff8f3] px-3 py-2">*/}
+              {/*  <p className="text-xs leading-relaxed text-[#5b4a3b]">*/}
+              {/*    <strong className="font-semibold text-[#643800]">¿Qué es la confianza?</strong> Porcentaje*/}
+              {/*    de veces que un intervalo de prediccion del mismo ancho relativo (incertidumbre entre*/}
+              {/*    los 300 arboles) contuvo el valor real durante el entrenamiento.*/}
+              {/*    <span className="ml-1 font-medium text-[#643800]">≥70% Alta</span> ·*/}
+              {/*    <span className="ml-1 font-medium text-[#a87a3a]">50-69% Media</span> ·*/}
+              {/*    <span className="ml-1 font-medium text-[#9a4a2a]">&lt;50% Baja</span>.*/}
+              {/*  </p>*/}
+              {/*</section>*/}
 
               <section>
                 <h3 className="mb-2 text-sm font-semibold text-[#643800]">Resumen del modelo</h3>
@@ -349,9 +349,9 @@ function DiagnosticsModal({ diagnostics, isLoading, onClose, onPrint }: Diagnost
                     label="Ventana de entrenamiento"
                     value={`${diagnostics.summary.lookbackDays} dias`}
                   />
-                  <SummaryRow label="MAE (test)" value={diagnostics.summary.testMae.toFixed(2)} />
-                  <SummaryRow label="R2 (test)" value={diagnostics.summary.testR2.toFixed(3)} />
-                  <SummaryRow label="MAPE (test)" value={`${diagnostics.summary.testMape.toFixed(1)}%`} />
+                  {/*<SummaryRow label="MAE (test)" value={diagnostics.summary.testMae.toFixed(2)} />*/}
+                  {/*<SummaryRow label="R2 (test)" value={diagnostics.summary.testR2.toFixed(3)} />*/}
+                  {/*<SummaryRow label="MAPE (test)" value={`${diagnostics.summary.testMape.toFixed(1)}%`} />*/}
                 </div>
               </section>
 

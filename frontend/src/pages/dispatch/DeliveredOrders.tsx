@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/sheet"
 import { ShipmentRegistrationForm } from "./ShipmentRegistrationForm"
 import { formatDate, getTodayLocalIsoDate } from "@/lib/format"
+import { FieldError } from "@/components/ui/field"
+import { cn } from "@/lib/utils"
+import { getValidationMessage, lettersNumbersSpaces20Schema } from "@/schemas/validationSchemas"
 
 const ITEMS_PER_PAGE = 10
 
@@ -25,6 +28,7 @@ export function DeliveredOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchError, setSearchError] = useState("")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [currentPageToday, setCurrentPageToday] = useState(1)
   const [currentPageOverdue, setCurrentPageOverdue] = useState(1)
@@ -108,8 +112,18 @@ export function DeliveredOrders() {
 
   function handleSelectCustomer(name: string) {
     setSearchQuery(name)
+    setSearchError(getValidationMessage(lettersNumbersSpaces20Schema, name))
     setIsSearchOpen(false)
     inputRef.current?.blur()
+  }
+
+  function handleSearchChange(value: string) {
+    setSearchError(getValidationMessage(lettersNumbersSpaces20Schema, value))
+    setSearchQuery(value)
+    setIsSearchOpen(true)
+    setCurrentPageToday(1)
+    setCurrentPageOverdue(1)
+    setCurrentPageOther(1)
   }
 
   const handleOpenSheet = (order: Order) => {
@@ -236,16 +250,11 @@ export function DeliveredOrders() {
 
           <Input
             ref={inputRef}
-            className="h-10 bg-white pr-9 pl-9"
+            aria-invalid={searchError ? "true" : "false"}
+            className={cn("h-10 bg-white pr-9 pl-9", searchError && "border-red-500")}
             placeholder="Buscar por nombre del negocio..."
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setIsSearchOpen(true)
-              setCurrentPageToday(1)
-              setCurrentPageOverdue(1)
-              setCurrentPageOther(1)
-            }}
+            onChange={(e) => handleSearchChange(e.target.value)}
             onFocus={() => {
               if (searchQuery.trim().length >= 1) setIsSearchOpen(true)
             }}
@@ -257,6 +266,7 @@ export function DeliveredOrders() {
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               onClick={() => {
                 setSearchQuery("")
+                setSearchError("")
                 setIsSearchOpen(false)
                 setCurrentPageToday(1)
                 setCurrentPageOverdue(1)
@@ -268,6 +278,7 @@ export function DeliveredOrders() {
             </button>
           )}
         </div>
+        {searchError && <FieldError className="mt-1" errors={[{ message: searchError }]} />}
         {isSearchOpen && customerSuggestions.length > 0 && (
           <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-[#643800]/15 bg-white shadow-lg">
             {customerSuggestions.map((customer) => (

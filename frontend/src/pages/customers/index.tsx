@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/app/SearchBar"
 import { useEffect, useState } from "react"
 import apiClients from "@/lib/apiClients"
 import type { Customer } from "@/types/domain"
+import { getValidationMessage, lettersSpaces20Schema } from "@/schemas/validationSchemas"
 
 function CustomerCard({ customer }: { customer: Customer }) {
   return (
@@ -48,10 +49,22 @@ function CustomerRow({ customer }: { customer: Customer }) {
 
 export function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchError, setSearchError] = useState("")
 
   useEffect(() => {
     apiClients.fetchCustomers().then(setCustomers).catch(() => {})
   }, [])
+
+  const filteredCustomers = customers.filter((customer) => {
+    if (!searchQuery.trim()) return true
+    return customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+  })
+
+  function handleSearchChange(value: string) {
+    setSearchError(getValidationMessage(lettersSpaces20Schema, value))
+    setSearchQuery(value)
+  }
 
   return (
     <PageShell
@@ -60,10 +73,15 @@ export function CustomersPage() {
       icon={User}
       title="Clientes"
     >
-      <SearchBar placeholder="Buscar cliente por nombre o RUT" />
+      <SearchBar
+        placeholder="Buscar cliente por nombre"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        error={searchError}
+      />
       <ResponsiveList
         columns={["Cliente", "RUT", "Dirección", "Acción"]}
-        items={customers}
+        items={filteredCustomers}
         keyExtractor={(customer) => customer.id}
         renderCard={(customer) => <CustomerCard customer={customer} />}
         renderRow={(customer) => <CustomerRow customer={customer} />}

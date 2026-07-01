@@ -103,7 +103,7 @@ export function DashboardPage() {
               },
               {
                 icon: Receipt,
-                label: "Generar factura",
+                label: "Registrar Pago",
                 to: "/pagos",
               },
             ].filter((item) => canAccessPath(user, item.to)).map((item) => (

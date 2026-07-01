@@ -3,7 +3,7 @@ import toast from "react-hot-toast"
 import { Receipt, ChevronDown, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { getCustomer, ensureCustomers, ensureProducts, getOrderTotal } from "@/lib/dataCache"
 import apiClients from "@/lib/apiClients"
@@ -13,6 +13,8 @@ import {
   getExtensionFromFileName,
   uploadToCloudinary,
 } from "@/lib/cloudinary"
+import { cn } from "@/lib/utils"
+import { digits10Schema, getValidationMessage } from "@/schemas/validationSchemas"
 
 interface InvoiceFormPageProps {
   isOpen: boolean
@@ -33,6 +35,7 @@ export function InvoiceFormPage({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchError, setSearchError] = useState("")
   const [isOpenCombo, setIsOpenCombo] = useState(false)
   const comboRef = useRef<HTMLDivElement>(null)
 
@@ -43,6 +46,7 @@ export function InvoiceFormPage({
     setPdfFile(null)
     setError("")
     setSearchQuery("")
+    setSearchError("")
     setIsOpenCombo(false)
   }
 
@@ -105,13 +109,22 @@ export function InvoiceFormPage({
   const handleSelectOrder = useCallback((order: Order) => {
     setSelectedOrderId(String(order.id))
     setSearchQuery("")
+    setSearchError("")
     setIsOpenCombo(false)
   }, [])
 
   const handleClearSelection = useCallback(() => {
     setSelectedOrderId("")
     setSearchQuery("")
+    setSearchError("")
   }, [])
+
+  function handleSearchChange(value: string) {
+    setSelectedOrderId("")
+    setSearchQuery(value)
+    setSearchError(getValidationMessage(digits10Schema, value))
+    setIsOpenCombo(true)
+  }
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -224,13 +237,11 @@ export function InvoiceFormPage({
                     type="text"
                     placeholder="Buscar por número de pedido..."
                     value={displayValue}
-                    onChange={(e) => {
-                      setSelectedOrderId("")
-                      setSearchQuery(e.target.value)
-                      setIsOpenCombo(true)
-                    }}
+                    maxLength={selectedOrder ? undefined : 10}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                     onFocus={() => setIsOpenCombo(true)}
-                    className="pr-8"
+                    aria-invalid={searchError && !selectedOrder ? "true" : "false"}
+                    className={cn("pr-8", searchError && !selectedOrder && "border-red-500")}
                   />
                   {selectedOrder && (
                     <button
@@ -245,6 +256,9 @@ export function InvoiceFormPage({
                     <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   )}
                 </div>
+                {searchError && !selectedOrder && (
+                  <FieldError className="mt-1" errors={[{ message: searchError }]} />
+                )}
                 {isOpenCombo && (
                   <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border bg-white shadow-md">
                     {filteredOrders.length === 0 ? (
@@ -310,7 +324,7 @@ export function InvoiceFormPage({
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting} className="flex-1">
               Cancelar
             </Button>
-            <Button type="submit" variant="VFBrown" disabled={isSubmitting || !selectedOrderId} className="flex-1">
+            <Button type="submit" variant="VFBrown" disabled={isSubmitting || !selectedOrderId || !!searchError} className="flex-1">
               {isSubmitting ? "Procesando..." : "Registrar pago"}
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { createRutSchema } from "rut-kit/zod"
+import { lettersSpaces50Schema } from "@/schemas/validationSchemas"
 
 const rut = createRutSchema({
   messages: {
@@ -11,10 +12,7 @@ const rut = createRutSchema({
 
 export const userSchema = z.object({
   rut,
-  username: z
-    .string()
-    .min(1, { message: "El usuario es requerido" })
-    .regex(/^\S+$/, { message: "El usuario no puede contener espacios" }),
+  username: lettersSpaces50Schema,
   password: z
     .string()
     .min(8, { message: "La contraseña debe tener al menos 8 caracteres" }),

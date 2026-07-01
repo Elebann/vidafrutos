@@ -12,6 +12,7 @@ import type { ApiProduct } from "@/lib/apiTypes"
 import toast from "react-hot-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { hasRole } from "@/lib/permissions"
+import { digits10Schema, getValidationMessage, lettersSpaces100Schema } from "@/schemas/validationSchemas"
 
 type PackagedEntry = {
   id: string
@@ -64,6 +65,10 @@ export function InventoryUpdatePage() {
 
   const selectedProduct = products.find((p) => String(p.id) === String(selectedProductId)) ?? products[0]
   const packagedSelectedProduct = products.find((p) => String(p.id) === String(packagedProductId)) ?? products[0]
+  const gramsError = getValidationMessage(digits10Schema, gramsValue)
+  const packagedQuantityError = getValidationMessage(digits10Schema, packagedQuantity)
+  const packagedMermaError = getValidationMessage(digits10Schema, packagedMermaGrams)
+  const descriptionError = getValidationMessage(lettersSpaces100Schema, description)
 
   const getRawTotalGrams = (product?: ApiProduct) => Number(product?.raw_stock?.total_grams ?? product?.raw_stock?.quantity_kilogram ?? 0) || 0
   const getAvailablePackagedStock = (product?: ApiProduct) => Number(product?.packaged_stock?.available_stock ?? 0) || 0
@@ -72,6 +77,11 @@ export function InventoryUpdatePage() {
     if (!packagedSelectedProduct) return
 
     const quantity = Number(packagedQuantity || "0")
+    if (packagedQuantityError) {
+      toast.error(packagedQuantityError, { position: "top-center" })
+      return
+    }
+
     if (!Number.isFinite(quantity) || quantity <= 0) {
       toast.error("Ingresa una cantidad válida para envasar.",{position: "top-center"})
       return
@@ -84,6 +94,11 @@ export function InventoryUpdatePage() {
     }
 
     const mermaGrams = packagedMermaEnabled ? Number(packagedMermaGrams || "0") : 0
+    if (packagedMermaEnabled && packagedMermaError) {
+      toast.error(packagedMermaError, { position: "top-center" })
+      return
+    }
+
     if (packagedMermaEnabled && (!Number.isFinite(mermaGrams) || mermaGrams <= 0)) {
       toast.error("Ingresa una cantidad de merma válida.",{position: "top-center"})
       return
@@ -277,6 +292,11 @@ export function InventoryUpdatePage() {
 
     if (!selectedProduct) return
 
+    if (gramsError || descriptionError) {
+      toast.error(gramsError || descriptionError, { position: "top-center" })
+      return
+    }
+
     const q = parseFloat(gramsValue || "0")
     if (isNaN(q) || q <= 0) return toast("Ingrese una cantidad válida.",{position: "top-center", icon:"⚠️"})
 
@@ -322,7 +342,7 @@ export function InventoryUpdatePage() {
             submitLabel="Registrar movimiento"
             title="Movimiento de materia prima"
             onSubmit={handleSubmitMovement}
-            submitDisabled={isSubmitting}
+            submitDisabled={isSubmitting || !!gramsError || !!descriptionError}
           >
             <FieldGroup>
               <Field>
@@ -376,15 +396,19 @@ export function InventoryUpdatePage() {
               <TextField
                 label="Cantidad gramos"
                 type="number"
+                maxLength={10}
                 value={gramsValue}
                 onChange={(v) => setGramsValue(v)}
+                error={gramsError}
               />
             </div>
             <TextField
               label="Descripcion"
               placeholder="Motivo del movimiento"
+              maxLength={100}
               value={description}
               onChange={(v) => setDescription(v)}
+              error={descriptionError}
             />
           </FormCard>
         )}
@@ -393,7 +417,7 @@ export function InventoryUpdatePage() {
           submitLabel="Guardar"
           title="Stock envasado"
           onSubmit={handleSavePackaged}
-          submitDisabled={isSavingPackaged}
+          submitDisabled={isSavingPackaged || !!packagedQuantityError || !!packagedMermaError}
         >
           <FieldGroup>
             <Field>
@@ -424,14 +448,17 @@ export function InventoryUpdatePage() {
           <TextField
             label="Cantidad envasada"
             type="number"
+            maxLength={10}
             value={packagedQuantity}
             onChange={(v) => setPackagedQuantity(v)}
+            error={packagedQuantityError}
           />
           <div className="flex sm:col-span-2">
             <Button
               type="button"
               variant="outline"
               onClick={handleAddPackagedEntry}
+              disabled={!!packagedQuantityError || !!packagedMermaError}
             >
               Agregar a la lista
             </Button>
