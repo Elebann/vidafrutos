@@ -9,8 +9,11 @@ import apiClients from "@/lib/apiClients"
 import { OrderCard, OrderRow } from "@/components/order-card.tsx"
 import { ensureProducts, ensureCustomers, ensurePackagedStock, getCustomer } from "@/lib/dataCache"
 import type { Order } from "@/types/domain"
+import { useAuth } from "@/hooks/use-auth"
+import { canAccessPath } from "@/lib/permissions"
 
 export function OrdersPage() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
@@ -69,11 +72,11 @@ export function OrdersPage() {
 
   return (
     <PageShell
-      action={{
+      action={canAccessPath(user, "/pedidos/nuevo") ? {
         icon: PackagePlus,
         label: "Nuevo pedido",
         to: "/pedidos/nuevo",
-      }}
+      } : undefined}
       description="Registro, validacion de stock y seguimiento de pedidos."
       icon={Package}
       title="Pedidos"

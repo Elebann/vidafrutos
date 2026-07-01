@@ -1,12 +1,14 @@
 import { useAuth } from "@/hooks/use-auth"
-import { Navigate } from "react-router-dom"
+import { canAccessPath, getDefaultPathForRole } from "@/lib/permissions"
+import { Navigate, useLocation } from "react-router-dom"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
+  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -20,7 +22,16 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />
   }
 
+  const defaultPath = getDefaultPathForRole(user)
+
+  if (location.pathname === "/" && defaultPath !== "/") {
+    return <Navigate to={defaultPath} replace />
+  }
+
+  if (!canAccessPath(user, location.pathname)) {
+    return <Navigate to={defaultPath} replace />
+  }
+
   return <>{children}</>
 }
-
 

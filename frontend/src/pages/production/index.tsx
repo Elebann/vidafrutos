@@ -9,6 +9,7 @@ import { ensureProducts, getProduct } from "@/lib/dataCache"
 import { downloadSuggestionsPdf } from "@/lib/pdf/suggestionsPdf"
 import type { Forecast, ForecastDiagnostics } from "@/types/domain"
 import { useAuth } from "@/hooks/use-auth"
+import { hasRole } from "@/lib/permissions"
 import {
   formatDateLong,
   formatDateTime,
@@ -38,7 +39,7 @@ export function ProductionPage() {
   const [lastTrainedIso, setLastTrainedIso] = useState<string | null>(null)
   const { user } = useAuth()
 
-  const isAdmin = user?.rol === 1
+  const isAdmin = hasRole(user, "Administrador")
 
   async function loadForecasts(silent = false) {
     if (!silent) setIsLoading(true)
@@ -161,15 +162,17 @@ export function ProductionPage() {
                 <FileDown className="size-3.5" />
                 Descargar PDF
               </button>
-              <button
-                type="button"
-                onClick={handleRetrain}
-                disabled={isTraining}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#643800]/30 bg-white px-3 text-xs font-medium text-[#643800] transition hover:bg-[#fff8f3] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isTraining ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCcw className="size-3.5" />}
-                Reentrenar
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleRetrain}
+                  disabled={isTraining}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#643800]/30 bg-white px-3 text-xs font-medium text-[#643800] transition hover:bg-[#fff8f3] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isTraining ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCcw className="size-3.5" />}
+                  Reentrenar
+                </button>
+              )}
               {isAdmin && (
                 <button
                   type="button"

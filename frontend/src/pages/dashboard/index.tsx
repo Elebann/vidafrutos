@@ -18,8 +18,11 @@ import apiClients from "@/lib/apiClients"
 import { getProduct, ensureProducts, ensurePackagedStock, ensureCustomers } from "@/lib/dataCache"
 import type { Invoice, Order, PackagedStock } from "@/types/domain"
 import { OrderCard, OrderRow } from "@/components/order-card"
+import { useAuth } from "@/hooks/use-auth"
+import { canAccessPath } from "@/lib/permissions"
 
 export function DashboardPage() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [critical, setCritical] = useState<PackagedStock[]>([])
@@ -103,7 +106,7 @@ export function DashboardPage() {
                 label: "Generar factura",
                 to: "/pagos",
               },
-            ].map((item) => (
+            ].filter((item) => canAccessPath(user, item.to)).map((item) => (
               <Button
                 className="h-11 justify-start"
                 key={item.label}

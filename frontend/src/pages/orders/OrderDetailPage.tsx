@@ -19,6 +19,7 @@ import { ProductLine } from "@/components/app/ProductLine"
 import { formatDate } from "@/lib/format"
 import { useAuth } from "@/hooks/use-auth.ts"
 import { OrderHistoryList } from "@/components/app/OrderHistoryList"
+import { canAccessPath, hasRole } from "@/lib/permissions"
 
 export function OrderDetailPage() {
   const { orderId } = useParams()
@@ -29,7 +30,7 @@ export function OrderDetailPage() {
   const [observation, setObservation] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { user } = useAuth()
-  const isAdmin = user?.rol === 1
+  const isAdmin = hasRole(user, "Administrador")
 
   const loadOrder = useCallback(() => {
     if (!orderId) return
@@ -86,13 +87,14 @@ export function OrderDetailPage() {
         return undefined
     }
   })()
+  const allowedAction = action?.to && canAccessPath(user, action.to) ? action : undefined
 
   return (
     <PageShell
       description={`${customer?.name} - solicitado para ${formatDate(order.date)}`}
       icon={ClipboardCheck}
       title={`Pedido #${order.id}`}
-      action={action}
+      action={allowedAction}
     >
       <div className="grid gap-4">
         <SectionCard title="Productos solicitados">

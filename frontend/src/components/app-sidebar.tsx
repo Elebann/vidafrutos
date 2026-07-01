@@ -28,6 +28,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useInventoryAlerts } from "@/contexts/inventory-alert-context"
+import { useAuth } from "@/hooks/use-auth"
+import { canAccessPath } from "@/lib/permissions"
 
 const data = {
   teams: [
@@ -148,7 +150,14 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { lowStockProducts } = useInventoryAlerts()
+  const { user } = useAuth()
   const alertUrls = lowStockProducts.length > 0 ? ["/inventario"] : []
+  const navMain = data.navMain
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canAccessPath(user, item.url)),
+    }))
+    .filter((group) => group.items.length > 0)
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
@@ -168,7 +177,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain groups={data.navMain} alertUrls={alertUrls} />
+        <NavMain groups={navMain} alertUrls={alertUrls} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

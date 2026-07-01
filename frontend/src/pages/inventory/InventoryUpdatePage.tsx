@@ -10,6 +10,8 @@ import apiClients from "@/lib/apiClients"
 import { refreshPackagedStock } from "@/lib/dataCache"
 import type { ApiProduct } from "@/lib/apiTypes"
 import toast from "react-hot-toast"
+import { useAuth } from "@/hooks/use-auth"
+import { hasRole } from "@/lib/permissions"
 
 type PackagedEntry = {
   id: string
@@ -31,6 +33,8 @@ const MOVEMENT_OPTIONS: readonly MovementOption[] = [
 ]
 
 export function InventoryUpdatePage() {
+  const { user } = useAuth()
+  const canManageRawStock = hasRole(user, "Administrador")
   const [products, setProducts] = useState<ApiProduct[]>([])
   const [selectedProductId, setSelectedProductId] = useState<string>("")
   const [movementType, setMovementType] = useState<MovementOption>("ENTRADA")
@@ -313,75 +317,77 @@ export function InventoryUpdatePage() {
       }}
     >
       <div className="grid gap-4 lg:grid-cols-2">
-        <FormCard
-          submitLabel="Registrar movimiento"
-          title="Movimiento de materia prima"
-          onSubmit={handleSubmitMovement}
-          submitDisabled={isSubmitting}
-        >
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Producto</FieldLabel>
-              <Select
-                value={String(selectedProductId || "")}
-                onValueChange={(v) => setSelectedProductId(String(v))}
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {selectedProduct?.name ?? "Seleccionar"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {products
-                      .filter((p) => p.active)
-                      .map((product) => (
-                        <SelectItem key={product.id} value={String(product.id)}>
-                          {product.name}
+        {canManageRawStock && (
+          <FormCard
+            submitLabel="Registrar movimiento"
+            title="Movimiento de materia prima"
+            onSubmit={handleSubmitMovement}
+            submitDisabled={isSubmitting}
+          >
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Producto</FieldLabel>
+                <Select
+                  value={String(selectedProductId || "")}
+                  onValueChange={(v) => setSelectedProductId(String(v))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {selectedProduct?.name ?? "Seleccionar"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {products
+                        .filter((p) => p.active)
+                        .map((product) => (
+                          <SelectItem key={product.id} value={String(product.id)}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldGroup>
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Tipo</FieldLabel>
+                <Select
+                  value={movementType}
+                  onValueChange={(v) => setMovementType(v as MovementOption)}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{movementType}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {MOVEMENT_OPTIONS.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
                         </SelectItem>
                       ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-          </FieldGroup>
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Tipo</FieldLabel>
-              <Select
-                value={movementType}
-                onValueChange={(v) => setMovementType(v as MovementOption)}
-              >
-                <SelectTrigger>
-                  <SelectValue>{movementType}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {MOVEMENT_OPTIONS.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-          </FieldGroup>
-          <div>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldGroup>
+            <div>
+              <TextField
+                label="Cantidad gramos"
+                type="number"
+                value={gramsValue}
+                onChange={(v) => setGramsValue(v)}
+              />
+            </div>
             <TextField
-              label="Cantidad gramos"
-              type="number"
-              value={gramsValue}
-              onChange={(v) => setGramsValue(v)}
+              label="Descripcion"
+              placeholder="Motivo del movimiento"
+              value={description}
+              onChange={(v) => setDescription(v)}
             />
-          </div>
-          <TextField
-            label="Descripcion"
-            placeholder="Motivo del movimiento"
-            value={description}
-            onChange={(v) => setDescription(v)}
-          />
-        </FormCard>
+          </FormCard>
+        )}
 
         <FormCard
           submitLabel="Guardar"
@@ -421,29 +427,6 @@ export function InventoryUpdatePage() {
             value={packagedQuantity}
             onChange={(v) => setPackagedQuantity(v)}
           />
-          {/*<FieldGroup>*/}
-          {/*  <Field>*/}
-          {/*    <FieldLabel>Merma</FieldLabel>*/}
-          {/*    <div className="flex items-center gap-2">*/}
-          {/*      <Checkbox*/}
-          {/*        checked={packagedMermaEnabled}*/}
-          {/*        onCheckedChange={(checked) =>*/}
-          {/*          setPackagedMermaEnabled(Boolean(checked))*/}
-          {/*        }*/}
-          {/*      />*/}
-          {/*      <span className="text-sm">Agregar merma</span>*/}
-          {/*    </div>*/}
-          {/*  </Field>*/}
-          {/*</FieldGroup>*/}
-          {/*{packagedMermaEnabled && (*/}
-          {/*  <TextField*/}
-          {/*    label="Cantidad de merma (gr)"*/}
-          {/*    type="number"*/}
-          {/*    value={packagedMermaGrams}*/}
-          {/*    onChange={(v) => setPackagedMermaGrams(v)}*/}
-          {/*  />*/}
-          {/*)}*/}
-          {/*<TextField label="Comentario" placeholder="Detalle opcional" value={packagedComment} onChange={(v) => setPackagedComment(v)} />*/}
           <div className="flex sm:col-span-2">
             <Button
               type="button"
